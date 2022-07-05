@@ -1,0 +1,9 @@
+google-cloud-bigquery
+pandas
+db-dtypes
+jinja2
+slack_sdk
+xhtml2pdf
+black
+isort
+flake8
