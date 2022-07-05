@@ -8,7 +8,7 @@ Create a virtual env using venv and install the requirements.txt.
 ```
 python -m venv venv
 source venv/bin/activate
-pip install -f requirements.txt
+pip install -r requirements.txt
 ```
 
 To verify formatting:
