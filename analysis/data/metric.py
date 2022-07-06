@@ -53,8 +53,8 @@ class MetricLookupManager:
                 `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1` m,
                 `mozdata.static.country_codes_v1` c
             WHERE
-                submission_date >= @start_date
-                AND submission_date <= @end_date
+                submission_date = @start_date
+                OR submission_date = @end_date
                 AND m.country = c.code
             GROUP BY
                 @dimension,
@@ -71,8 +71,8 @@ class MetricLookupManager:
             FROM
                 `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1`
             WHERE
-                submission_date >= @start_date
-                AND submission_date <= @end_date
+                submission_date = @start_date
+                OR submission_date = @end_date
             GROUP BY
                 submission_date
             ORDER BY

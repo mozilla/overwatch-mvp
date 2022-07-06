@@ -24,7 +24,11 @@ class Geolocation:
     def run_evaluation(self) -> dict:
         evaluations = {}
         for processing_dim in self.dimensions_to_process:
-            df = self._get_metric_values_by_column(processing_dim)
+            df = (
+                self._get_metric_values_by_column(processing_dim)
+                .groupby(processing_dim)
+                .filter(lambda x: len(x) == 2)
+            )
             print(f"Processing dimension: {processing_dim}")
             pct_change = (
                 df.set_index(["submission_date", processing_dim])[
