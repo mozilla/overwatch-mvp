@@ -27,8 +27,10 @@ class Geolocation:
             df = self._get_metric_values_by_column(processing_dim)
             print(f"Processing dimension: {processing_dim}")
             pct_change = (
-                df.set_index(["submission_date", processing_dim])
-                .new_profiles.unstack([processing_dim])
+                df.set_index(["submission_date", processing_dim])[
+                    self.profile.metric_name
+                ]
+                .unstack([processing_dim])
                 .pct_change()
                 .dropna()
             )

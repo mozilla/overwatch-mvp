@@ -10,7 +10,7 @@ class Detector:
     def apply_profile(
         self, profile: AnalysisProfile, df: DataFrame, date_of_interest: datetime
     ) -> Detection:
-        filtered = df.set_index(["submission_date", "app_name", "canonical_app_name"])
+        filtered = df.set_index(profile.index_fields)
         print(filtered)
 
         pct_change = filtered.pct_change()

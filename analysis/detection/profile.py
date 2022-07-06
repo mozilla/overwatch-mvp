@@ -22,7 +22,9 @@ class AnalysisProfile:
         metric_name: str,
         threshold_percent: float,
         historical_days_for_compare: int,
+        index_fields: list,
     ):
         self.metric_name = metric_name
         self.threshold_percent = threshold_percent
         self.historical_days_for_compare = historical_days_for_compare
+        self.index_fields = index_fields

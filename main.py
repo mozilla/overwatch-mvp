@@ -1,29 +1,22 @@
-from datetime import datetime, timedelta
-
-from pandas import DataFrame
+from datetime import datetime
 
 from analysis.data.metric import MetricLookupManager
 from analysis.detection.detector import Detector
 from analysis.detection.explorer.geolocation import Geolocation
-from analysis.detection.explorer.single_dimension import SingleDimensionEvaluator
 from analysis.detection.profile import AnalysisProfile, Detection
 from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import Generator
 
 
 def analyze_metric(profile: AnalysisProfile, date_of_interest: datetime) -> Detection:
-    # TODO GLE Current implementation of AnalysisProfile contains the historical_days_for_compare
-    #  value needed for the data retrieval, not sure if there is any way to get around having to
-    #  pull the AnalysisProfile before getting the data.
     df = MetricLookupManager().get_data_for_metric(
-        metric_name=name,
+        metric_name=profile.metric_name,
         date_of_interest=date_of_interest,
         historical_days_for_compare=profile.historical_days_for_compare,
     )
     return Detector().apply_profile(profile, df, date_of_interest)
 
 
-# TODO GLE Need to return EvaluationResult
 def explore_detection(profile: AnalysisProfile, date_of_interest: datetime) -> dict:
     evaluation_result = Geolocation(
         profile=profile, date_of_interest=date_of_interest
@@ -32,10 +25,10 @@ def explore_detection(profile: AnalysisProfile, date_of_interest: datetime) -> d
 
 
 def issue_report(trigger: Detection, evaluation: dict):
-    report_generator = Generator(working_dir=".")
-    pdfreport_filename = report_generator.build_pdf_report(
-        analysis_details=trigger, evaluation=evaluation
+    report_generator = Generator(
+        working_dir=".", analysis_details=trigger, evaluation=evaluation
     )
+    pdfreport_filename = report_generator.build_pdf_report()
     notifier = SlackNotifier(
         output_pdf=pdfreport_filename, metric_name=trigger.metric_name
     )
@@ -43,20 +36,36 @@ def issue_report(trigger: Detection, evaluation: dict):
 
 
 if __name__ == "__main__":
-    name = "new_profiles"
-    date_of_interest = "2022-04-09"
-    date_of_interest = datetime.strptime(date_of_interest, "%Y-%m-%d")
-
     # TODO GLE This will be retrieved from somewhere
-    # This format of profile breaks the plan of having a re-usable configuration
-    profile = AnalysisProfile(
-        name,
+    #  This format of profile breaks the plan of having a re-usable configuration
+    # TODO GLE Current implementation of AnalysisProfile contains the historical_days_for_compare
+    #  value needed for the data retrieval, not sure if there is any way to get around having to
+    #  pull the AnalysisProfile before getting the data.
+
+    # Scenario 1
+    new_profiles_date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    new_profiles_ap = AnalysisProfile(
+        metric_name="new_profiles",
         threshold_percent=-0.005,
         historical_days_for_compare=1,
+        index_fields=["submission_date", "app_name", "canonical_app_name"],
     )
-    detection = analyze_metric(profile=profile, date_of_interest=date_of_interest)
 
-    # detection = Detection(metric_name="new_profiles", date_of_interest=date_of_interest,
-    # baseline_value=624450, current_value=619355, threshold_percent=-0.005)
-    evaluation = explore_detection(profile=profile, date_of_interest=date_of_interest)
-    issue_report(trigger=detection, evaluation=evaluation)
+    # Scenario #2
+    mau_date_of_interest = datetime.strptime("2021-11-30", "%Y-%m-%d")
+    mau_ap = AnalysisProfile(
+        metric_name="mau",
+        threshold_percent=-0.005,
+        historical_days_for_compare=30,
+        index_fields=["submission_date"],
+    )
+
+    analysis_profiles = [
+        (new_profiles_ap, new_profiles_date_of_interest),
+        (mau_ap, mau_date_of_interest),
+    ]
+
+    for (profile, date) in analysis_profiles:
+        detection = analyze_metric(profile=profile, date_of_interest=date)
+        evaluation = explore_detection(profile=profile, date_of_interest=date)
+        issue_report(trigger=detection, evaluation=evaluation)

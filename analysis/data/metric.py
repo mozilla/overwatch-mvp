@@ -43,9 +43,46 @@ class MetricLookupManager:
                     canonical_app_name
                 ) AS t1
         """
+
+        self.mau_by_geolocation = """
+            SELECT
+                @dimension,
+                submission_date,
+                SUM(mau) AS mau
+            FROM
+                `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1` m,
+                `mozdata.static.country_codes_v1` c
+            WHERE
+                submission_date >= @start_date
+                AND submission_date <= @end_date
+                AND m.country = c.code
+            GROUP BY
+                @dimension,
+                submission_date
+            ORDER BY
+                @dimension,
+                submission_date
+        """
+
+        self.mau = """
+            SELECT
+                submission_date,
+                SUM(mau) AS mau
+            FROM
+                `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1`
+            WHERE
+                submission_date >= @start_date
+                AND submission_date <= @end_date
+            GROUP BY
+                submission_date
+            ORDER BY
+                submission_date
+        """
         self.query_cache = {
             "new_profiles": self.new_profiles,
             "new_profiles_by_geolocation": self.new_profiles_by_geolocation,
+            "mau": self.mau,
+            "mau_by_geolocation": self.mau_by_geolocation,
         }
 
     def run_query(
@@ -80,7 +117,6 @@ class MetricLookupManager:
         df["submission_date"] = pd.to_datetime(df["submission_date"])
         return df
 
-    # TODO GLE this is only 1 metric.
     def get_data_for_metric(
         self,
         metric_name: str,
