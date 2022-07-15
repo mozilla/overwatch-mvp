@@ -18,30 +18,31 @@ class MetricLookupManager:
 
         self.new_profiles_by_geolocation = """
             SELECT
-            *,
-            AVG(t1.new_profiles) OVER (PARTITION BY app_name ORDER BY @dimension, submission_date
-            ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS new_profiles_7day_ma
+                *,
+                AVG(t1.new_profiles) OVER (PARTITION BY @dimension ORDER BY submission_date
+                ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS new_profiles_7day_ma
             FROM (
                 SELECT
-                    cohort_date AS submission_date,
+                    submission_date,
                     @dimension,
-                    "fennec_fenix" AS app_name,
-                    "Firefox for Android (Fennec + Fenix)" AS canonical_app_name,
+                    app_name,
                     SUM(new_profiles) AS new_profiles
                 FROM
-                    `mozdata.telemetry.firefox_nondesktop_day_2_7_activation` a,
+                    `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a,
                     `mozdata.static.country_codes_v1` c
                 WHERE
-                    cohort_date >= @start_date
-                    AND cohort_date <= @end_date
-                    AND product IN ("Fenix","Fennec")
+                    submission_date >= @start_date
+                    AND submission_date <= @end_date
+                    AND app_name="Fenix"
                     AND a.country = c.code
                 GROUP BY
                     submission_date,
                     @dimension,
-                    app_name,
-                    canonical_app_name
-                ) AS t1
+                    app_name
+            ) AS t1
+            ORDER BY
+            @dimension,
+            submission_date
         """
 
         self.mau_by_geolocation = """
