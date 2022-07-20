@@ -1,2 +1,6 @@
-/report.html
-/report.pdf
+/*.html
+/*.pdf
+/venv
+/.idea
+__pycache__/
+*.py[cod]
