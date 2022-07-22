@@ -9,6 +9,7 @@ class MetricLookupManager:
     SUBMISSION_DATE_FORMAT = "%Y-%m-%d"
 
     def __init__(self):
+        # PoC ver 1
         self.new_profiles = """
             SELECT * from `automated-analysis-dev.sample_data.fenix_new_profiles`
             WHERE submission_date >= @start_date
@@ -44,6 +45,40 @@ class MetricLookupManager:
             @dimension,
             submission_date
         """
+        # PoC ver 2
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.new_profiles_no_dimensions_by_date = """
+            SELECT
+                SUM(new_profiles) AS metric_value
+            FROM
+                `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+            WHERE
+                submission_date = @date_of_interest
+            AND app_name="Fenix"
+            GROUP BY
+                submission_date,
+                app_name
+        """
+        # PoC ver 2
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.new_profiles_by_dimensions_by_date = """
+             SELECT
+                @dimension as dimension_value,
+                SUM(new_profiles) AS metric_value,
+            FROM
+                `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+            WHERE
+                submission_date = @date_of_interest
+                AND app_name="Fenix"
+            GROUP BY
+                submission_date,
+                app_name,
+                @dimension
+            ORDER BY
+                @dimension
+                """
 
         self.mau_by_geolocation = """
             SELECT
@@ -82,6 +117,8 @@ class MetricLookupManager:
         self.query_cache = {
             "new_profiles": self.new_profiles,
             "new_profiles_by_geolocation": self.new_profiles_by_geolocation,
+            "new_profiles_no_dimensions_by_date": self.new_profiles_no_dimensions_by_date,
+            "new_profiles_by_dimensions_by_date": self.new_profiles_by_dimensions_by_date,
             "mau": self.mau,
             "mau_by_geolocation": self.mau_by_geolocation,
         }
@@ -90,7 +127,7 @@ class MetricLookupManager:
         self,
         query: str,
         date_of_interest: datetime,
-        historical_days_for_compare: int,
+        historical_days_for_compare: int = 0,
         dimension: str = None,
     ) -> DataFrame:
         start_date = date_of_interest - timedelta(historical_days_for_compare)
@@ -106,6 +143,11 @@ class MetricLookupManager:
                     "STRING",
                     date_of_interest.strftime(self.SUBMISSION_DATE_FORMAT),
                 ),
+                bigquery.ScalarQueryParameter(
+                    "date_of_interest",
+                    "STRING",
+                    date_of_interest.strftime(self.SUBMISSION_DATE_FORMAT),
+                ),
             ]
         )
 
@@ -115,7 +157,9 @@ class MetricLookupManager:
         rows = bq_client.query(query, job_config=job_config)
         # The submission_date is dbdate, convert to datetime
         df = rows.to_dataframe()
-        df["submission_date"] = pd.to_datetime(df["submission_date"])
+        # run_version_1_poc includes the submission date column, run_version_2_poc does not.
+        if "submission_date" in df.columns:
+            df["submission_date"] = pd.to_datetime(df["submission_date"])
         return df
 
     def get_data_for_metric(
@@ -131,7 +175,7 @@ class MetricLookupManager:
             historical_days_for_compare=historical_days_for_compare,
         )
 
-    def get_data_for_metric_with_column(
+    def get_data_for_metric_by_geolocation(
         self,
         metric_name: str,
         column_name: str,
@@ -145,3 +189,28 @@ class MetricLookupManager:
             historical_days_for_compare=historical_days_for_compare,
             dimension=column_name,
         )
+
+    def get_data_for_metric_with_date(
+        self, metric_name: str, date_of_interest: datetime
+    ) -> DataFrame:
+        query = self.query_cache.get(metric_name + "_no_dimensions_by_date")
+        return self.run_query(
+            query=query,
+            date_of_interest=date_of_interest,
+        )
+
+    def get_data_for_metric_by_dimensions_with_date(
+        self, metric_name: str, date_of_interest: datetime, dimensions: list
+    ) -> dict:
+        query = self.query_cache.get(metric_name + "_by_dimensions_by_date")
+        # Need to query each dimension individually and get the baseline and current.
+        # return a dict of DataFrames keyed by dimension.
+        result_df = DataFrame()
+        for dimension in dimensions:
+            print(f"processing dimension: {dimension}")
+            df = self.run_query(
+                query=query, date_of_interest=date_of_interest, dimension=dimension
+            )
+            df["dimension"] = dimension
+            result_df = pd.concat([result_df, df])
+        return result_df

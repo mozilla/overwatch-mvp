@@ -1,4 +1,5 @@
 google-cloud-bigquery
+numpy==1.21.4
 pandas
 db-dtypes
 jinja2
@@ -7,3 +8,4 @@ xhtml2pdf
 black
 isort
 flake8
+pytest

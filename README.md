@@ -15,3 +15,6 @@ To verify formatting:
 `make lint`
  
 To apply formatting changes use `make lint_apply`
+
+Run unit tests:
+`make test`

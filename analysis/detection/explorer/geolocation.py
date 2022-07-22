@@ -13,7 +13,7 @@ class Geolocation:
 
     def _get_metric_values_by_column(self, dimension_to_process):
         # This DF is sorted by country the date so the pct function should still work
-        df = MetricLookupManager().get_data_for_metric_with_column(
+        df = MetricLookupManager().get_data_for_metric_by_geolocation(
             metric_name=self.profile.metric_name,
             column_name=dimension_to_process,
             date_of_interest=self.date_of_interest,
@@ -25,11 +25,16 @@ class Geolocation:
         evaluations = {}
         for processing_dim in self.dimensions_to_process:
             df = (
-                self._get_metric_values_by_column(processing_dim)
-                .groupby(processing_dim)
+                self._get_metric_values_by_column(processing_dim).groupby(
+                    processing_dim
+                )
+                # 2 is used since only current and 1 day in history is used
                 .filter(lambda x: len(x) == 2)
             )
             print(f"Processing dimension: {processing_dim}")
+            # Up to here we also have a calc average which we are not using.
+            # [self.profile.metric_name] after the set_index restricts the unstack to only the
+            # column we're interested in.
             pct_change = (
                 df.set_index(["submission_date", processing_dim])[
                     self.profile.metric_name
