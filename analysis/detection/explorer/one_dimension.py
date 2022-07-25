@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -34,8 +35,11 @@ class OneDimensionEvaluator:
                 )
             )
             baseline_by_dimension["timeframe"] = "baseline"
-        # the BigQuery package uses type 'Int64' as the type.  For dropna() to work the type needs to be 'int64' (lowercase)
-        df = pd.concat([current_by_dimension, baseline_by_dimension]).astype({'metric_value': 'int64'})
+        # the BigQuery package uses type 'Int64' as the type.  For dropna() to work the type needs
+        # to be 'int64' (lowercase)
+        df = pd.concat([current_by_dimension, baseline_by_dimension]).astype(
+            {"metric_value": "int64"}
+        )
         return df
 
     @staticmethod
@@ -62,9 +66,12 @@ class OneDimensionEvaluator:
         )
         # calc percent change and drop unneeded index, replace and drop np.inf values.
         pct_change_df = (
-            prepared_df.pct_change().dropna(how='all').reset_index().drop(columns="timeframe")
-                .replace([np.inf, -np.inf], np.nan)
-                .dropna(axis='columns')
+            prepared_df.pct_change()
+            .dropna(how="all")
+            .reset_index()
+            .drop(columns="timeframe")
+            .replace([np.inf, -np.inf], np.nan)
+            .dropna(axis="columns")
         )
         output = pct_change_df.T
         output.columns = ["percent_change"]
