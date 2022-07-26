@@ -17,11 +17,11 @@ def test_percent_change(dimension_df):
     )
 
     rows = [
-        ["mx", 26.6667],
-        ["ca", 14.2857],
-        ["us", 1.25],
+        ["mx", 26.6667, "country"],
+        ["ca", 14.2857, "country"],
+        ["us", 1.25, "country"],
     ]
-    cols = ["dimension_value", "percent_change"]
+    cols = ["dimension_value", "percent_change", "dimension"]
     expected_df = DataFrame(rows, columns=cols)
 
     percent_change = OneDimensionEvaluator(

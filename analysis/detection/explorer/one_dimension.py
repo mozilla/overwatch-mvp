@@ -14,27 +14,39 @@ class OneDimensionEvaluator:
         self.profile = profile
         self.date_of_interest = date_of_interest
 
-    def _get_current_and_baseline_values_for_dimensions(self):
+    def _get_current_and_baseline_values_for_dimension(
+        self, dimension: str
+    ) -> DataFrame:
+        """
+        Retrieves the current and baseline values for the metric specified in the AnalysisProfile.
+        Although all dimensions are included in the AnalysisProfile, only the dimension specified as
+         the parameter is calculated.
+        :param dimension:  Dimension to calculate data on.
+        :return: Dataframe containing the current and baseline values.  Dataframe columns are
+            'dimension_value' column contains the dimension values (e.g. 'ca').
+            'metric_value' column contains the measure.
+            'dimension' column contains one value, the name of the dimension (e.g. 'country').
+            'timeframe' column values are either "current" or "baseline".
+        """
         # For the one dimension evaluator if we are given a list we process each one separately.
-        # TODO GLE will need to handle more than 1 dimension
-        for dimension in self.profile.dimensions:
-            current_by_dimension = (
-                MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
-                    metric_name=self.profile.metric_name,
-                    date_of_interest=self.date_of_interest,
-                    dimensions=[dimension],
-                )
+        current_by_dimension = (
+            MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
+                metric_name=self.profile.metric_name,
+                date_of_interest=self.date_of_interest,
+                dimensions=[dimension],
             )
-            current_by_dimension["timeframe"] = "current"
-            baseline_by_dimension = (
-                MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
-                    metric_name=self.profile.metric_name,
-                    date_of_interest=self.date_of_interest
-                    - timedelta(self.profile.historical_days_for_compare),
-                    dimensions=[dimension],
-                )
+        )
+        current_by_dimension["timeframe"] = "current"
+        baseline_by_dimension = (
+            MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
+                metric_name=self.profile.metric_name,
+                date_of_interest=self.date_of_interest
+                - timedelta(self.profile.historical_days_for_compare),
+                dimensions=[dimension],
             )
-            baseline_by_dimension["timeframe"] = "baseline"
+        )
+        baseline_by_dimension["timeframe"] = "baseline"
+
         # the BigQuery package uses type 'Int64' as the type.  For dropna() to work the type needs
         # to be 'int64' (lowercase)
         df = pd.concat([current_by_dimension, baseline_by_dimension]).astype(
@@ -83,10 +95,27 @@ class OneDimensionEvaluator:
         output = output.sort_values(
             by="percent_change", key=abs, ascending=False, ignore_index=True
         ).round(4)
+
+        # Carry the dimension label through
+        output["dimension"] = df["dimension"].values[0]
         return output
 
     def evaluate(self) -> dict:
-        values = self._get_current_and_baseline_values_for_dimensions()
-        percent_change = self._calculate_percent_change(df=values)
+        """
+        Runs an evaluation of the specified dimensions individually.
+        :return: a dict containing one dataframe for all evaluated metrics.  The data frame is
+         sorted by percent change results, not dimension resulting in mixed order of dimensions
+          (if more than 1 dimension has been calculated).
+        """
+        changes = []
+        for dimension in self.profile.dimensions:
+            values = self._get_current_and_baseline_values_for_dimension(
+                dimension=dimension
+            )
+            changes.append(self._calculate_percent_change(df=values))
 
-        return {"dimension_percent_change": percent_change}
+        result_df = pd.concat(changes).sort_values(
+            by="percent_change", key=abs, ascending=False, ignore_index=True
+        )
+
+        return {"dimension_percent_change": result_df}

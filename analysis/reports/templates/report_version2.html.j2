@@ -22,9 +22,9 @@
     {% endfor %}
 
         
-    <h2>Dimension: {{evaluation.profile.dimensions[0]}}</h2>
+    <h2>Dimensions</h2>
     {% for key,row in evaluation.dimension_percent_change.iterrows() %}
-      <p><b>Percent change: {{ row['dimension_value'] }}:</b> {{ row['percent_change'] }}%</p>
+      <p><b>Dimension:</b> {{ row['dimension'] }} <b>{{ row['dimension_value'] }}:</b> {{ row['percent_change'] }}%</p>
     {% endfor %}
     
 

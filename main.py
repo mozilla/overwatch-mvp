@@ -129,10 +129,10 @@ def run_version_2_poc():
         metric_name="new_profiles",
         historical_days_for_compare=7,
         dimensions=[
-            # "country",
-            # "segment",
+            "country",
+            # "segment",  # not a good example
             "channel",
-            # "os",
+            # "os",  # not a good example
             # "os_version",
             # "attribution_medium",
             # "attribution_source",
