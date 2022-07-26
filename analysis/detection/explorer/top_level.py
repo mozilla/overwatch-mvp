@@ -12,7 +12,7 @@ class TopLevelEvaluator:
         self.profile = profile
         self.date_of_interest = date_of_interest
 
-    def _get_current_and_baseline_values(self):
+    def _get_current_and_baseline_values(self) -> DataFrame:
         current_df = MetricLookupManager().get_data_for_metric_with_date(
             metric_name=self.profile.metric_name,
             date_of_interest=self.date_of_interest,

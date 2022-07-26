@@ -23,8 +23,13 @@
 
         
     <h2>Dimensions</h2>
-    {% for key,row in evaluation.dimension_percent_change.iterrows() %}
-      <p><b>Dimension:</b> {{ row['dimension'] }} <b>{{ row['dimension_value'] }}:</b> {{ row['percent_change'] }}%</p>
+    Note:  sum(Contribution to Change) by dimension should equal 100% 
+    {% for key,row in evaluation.dimension_calc.iterrows() %}
+      <p>
+      <b>Dimension:</b> {{ row['dimension'] }} {{ row['dimension_value'] }}: 
+      <b>Contribution to Change:</b> {{ row['contrib_to_overall_change'] }}% 
+      <b>Percent Change:</b> {{ row['percent_change'] }}% 
+      </p>
     {% endfor %}
     
 
