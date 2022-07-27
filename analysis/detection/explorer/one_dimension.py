@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from functools import reduce
 
 import numpy as np
 import pandas as pd
@@ -166,6 +167,85 @@ class OneDimensionEvaluator:
 
         print(
             f"sum of contrib_to_overall_change: {result['contrib_to_overall_change'].sum()}"
+            f" (should = 100)"
+        )
+        return result
+
+    @staticmethod
+    def _change_to_contribution(row) -> float:
+        # Sum of all should = 0
+        parent_current_value = row["parent_current"]
+        parent_baseline_value = row["parent_baseline"]
+        current_value = row["current"]
+        baseline_value = row["baseline"]
+
+        change_to_contrib = (
+            (current_value / parent_current_value)
+            - (baseline_value / parent_baseline_value)
+        ) * 100
+        return change_to_contrib
+
+    def _calculate_change_to_contribution(
+        self, current_df: DataFrame, parent_df
+    ) -> DataFrame:
+        """
+        The change to contribution tracks how much the dimension value changed wrt the overall.
+        If the value is negative then the dimension value is contributing less than it was.
+        If it is positive then the dimension value is contributing more than it was.
+        If the the overall percent change is negative, and the change in contribution value is
+        positive that means other dimensions dropped more substantially, such that the positive
+        dimension now makes up a higher percentage of teh overall value (the opposite is also true).
+
+        calculation =100 * (
+            (current_value/parent_current_value) - (baseline_value/parent_baseline_value)
+            )
+
+        :param current_df:
+            current_df structure ['dimension_value', 'metric_value', 'dimension', 'timeframe']
+        :param parent_df:
+        :return: df
+            Columns are ['dimension_value', 'change_to_contrib', 'dimension']
+            'dimension_value' column contains the dimension values (e.g. 'ca') provided in input.
+            'change_to_contrib' contains the change in contribution of that dimension value to the
+                overall total
+            'dimension' columns contains the dimension name (e.g. country)
+        """
+        parent_df_as_cols = parent_df.astype({"metric_value": "int64"}).pivot_table(
+            columns=["timeframe"], values="metric_value"
+        )
+        current_df_as_cols = current_df.set_index(
+            (["dimension", "dimension_value", "timeframe"])
+        )["metric_value"].unstack("timeframe")
+
+        # Add the parent values to each row of the current_df
+        current_df_as_cols["parent_baseline"] = parent_df_as_cols["baseline"][0]
+        current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
+
+        # Calculate the contribution to overall change
+        contrib_to_overall_change = current_df_as_cols.apply(
+            self._change_to_contribution, axis=1
+        ).rename("change_to_contrib")
+
+        # Add the calculation to the current_df and pull dimension value out of index
+        result = pd.merge(
+            current_df_as_cols, contrib_to_overall_change, on="dimension_value"
+        ).reset_index()
+        # Carry the dimension label through
+        result["dimension"] = current_df["dimension"].values[0]
+
+        result = (
+            result[["dimension_value", "change_to_contrib", "dimension"]]
+            .sort_values(
+                by="change_to_contrib",
+                key=abs,
+                ascending=False,
+                ignore_index=True,
+            )
+            .round(4)
+        )
+
+        print(
+            f"sum of change_to_contrib: {result['change_to_contrib'].sum()} (should = 0)"
         )
         return result
 
@@ -186,18 +266,29 @@ class OneDimensionEvaluator:
                 dimension=dimension
             )
             percent_change_df = self._calculate_percent_change(df=values)
-            contr_to_overall_change_df = self._calculate_contribution_to_overall_change(
+            contrib_to_overall_change_df = (
+                self._calculate_contribution_to_overall_change(
+                    parent_df=top_level_df, current_df=values
+                )
+            )
+            change_to_contrib = self._calculate_change_to_contribution(
                 parent_df=top_level_df, current_df=values
             )
-            result = pd.merge(
+            data_frames = [
                 percent_change_df,
-                contr_to_overall_change_df,
-                on=["dimension", "dimension_value"],
+                contrib_to_overall_change_df,
+                change_to_contrib,
+            ]
+            result = reduce(
+                lambda left, right: pd.merge(
+                    left, right, on=["dimension", "dimension_value"]
+                ),
+                data_frames,
             ).reset_index()
             changes.append(result)
 
         all_dims_calcs = pd.concat(changes).sort_values(
-            by=["contrib_to_overall_change", "percent_change"],
+            by=["contrib_to_overall_change", "percent_change", "change_to_contrib"],
             key=abs,
             ascending=False,
             ignore_index=True,

@@ -39,8 +39,8 @@ def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
         ],
     )
 
-    # calculation was: (current_value - baseline_value) / (baseline_value - current_value)
-    # however updated to 100 * (current_value - baseline_value) / (current_value - baseline_value)
+    # calculation =
+    # 100 * (current_value - baseline_value) / (parent_current_value - parent_baseline_value)
     rows = [
         ["mx", 50.00, "country"],
         ["ca", 37.50, "country"],
@@ -56,3 +56,30 @@ def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
     )
 
     assert_frame_equal(expected_df, contr_to_change)
+
+
+def test_change_to_contribution(dimension_df, parent_df):
+    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    new_profiles_ap = AnalysisProfile(
+        metric_name="new_profiles",
+        dimensions=[
+            "country",
+        ],
+    )
+    # calculation =
+    # 100 * ((current_value/parent_current_value) - (baseline_value/parent_baseline_value))
+    # sorted by abs value.
+    rows = [
+        ["us", -3.6429, "country"],
+        ["mx", 2.3915, "country"],
+        ["ca", 1.2514, "country"],
+    ]
+
+    cols = ["dimension_value", "change_to_contrib", "dimension"]
+    expected_df = DataFrame(rows, columns=cols)
+
+    change_to_contrib = OneDimensionEvaluator(
+        profile=new_profiles_ap, date_of_interest=date_of_interest
+    )._calculate_change_to_contribution(current_df=dimension_df, parent_df=parent_df)
+
+    assert_frame_equal(expected_df, change_to_contrib)

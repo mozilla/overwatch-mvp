@@ -39,7 +39,11 @@ def find_significant_dimensions(
     top_level_evaluation = top_level_evaluator.evaluate()
     print(f"top_level_evaluation: {top_level_evaluation}")
 
-    # 2. Find percent change for each value of single dimension.
+    # 2. Find
+    # - percent change
+    # - contribution to overall change for each value of single dimension.
+    # - change to contribution of overall value for each value of single dimension.
+
     one_dim_evaluator = OneDimensionEvaluator(
         profile=profile, date_of_interest=date_of_interest
     )
