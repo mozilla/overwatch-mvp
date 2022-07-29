@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 from functools import reduce
 
@@ -222,13 +223,13 @@ class OneDimensionEvaluator:
         current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
 
         # Calculate the contribution to overall change
-        contrib_to_overall_change = current_df_as_cols.apply(
+        change_to_contrib = current_df_as_cols.apply(
             self._change_to_contribution, axis=1
         ).rename("change_to_contrib")
 
         # Add the calculation to the current_df and pull dimension value out of index
         result = pd.merge(
-            current_df_as_cols, contrib_to_overall_change, on="dimension_value"
+            current_df_as_cols, change_to_contrib, on="dimension_value"
         ).reset_index()
         # Carry the dimension label through
         result["dimension"] = current_df["dimension"].values[0]
@@ -246,6 +247,106 @@ class OneDimensionEvaluator:
 
         print(
             f"sum of change_to_contrib: {result['change_to_contrib'].sum()} (should = 0)"
+        )
+        return result
+
+    @staticmethod
+    def _significance(row) -> float:
+        # baseline  current  parent_baseline  parent_current
+        # return row["baseline"] + row["current"] + row["parent_baseline"] + row["parent_current"]
+        parent_current_value = row["parent_current"]
+        parent_baseline_value = row["parent_baseline"]
+        current_value = row["current"]
+        baseline_value = row["baseline"]
+
+        # TODO GLE size == value but need to verify if this is always the case.
+        # using the blog post as a guide, this calculation represents
+        # contribution_c/contribution_all from the significance equation
+        contribution = (baseline_value + current_value) / (
+            parent_baseline_value + parent_current_value
+        )
+        print(f"contribution: {contribution}")
+        # represents r from the significance equation.
+        # parent_ratio is the change ratio between the baseline and the current of the parent node.
+        # The expectation is that the changes by each dimension should match the change ratio of
+        # the parent. If it does not, it is likely that the dimension value is anomalous.
+        parent_ratio = parent_current_value / parent_baseline_value
+        # parent_ratio = 1.04651162
+        print(f"parent_ratio: {parent_ratio}")
+        # represents r * v_b
+        # Using the baseline value, multiply it by the expected ratio of the parent change. This is
+        # the expected current value.
+        expected_baseline_value = parent_ratio * baseline_value
+        print(f"expected_baseline_value: {expected_baseline_value}")
+
+        # represents v_c/(r * v_b) from significance equation
+        expected_ratio = current_value / expected_baseline_value
+        print(f"expected_ratio: {expected_ratio}")
+
+        # represents
+        # (v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1
+        # from significance equation
+        weighted_expected_ratio = (expected_ratio - 1) * contribution + 1
+        print(f"weighted_expected_ratio: {weighted_expected_ratio}")
+
+        # represents
+        # log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
+        # from significance equation
+        log_exp_ratio = math.log(weighted_expected_ratio)
+        print(f"log_exp_ratio: {log_exp_ratio}")
+
+        # represents
+        # (v_c - r * v_b) * log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
+        # from significance equation
+        significance = (current_value - expected_baseline_value) * log_exp_ratio
+        print(f"significance: {significance}")
+        print("*******************")
+        return significance
+
+    def _calculate_significance(self, current_df: DataFrame, parent_df) -> DataFrame:
+
+        parent_df_as_cols = parent_df.astype({"metric_value": "int64"}).pivot_table(
+            columns=["timeframe"], values="metric_value"
+        )
+        current_df_as_cols = current_df.set_index(
+            (["dimension", "dimension_value", "timeframe"])
+        )["metric_value"].unstack("timeframe")
+
+        # Add the parent values to each row of the current_df
+        current_df_as_cols["parent_baseline"] = parent_df_as_cols["baseline"][0]
+        current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
+
+        # Calculate the contribution to overall change
+        dimension_value_significance = current_df_as_cols.apply(
+            self._significance, axis=1
+        ).rename("significance")
+
+        # Add the calculation to the current_df and pull dimension value out of index
+        result = pd.merge(
+            current_df_as_cols, dimension_value_significance, on="dimension_value"
+        ).reset_index()
+        result = result.replace([np.inf, -np.inf], np.nan)
+        result["significance"] = result["significance"].fillna(0)
+        # Carry the dimension label through
+        result["dimension"] = current_df["dimension"].values[0]
+        total_significance = result["significance"].sum()
+        result["percent_significance"] = (
+            100 * result["significance"] / total_significance
+        )
+        result = (
+            result[
+                [
+                    "dimension_value",
+                    "percent_significance",
+                    "dimension",
+                ]
+            ].sort_values(
+                by="percent_significance",
+                key=abs,
+                ascending=False,
+                ignore_index=True,
+            )
+            .round(4)
         )
         return result
 
@@ -274,10 +375,15 @@ class OneDimensionEvaluator:
             change_to_contrib = self._calculate_change_to_contribution(
                 parent_df=top_level_df, current_df=values
             )
+
+            significance = self._calculate_significance(
+                parent_df=top_level_df, current_df=values
+            )
             data_frames = [
                 percent_change_df,
                 contrib_to_overall_change_df,
                 change_to_contrib,
+                significance,
             ]
             result = reduce(
                 lambda left, right: pd.merge(
@@ -288,7 +394,12 @@ class OneDimensionEvaluator:
             changes.append(result)
 
         all_dims_calcs = pd.concat(changes).sort_values(
-            by=["contrib_to_overall_change", "percent_change", "change_to_contrib"],
+            by=[
+                "percent_significance",
+                "contrib_to_overall_change",
+                "change_to_contrib",
+                "percent_change",
+            ],
             key=abs,
             ascending=False,
             ignore_index=True,

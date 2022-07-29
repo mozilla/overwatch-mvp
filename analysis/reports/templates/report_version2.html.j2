@@ -33,17 +33,12 @@
     {% for key,row in evaluation.dimension_calc.iterrows() %}
       <p>
       <b>Dimension:</b> {{ row['dimension'] }} {{ row['dimension_value'] }}:
+      <b>Significance of Dimension Value:</b> {{ row['significance']}} {{ row["percent_significance"] }}% 
+      <b>Contribution to Overall Change:</b> {{ row['contrib_to_overall_change'] }}%
+      <b>Change in Contribution to Total:</b> {{ row['change_to_contrib'] }}%
       <b>Percent Change:</b> {{ row['percent_change'] }}% 
-      <b>Contribution to Change:</b> {{ row['contrib_to_overall_change'] }}% 
-      <b>Change to Contribution:</b> {{ row['change_to_contrib'] }}%
       </p>
-    {% endfor %}
-    
-
-
-
-    
-
+    {% endfor %}    
 </div></div></div>
 </body>
 </html>

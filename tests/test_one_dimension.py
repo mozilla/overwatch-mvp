@@ -83,3 +83,27 @@ def test_change_to_contribution(dimension_df, parent_df):
     )._calculate_change_to_contribution(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
+
+
+def test_calculate_significance(dimension_df, parent_df):
+    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    new_profiles_ap = AnalysisProfile(
+        metric_name="new_profiles",
+        dimensions=[
+            "country",
+        ],
+    )
+
+    rows = [
+        ["us", 62.7657, "country"],
+        ["mx", 29.5386, "country"],
+        ["ca", 7.6958, "country"],
+    ]
+    cols = ["dimension_value", "percent_significance", "dimension"]
+    expected_df = DataFrame(rows, columns=cols)
+
+    significance = OneDimensionEvaluator(
+        profile=new_profiles_ap, date_of_interest=date_of_interest
+    )._calculate_significance(current_df=dimension_df, parent_df=parent_df)
+
+    assert_frame_equal(expected_df, significance)
