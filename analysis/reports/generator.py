@@ -44,7 +44,7 @@ class Generator:
             self.output_html,
             self.output_pdf,
             options=options,
-            css="./analysis/reports/templates/custom_bootstrap.css",
+            css="./analysis/reports/templates/4.3.1.bootstrap.min.css",
             verbose=True,
         )
         return self.output_pdf
@@ -90,7 +90,7 @@ class PercentChangeGenerator:
             self.output_html,
             self.output_pdf,
             options=options,
-            css="./analysis/reports/templates/custom_bootstrap.css",
+            css="./analysis/reports/templates/4.3.1.bootstrap.min.css",
             verbose=True,
         )
         return self.output_pdf
