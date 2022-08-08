@@ -83,7 +83,7 @@ def issue_report_version_2(
     notifier = SlackNotifier(
         output_pdf=pdfreport_filename, metric_name=profile.metric_name
     )
-    # notifier.publish_pdf_report()
+    notifier.publish_pdf_report()
 
 
 def run_version_1_poc():
