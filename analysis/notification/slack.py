@@ -24,4 +24,6 @@ class SlackNotifier:
             assert response["file"]  # the uploaded file
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
-            print(f'Unable to upload file to Slack channel, received: {e.response["status"]}')
+            print(
+                f'Unable to upload file to Slack channel, received: {e.response["status"]}'
+            )
