@@ -131,7 +131,7 @@ def run_version_2_poc():
 
     new_profiles_ap = AnalysisProfile(
         # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=3,
+        threshold_percent=1,
         metric_name="new_profiles",
         historical_days_for_compare=14,  # 14 days highlighted the new_profiles drop in early April
         dimensions=[
@@ -144,6 +144,12 @@ def run_version_2_poc():
             # "os_version",
             # "attribution_medium",
             # "attribution_source",
+        ],
+        sort_by=[
+            "contrib_to_overall_change",
+            "percent_change",
+            "change_to_contrib",
+            "percent_significance",
         ],
     )
 

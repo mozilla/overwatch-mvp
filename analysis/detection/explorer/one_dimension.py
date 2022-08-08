@@ -399,14 +399,10 @@ class OneDimensionEvaluator:
                 result["contrib_to_overall_change"]
                 > contrib_to_overall_change_threshold
             ].sort_values(
-                by=[
-                    "percent_significance",
-                    "contrib_to_overall_change",
-                    "change_to_contrib",
-                    "percent_change",
-                ],
+                by=self.profile.sort_by,
                 key=abs,
                 ascending=False,
                 ignore_index=True,
             )
+
         return {"dimension_calc": large_contrib_to_change}

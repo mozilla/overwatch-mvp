@@ -25,9 +25,11 @@ class AnalysisProfile:
         historical_days_for_compare: int = 0,
         index_fields: list = None,
         dimensions: list = None,
+        sort_by: list = None,
     ):
         self.metric_name = metric_name
         self.threshold_percent = threshold_percent
         self.historical_days_for_compare = historical_days_for_compare
         self.index_fields = index_fields
         self.dimensions = dimensions
+        self.sort_by = sort_by
