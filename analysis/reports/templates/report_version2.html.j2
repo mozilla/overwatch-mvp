@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Analysis</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="./analysis/reports/templates/custom_bootstrap.css" rel="stylesheet" type="text/css">        
 </head>
 <body>
 <div class="container"><div class="row"><div class="col">
@@ -30,15 +29,30 @@
     <li>sum(Change to Contribution) by dimension should equal 0%</li>
     </ul>
     </p>
-    {% for key,row in evaluation.dimension_calc.iterrows() %}
-      <p>
-      <b>Dimension:</b> {{ row['dimension'] }} {{ row['dimension_value'] }}:
-      <b>Significance of Dimension Value:</b> {{ row['significance']}} {{ row["percent_significance"] }}% 
-      <b>Contribution to Overall Change:</b> {{ row['contrib_to_overall_change'] }}%
-      <b>Change in Contribution to Total:</b> {{ row['change_to_contrib'] }}%
-      <b>Percent Change:</b> {{ row['percent_change'] }}% 
-      </p>
-    {% endfor %}    
+    <table class="table table-striped table-bordered mt-4">
+        <thead>
+        <tr>
+            <th>Dimension</th>
+            <th>Dimension Value</th>
+            <th>Significance of Dimension Value</th>
+            <th>Contribution to Overall Change</th>
+            <th>Change in Contribution to Total</th>
+            <th>Percent Change</th>             
+        </tr>
+        </thead>
+        <tbody>
+        {% for key,row in evaluation.dimension_calc.iterrows() %}
+        <tr>
+            <td>{{ row['dimension'] }}</td>
+            <td>{{ row['dimension_value'] }}</td>
+            <td>{{ row["percent_significance"] }}%</td>
+            <td>{{ row['contrib_to_overall_change'] }}%</td>
+            <td>{{ row['change_to_contrib'] }}%</td>
+            <td>{{ row['percent_change'] }}%</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div></div></div>
 </body>
 </html>

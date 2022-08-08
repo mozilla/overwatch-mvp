@@ -2,8 +2,8 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import pdfkit
 from jinja2 import Environment, FileSystemLoader
-from xhtml2pdf import pisa
 
 from analysis.detection.profile import Detection
 
@@ -39,14 +39,14 @@ class Generator:
     def build_pdf_report(self) -> str:
         self.build_html_report()
 
-        source_html = open(self.output_html, "r")
-        result_file = open(self.output_pdf, "w+b")
-
-        # TODO GLE check pisa_status.err
-        pisa_status = pisa.CreatePDF(source_html, dest=result_file)
-        result_file.close()
-        if pisa_status.err:
-            print(f"Unable to create pdf from html file: {source_html}")
+        options = {"enable-local-file-access": None}
+        pdfkit.from_file(
+            self.output_html,
+            self.output_pdf,
+            options=options,
+            css="./analysis/reports/templates/custom_bootstrap.css",
+            verbose=True,
+        )
         return self.output_pdf
 
 
@@ -85,13 +85,12 @@ class PercentChangeGenerator:
     # returns relative path of pdf file.
     def build_pdf_report(self) -> str:
         self.build_html_report()
-
-        source_html = open(self.output_html, "r")
-        result_file = open(self.output_pdf, "w+b")
-
-        # TODO GLE check pisa_status.err
-        pisa_status = pisa.CreatePDF(source_html, dest=result_file)
-        result_file.close()
-        if pisa_status.err:
-            print(f"Unable to create pdf from html file: {source_html}")
+        options = {"enable-local-file-access": None}
+        pdfkit.from_file(
+            self.output_html,
+            self.output_pdf,
+            options=options,
+            css="./analysis/reports/templates/custom_bootstrap.css",
+            verbose=True,
+        )
         return self.output_pdf
