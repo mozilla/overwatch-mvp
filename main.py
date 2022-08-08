@@ -130,6 +130,8 @@ def run_version_2_poc():
     new_profiles_date_of_interest = datetime.strptime("2022-04-11", "%Y-%m-%d")
 
     new_profiles_ap = AnalysisProfile(
+        # in this case threshold_percent is the threshold for contribution to overall change
+        threshold_percent=3,
         metric_name="new_profiles",
         historical_days_for_compare=14,  # 14 days highlighted the new_profiles drop in early April
         dimensions=[

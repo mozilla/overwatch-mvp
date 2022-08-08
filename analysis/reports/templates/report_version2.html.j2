@@ -20,11 +20,11 @@
       <p><b>{{ row['timeframe'] }}:</b> {{ row['metric_value'] }}</p>
     {% endfor %}
 
-        
     <h2>Dimensions</h2>
     <p>
     Note:  
     <ul>
+    <li>Dimension values with Contribution to Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
     <li>sum(Contribution to Change) by dimension should equal 100%</li> 
     <li>sum(Change to Contribution) by dimension should equal 0%</li>
     </ul>
