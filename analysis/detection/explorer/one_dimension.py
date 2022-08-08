@@ -397,7 +397,10 @@ class OneDimensionEvaluator:
         # Here we can drop any rows where the contrib_to_overall_change is < threshold.
         contrib_to_overall_change_threshold = self.profile.threshold_percent
         all_dims_calcs = pd.concat(changes)
-        all_dims_calcs_large_contrib_to_change = all_dims_calcs[all_dims_calcs["contrib_to_overall_change"] > contrib_to_overall_change_threshold].sort_values(
+        all_dims_calcs_large_contrib_to_change = all_dims_calcs[
+            all_dims_calcs["contrib_to_overall_change"]
+            > contrib_to_overall_change_threshold
+        ].sort_values(
             by=[
                 "percent_significance",
                 "contrib_to_overall_change",
