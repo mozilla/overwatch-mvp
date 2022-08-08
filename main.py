@@ -135,9 +135,11 @@ def run_version_2_poc():
         metric_name="new_profiles",
         historical_days_for_compare=14,  # 14 days highlighted the new_profiles drop in early April
         dimensions=[
+            "region_name",
+            "subregion_name",
             "country",
             # "segment",  # not a good example
-            "channel",
+            # "channel",
             # "os",  # not a good example
             # "os_version",
             # "attribution_medium",

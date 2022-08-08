@@ -68,9 +68,11 @@ class MetricLookupManager:
                 @dimension as dimension_value,
                 SUM(new_profiles) AS metric_value,
             FROM
-                `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+                `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a,
+                `mozdata.static.country_codes_v1` c
             WHERE
                 submission_date = @date_of_interest
+                AND a.country = c.code
                 AND app_name="Fenix"
             GROUP BY
                 submission_date,
