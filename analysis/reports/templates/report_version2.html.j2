@@ -29,30 +29,31 @@
     <li>sum(Change to Contribution) by dimension should equal 0%</li>
     </ul>
     </p>
-    <table class="table table-striped table-bordered mt-4">
-        <thead>
-        <tr>
-            <th>Dimension</th>
-            <th>Dimension Value</th>
-            <th>Significance of Dimension Value</th>
-            <th>Contribution to Overall Change</th>
-            <th>Change in Contribution to Total</th>
-            <th>Percent Change</th>             
-        </tr>
-        </thead>
-        <tbody>
-        {% for key,row in evaluation.dimension_calc.iterrows() %}
-        <tr>
-            <td>{{ row['dimension'] }}</td>
-            <td>{{ row['dimension_value'] }}</td>
-            <td>{{ row["percent_significance"] }}%</td>
-            <td>{{ row['contrib_to_overall_change'] }}%</td>
-            <td>{{ row['change_to_contrib'] }}%</td>
-            <td>{{ row['percent_change'] }}%</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% for dimension,df in evaluation.dimension_calc.items() %}
+        <table class="table table-striped table-bordered mt-4">
+            <caption> {{dimension}} </caption>
+            <thead>
+            <tr>
+                <th>Dimension Value</th>
+                <th>Significance of Dimension Value</th>
+                <th>Contribution to Overall Change</th>
+                <th>Change in Contribution to Total</th>
+                <th>Percent Change</th>             
+            </tr>
+            </thead>
+            <tbody>
+            {% for key,row in df.iterrows() %}
+            <tr>
+                <td>{{ row['dimension_value'] }}</td>
+                <td>{{ row["percent_significance"] }}%</td>
+                <td>{{ row['contrib_to_overall_change'] }}%</td>
+                <td>{{ row['change_to_contrib'] }}%</td>
+                <td>{{ row['percent_change'] }}%</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
 </div></div></div>
 </body>
 </html>

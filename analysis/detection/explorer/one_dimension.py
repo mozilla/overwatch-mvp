@@ -358,7 +358,9 @@ class OneDimensionEvaluator:
          sorted by percent change results, not dimension resulting in mixed order of dimensions
           (if more than 1 dimension has been calculated).
         """
-        changes = []
+        contrib_to_overall_change_threshold = self.profile.threshold_percent
+        large_contrib_to_change = {}
+
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
         top_level_df = TopLevelEvaluator(
             profile=self.profile, date_of_interest=self.date_of_interest
@@ -392,24 +394,19 @@ class OneDimensionEvaluator:
                 ),
                 data_frames,
             ).reset_index()
-            changes.append(result)
 
-        # Here we can drop any rows where the contrib_to_overall_change is < threshold.
-        contrib_to_overall_change_threshold = self.profile.threshold_percent
-        all_dims_calcs = pd.concat(changes)
-        all_dims_calcs_large_contrib_to_change = all_dims_calcs[
-            all_dims_calcs["contrib_to_overall_change"]
-            > contrib_to_overall_change_threshold
-        ].sort_values(
-            by=[
-                "percent_significance",
-                "contrib_to_overall_change",
-                "change_to_contrib",
-                "percent_change",
-            ],
-            key=abs,
-            ascending=False,
-            ignore_index=True,
-        )
-
-        return {"dimension_calc": all_dims_calcs_large_contrib_to_change}
+            large_contrib_to_change[dimension] = result[
+                result["contrib_to_overall_change"]
+                > contrib_to_overall_change_threshold
+            ].sort_values(
+                by=[
+                    "percent_significance",
+                    "contrib_to_overall_change",
+                    "change_to_contrib",
+                    "percent_change",
+                ],
+                key=abs,
+                ascending=False,
+                ignore_index=True,
+            )
+        return {"dimension_calc": large_contrib_to_change}
