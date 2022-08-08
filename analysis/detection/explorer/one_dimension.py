@@ -340,7 +340,8 @@ class OneDimensionEvaluator:
                     "percent_significance",
                     "dimension",
                 ]
-            ].sort_values(
+            ]
+            .sort_values(
                 by="percent_significance",
                 key=abs,
                 ascending=False,
