@@ -9,43 +9,6 @@ class MetricLookupManager:
     SUBMISSION_DATE_FORMAT = "%Y-%m-%d"
 
     def __init__(self):
-        # PoC ver 1
-        self.new_profiles = """
-            SELECT * from `automated-analysis-dev.sample_data.fenix_new_profiles`
-            WHERE submission_date >= @start_date
-            AND submission_date <= @end_date
-            ORDER BY submission_date ASC;
-            """
-
-        self.new_profiles_by_geolocation = """
-            SELECT
-                *,
-                AVG(t1.new_profiles) OVER (PARTITION BY @dimension ORDER BY submission_date
-                ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS new_profiles_7day_ma
-            FROM (
-                SELECT
-                    submission_date,
-                    @dimension,
-                    app_name,
-                    SUM(new_profiles) AS new_profiles
-                FROM
-                    `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a,
-                    `mozdata.static.country_codes_v1` c
-                WHERE
-                    submission_date >= @start_date
-                    AND submission_date <= @end_date
-                    AND app_name="Fenix"
-                    AND a.country = c.code
-                GROUP BY
-                    submission_date,
-                    @dimension,
-                    app_name
-            ) AS t1
-            ORDER BY
-            @dimension,
-            submission_date
-        """
-        # PoC ver 2
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
         self.new_profiles_no_dimensions_by_date = """
@@ -60,7 +23,7 @@ class MetricLookupManager:
                 submission_date,
                 app_name
         """
-        # PoC ver 2
+
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
         self.new_profiles_by_dimensions_by_date = """
@@ -82,47 +45,47 @@ class MetricLookupManager:
                 @dimension
                 """
 
-        self.mau_by_geolocation = """
-            SELECT
-                @dimension,
-                submission_date,
-                SUM(mau) AS mau
-            FROM
-                `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1` m,
-                `mozdata.static.country_codes_v1` c
-            WHERE
-                submission_date = @start_date
-                OR submission_date = @end_date
-                AND m.country = c.code
-            GROUP BY
-                @dimension,
-                submission_date
-            ORDER BY
-                @dimension,
-                submission_date
-        """
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.mau_no_dimensions_by_date = """
+                    SELECT
+                        SUM(mau) AS metric_value
+                    FROM
+                        `moz-fx-data-shared-prod.telemetry.active_users_aggregates`
+                    WHERE
+                        submission_date = @date_of_interest
+                    AND app_name="Firefox Desktop"
+                    GROUP BY
+                        submission_date,
+                        app_name
+                """
 
-        self.mau = """
-            SELECT
-                submission_date,
-                SUM(mau) AS mau
-            FROM
-                `mozdata.telemetry.firefox_desktop_exact_mau28_by_dimensions_v1`
-            WHERE
-                submission_date = @start_date
-                OR submission_date = @end_date
-            GROUP BY
-                submission_date
-            ORDER BY
-                submission_date
-        """
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.mau_by_dimensions_by_date = """
+                     SELECT
+                        @dimension as dimension_value,
+                        SUM(mau) AS metric_value,
+                    FROM
+                        `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a,
+                        `mozdata.static.country_codes_v1` c
+                    WHERE
+                        submission_date = @date_of_interest
+                        AND a.country = c.code
+                        AND app_name="Firefox Desktop"
+                    GROUP BY
+                        submission_date,
+                        app_name,
+                        @dimension
+                    ORDER BY
+                        @dimension
+                        """
+
         self.query_cache = {
-            "new_profiles": self.new_profiles,
-            "new_profiles_by_geolocation": self.new_profiles_by_geolocation,
             "new_profiles_no_dimensions_by_date": self.new_profiles_no_dimensions_by_date,
             "new_profiles_by_dimensions_by_date": self.new_profiles_by_dimensions_by_date,
-            "mau": self.mau,
-            "mau_by_geolocation": self.mau_by_geolocation,
+            "mau_no_dimensions_by_date": self.mau_no_dimensions_by_date,
+            "mau_by_dimensions_by_date": self.mau_by_dimensions_by_date,
         }
 
     def run_query(
