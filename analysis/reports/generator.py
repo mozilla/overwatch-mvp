@@ -11,10 +11,20 @@ class ReportGenerator:
     def __init__(self, working_dir, template: str, evaluation: dict, date_of_interest):
         self.template = template
         self.output_html = os.path.join(
-            working_dir, evaluation["profile"].metric_name + ".html"
+            working_dir,
+            evaluation["profile"].metric_name
+            + "_"
+            + evaluation["profile"].app_name
+            + date_of_interest.strftime("%Y-%m-%d")
+            + ".html",
         )
         self.output_pdf = os.path.join(
-            working_dir, evaluation["profile"].metric_name + ".pdf"
+            working_dir,
+            evaluation["profile"].metric_name
+            + "_"
+            + evaluation["profile"].app_name
+            + date_of_interest.strftime("%Y-%m-%d")
+            + ".pdf",
         )
         self.evaluation = evaluation
         self.date_of_interest = date_of_interest

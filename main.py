@@ -49,9 +49,10 @@ def issue_report(profile: AnalysisProfile, evaluation: dict, date_of_interest):
 
 
 def run_poc():
-    new_profiles_date_of_interest = datetime.strptime("2022-04-11", "%Y-%m-%d")
-
-    new_profiles_ap = AnalysisProfile(
+    # Checking Fenix new profiles drop from Apr 11 going bck 14 days.
+    # https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
+    new_profiles_fenix_date_of_interest = datetime.strptime("2022-04-11", "%Y-%m-%d")
+    new_profiles_fenix_ap = AnalysisProfile(
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=1,
         metric_name="new_profiles",
@@ -61,12 +62,7 @@ def run_poc():
             "region_name",
             "subregion_name",
             "country",
-            # "segment",  # not a good example
-            # "channel",
-            # "os",  # not a good example
-            # "os_version",
-            # "attribution_medium",
-            # "attribution_source",
+            "channel",
         ],
         sort_by=[
             "contrib_to_overall_change",
@@ -76,8 +72,31 @@ def run_poc():
         ],
     )
 
-    mau_date_of_interest = datetime.strptime("2021-11-30", "%Y-%m-%d")
-    mau_ap = AnalysisProfile(
+    # Checking Firefox Desktop New Profiles from JUne 30 back 60 days.
+    new_profiles_desktop_date_of_interest = datetime.strptime("2022-06-30", "%Y-%m-%d")
+    new_profiles_desktop_ap = AnalysisProfile(
+        # in this case threshold_percent is the threshold for contribution to overall change
+        threshold_percent=0.25,
+        metric_name="new_profiles",
+        app_name="Firefox Desktop",
+        historical_days_for_compare=60,
+        dimensions=[
+            "region_name",
+            "subregion_name",
+            "country",
+            "channel",
+        ],
+        sort_by=[
+            "contrib_to_overall_change",
+            "percent_change",
+            "change_to_contrib",
+            "percent_significance",
+        ],
+    )
+
+    # Checking for increase in MAU from Nov 30.
+    mau_firefox_desktop_date_of_interest = datetime.strptime("2021-11-30", "%Y-%m-%d")
+    mau_firefox_desktop_ap = AnalysisProfile(
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=1,
         metric_name="mau",
@@ -87,12 +106,28 @@ def run_poc():
             "region_name",
             "subregion_name",
             "country",
-            # "segment",  # not a good example
-            # "channel",
-            # "os",  # not a good example
-            # "os_version",
-            # "attribution_medium",
-            # "attribution_source",
+        ],
+        sort_by=[
+            "contrib_to_overall_change",
+            "percent_change",
+            "change_to_contrib",
+            "percent_significance",
+        ],
+    )
+
+    # Checking for drop in DAU mid MArch
+    # https://docs.google.com/document/d/1umr5P35s4WM2zULyfNoBH_QrGubT9r89QeIuhE14Lzg/edit#
+    dau_fenix_date_of_interest = datetime.strptime("2022-03-25", "%Y-%m-%d")
+    dau_fenix_ap = AnalysisProfile(
+        # in this case threshold_percent is the threshold for contribution to overall change
+        threshold_percent=1,
+        metric_name="dau",
+        app_name="Fenix",
+        historical_days_for_compare=7,
+        dimensions=[
+            "region_name",
+            "subregion_name",
+            "country",
         ],
         sort_by=[
             "contrib_to_overall_change",
@@ -103,8 +138,10 @@ def run_poc():
     )
 
     analysis_profiles = [
-        (new_profiles_ap, new_profiles_date_of_interest),
-        (mau_ap, mau_date_of_interest),
+        (new_profiles_fenix_ap, new_profiles_fenix_date_of_interest),
+        (new_profiles_desktop_ap, new_profiles_desktop_date_of_interest),
+        (dau_fenix_ap, dau_fenix_date_of_interest),
+        (mau_firefox_desktop_ap, mau_firefox_desktop_date_of_interest),
     ]
 
     for (profile, date) in analysis_profiles:
