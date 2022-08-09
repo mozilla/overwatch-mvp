@@ -8,6 +8,7 @@ def test_percent_change(parent_df):
     date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
+        app_name="Fenix",
         dimensions=[
             "country",
         ],

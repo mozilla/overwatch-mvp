@@ -21,6 +21,7 @@ class AnalysisProfile:
     def __init__(
         self,
         metric_name: str,
+        app_name: str,
         threshold_percent: float = 0.0,
         historical_days_for_compare: int = 0,
         index_fields: list = None,
@@ -28,6 +29,7 @@ class AnalysisProfile:
         sort_by: list = None,
     ):
         self.metric_name = metric_name
+        self.app_name = app_name
         self.threshold_percent = threshold_percent
         self.historical_days_for_compare = historical_days_for_compare
         self.index_fields = index_fields

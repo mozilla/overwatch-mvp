@@ -35,6 +35,7 @@ class OneDimensionEvaluator:
         current_by_dimension = (
             MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
                 metric_name=self.profile.metric_name,
+                app_name=self.profile.app_name,
                 date_of_interest=self.date_of_interest,
                 dimensions=[dimension],
             )
@@ -43,6 +44,7 @@ class OneDimensionEvaluator:
         baseline_by_dimension = (
             MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
                 metric_name=self.profile.metric_name,
+                app_name=self.profile.app_name,
                 date_of_interest=self.date_of_interest
                 - timedelta(self.profile.historical_days_for_compare),
                 dimensions=[dimension],

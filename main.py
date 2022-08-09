@@ -55,6 +55,7 @@ def run_poc():
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=1,
         metric_name="new_profiles",
+        app_name="Fenix",
         historical_days_for_compare=14,  # 14 days highlighted the new_profiles drop in early April
         dimensions=[
             "region_name",
@@ -80,6 +81,7 @@ def run_poc():
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=1,
         metric_name="mau",
+        app_name="Firefox Desktop",
         historical_days_for_compare=28,
         dimensions=[
             "region_name",
