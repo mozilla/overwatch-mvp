@@ -17,7 +17,7 @@
     <p><b>Percent change:</b> {{evaluation.top_level_percent_change}}% </p>
     
     {% for key,row in evaluation.top_level_values.iterrows() %}
-      <p><b>{{ row['timeframe'] }}:</b> {{ row['metric_value'] }}</p>
+      <p><b>{{ row['timeframe'] }}:</b> {{ "{:,}".format(row['metric_value']) }}</p>
     {% endfor %}
 
     <h2>Dimensions</h2>
