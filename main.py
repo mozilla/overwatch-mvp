@@ -49,6 +49,7 @@ def issue_report(profile: AnalysisProfile, evaluation: dict, date_of_interest):
 
 
 def run_poc():
+    # Analysis Example 2
     # Checking Fenix new profiles drop from Apr 11 going bck 14 days.
     # https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
     new_profiles_fenix_date_of_interest = datetime.strptime("2022-04-11", "%Y-%m-%d")
@@ -72,7 +73,8 @@ def run_poc():
         ],
     )
 
-    # Checking Firefox Desktop New Profiles from JUne 30 back 60 days.
+    # Analysis Example 3
+    # Checking increase in Firefox Desktop New Profiles from June 30 back 60 days
     new_profiles_desktop_date_of_interest = datetime.strptime("2022-06-30", "%Y-%m-%d")
     new_profiles_desktop_ap = AnalysisProfile(
         # in this case threshold_percent is the threshold for contribution to overall change
@@ -84,7 +86,7 @@ def run_poc():
             "region_name",
             "subregion_name",
             "country",
-            "channel",
+            "app_version",
         ],
         sort_by=[
             "contrib_to_overall_change",
@@ -94,7 +96,8 @@ def run_poc():
         ],
     )
 
-    # Checking for increase in MAU from Nov 30.
+    # Analysis Example 1
+    # Checking for increase in Firefox Desktop MAU from Nov 30.
     mau_firefox_desktop_date_of_interest = datetime.strptime("2021-11-30", "%Y-%m-%d")
     mau_firefox_desktop_ap = AnalysisProfile(
         # in this case threshold_percent is the threshold for contribution to overall change
@@ -115,7 +118,8 @@ def run_poc():
         ],
     )
 
-    # Checking for drop in DAU mid MArch
+    # Analysis Example 4
+    # Checking for drop in Fenix DAU mid March
     # https://docs.google.com/document/d/1umr5P35s4WM2zULyfNoBH_QrGubT9r89QeIuhE14Lzg/edit#
     dau_fenix_date_of_interest = datetime.strptime("2022-03-25", "%Y-%m-%d")
     dau_fenix_ap = AnalysisProfile(
