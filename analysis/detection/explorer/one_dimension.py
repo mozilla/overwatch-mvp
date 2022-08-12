@@ -35,6 +35,7 @@ class OneDimensionEvaluator:
         current_by_dimension = (
             MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
                 metric_name=self.profile.metric_name,
+                table_name=self.profile.table_name,
                 app_name=self.profile.app_name,
                 date_of_interest=self.date_of_interest,
                 dimensions=[dimension],
@@ -44,6 +45,7 @@ class OneDimensionEvaluator:
         baseline_by_dimension = (
             MetricLookupManager().get_data_for_metric_by_dimensions_with_date(
                 metric_name=self.profile.metric_name,
+                table_name=self.profile.table_name,
                 app_name=self.profile.app_name,
                 date_of_interest=self.date_of_interest
                 - timedelta(self.profile.historical_days_for_compare),
@@ -53,7 +55,8 @@ class OneDimensionEvaluator:
         baseline_by_dimension["timeframe"] = "baseline"
 
         # the BigQuery package uses type 'Int64' as the type.  For dropna() to work the type needs
-        # to be 'int64' (lowercase)
+        # to be 'int64' (lowercase).  'Int64' handles missing values implicitly so dropna() has no
+        # effect
         df = pd.concat([current_by_dimension, baseline_by_dimension]).astype(
             {"metric_value": "int64"}
         )

@@ -15,6 +15,7 @@ class TopLevelEvaluator:
     def _get_current_and_baseline_values(self) -> DataFrame:
         current_df = MetricLookupManager().get_data_for_metric_with_date(
             metric_name=self.profile.metric_name,
+            table_name=self.profile.table_name,
             app_name=self.profile.app_name,
             date_of_interest=self.date_of_interest,
         )
@@ -22,6 +23,7 @@ class TopLevelEvaluator:
 
         baseline_df = MetricLookupManager().get_data_for_metric_with_date(
             metric_name=self.profile.metric_name,
+            table_name=self.profile.table_name,
             app_name=self.profile.app_name,
             date_of_interest=self.date_of_interest
             - timedelta(self.profile.historical_days_for_compare),
