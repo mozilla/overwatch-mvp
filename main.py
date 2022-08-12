@@ -57,6 +57,7 @@ def run_poc():
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=1,
         metric_name="new_profiles",
+        table_name="active_user_aggregates",
         app_name="Fenix",
         historical_days_for_compare=14,  # 14 days highlighted the new_profiles drop in early April
         dimensions=[
@@ -80,6 +81,7 @@ def run_poc():
         # in this case threshold_percent is the threshold for contribution to overall change
         threshold_percent=0.25,
         metric_name="new_profiles",
+        table_name="active_user_aggregates",
         app_name="Firefox Desktop",
         historical_days_for_compare=60,
         dimensions=[
@@ -104,6 +106,7 @@ def run_poc():
         threshold_percent=1,
         metric_name="mau",
         app_name="Firefox Desktop",
+        table_name="active_user_aggregates",
         historical_days_for_compare=28,
         dimensions=[
             "region_name",
@@ -127,10 +130,31 @@ def run_poc():
         threshold_percent=1,
         metric_name="dau",
         app_name="Fenix",
+        table_name="active_user_aggregates",
         historical_days_for_compare=7,
         dimensions=[
             "region_name",
             "subregion_name",
+            "country",
+        ],
+        sort_by=[
+            "contrib_to_overall_change",
+            "percent_change",
+            "change_to_contrib",
+            "percent_significance",
+        ],
+    )
+
+    # Analysis Example 5
+    # Download tracking
+    download_date_of_interest = datetime.strptime("2022-08-06", "%Y-%m-%d")
+    download_ap = AnalysisProfile(
+        # in this case threshold_percent is the threshold for contribution to overall change
+        threshold_percent=1,
+        metric_name="downloads",
+        table_name="www_site_metrics_summary_v1",
+        historical_days_for_compare=7,
+        dimensions=[
             "country",
         ],
         sort_by=[
@@ -146,6 +170,7 @@ def run_poc():
         (new_profiles_desktop_ap, new_profiles_desktop_date_of_interest),
         (dau_fenix_ap, dau_fenix_date_of_interest),
         (mau_firefox_desktop_ap, mau_firefox_desktop_date_of_interest),
+        (download_ap, download_date_of_interest)
     ]
 
     for (profile, date) in analysis_profiles:

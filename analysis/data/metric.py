@@ -11,7 +11,7 @@ class MetricLookupManager:
     def __init__(self):
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_no_dimensions_by_date = """
+        self.metric_no_dim_by_date_active_user_aggregates = """
             SELECT
                 SUM(@metric) AS metric_value
             FROM
@@ -26,7 +26,7 @@ class MetricLookupManager:
 
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_by_dimensions_by_date = """
+        self.metric_by_dim_by_date_active_user_aggregates = """
              SELECT
                 @dimension as dimension_value,
                 SUM(@metric) AS metric_value,
@@ -45,9 +45,38 @@ class MetricLookupManager:
                 @dimension
                 """
 
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.metric_no_dim_by_date_www_site_metrics_summary_v1 = """
+                    SELECT
+                        SUM(@metric) AS metric_value
+                    FROM
+                        `moz-fx-data-marketing-prod.ga_derived.www_site_metrics_summary_v1`
+                    WHERE
+                        date = @date_of_interest
+                """
+
+        # Note that for this query the returned column name must be metric_value for downstream
+        # processing
+        self.metric_by_dim_by_date_www_site_metrics_summary_v1 = """
+                     SELECT
+                        @dimension as dimension_value,
+                        SUM(@metric) AS metric_value,
+                    FROM
+                        `moz-fx-data-marketing-prod.ga_derived.www_site_metrics_summary_v1`
+                    WHERE
+                        date = @date_of_interest
+                    GROUP BY
+                        @dimension
+                    ORDER BY
+                        @dimension
+                        """
+
         self.query_cache = {
-            "metric_no_dimensions_by_date": self.metric_no_dimensions_by_date,
-            "metric_by_dimensions_by_date": self.metric_by_dimensions_by_date,
+            "active_user_aggregates_no_dim_by_date": self.metric_no_dim_by_date_active_user_aggregates,
+            "active_user_aggregates_by_dim_by_date": self.metric_by_dim_by_date_active_user_aggregates,
+            "www_site_metrics_summary_v1_no_dim_by_date": self.metric_no_dim_by_date_www_site_metrics_summary_v1,
+            "www_site_metrics_summary_v1_by_dim_by_date": self.metric_by_dim_by_date_www_site_metrics_summary_v1,
         }
 
     def run_query(
@@ -83,7 +112,9 @@ class MetricLookupManager:
         if dimension:
             query = query.replace("@dimension", dimension)
         query = query.replace("@metric", metric)
-        query = query.replace("@app_name", app_name)
+
+        if app_name:
+            query = query.replace("@app_name", app_name)
 
         bq_client = bigquery.Client()
         rows = bq_client.query(query, job_config=job_config)
@@ -95,9 +126,13 @@ class MetricLookupManager:
         return df
 
     def get_data_for_metric_with_date(
-        self, metric_name: str, app_name: str, date_of_interest: datetime
+        self,
+        metric_name: str,
+        table_name: str,
+        app_name: str,
+        date_of_interest: datetime,
     ) -> DataFrame:
-        query = self.query_cache.get("metric_no_dimensions_by_date")
+        query = self.query_cache.get(table_name + "_no_dim_by_date")
         return self.run_query(
             query=query,
             metric=metric_name,
@@ -108,11 +143,12 @@ class MetricLookupManager:
     def get_data_for_metric_by_dimensions_with_date(
         self,
         metric_name: str,
+        table_name: str,
         app_name: str,
         date_of_interest: datetime,
         dimensions: list,
-    ) -> dict:
-        query = self.query_cache.get("metric_by_dimensions_by_date")
+    ) -> DataFrame:
+        query = self.query_cache.get(table_name + "_by_dim_by_date")
         # Need to query each dimension individually and get the baseline and current.
         # return a dict of DataFrames keyed by dimension.
         result_df = DataFrame()
@@ -127,4 +163,6 @@ class MetricLookupManager:
             )
             df["dimension"] = dimension
             result_df = pd.concat([result_df, df])
+
+        result_df = result_df.dropna(axis="rows")
         return result_df
