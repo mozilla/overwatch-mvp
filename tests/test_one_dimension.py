@@ -11,6 +11,7 @@ def test_percent_change(dimension_df):
     date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
+        table_name="test",
         app_name="Fenix",
         dimensions=[
             "country",
@@ -35,6 +36,7 @@ def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
     date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
+        table_name="test",
         app_name="Fenix",
         dimensions=[
             "country",
@@ -64,6 +66,7 @@ def test_change_to_contribution(dimension_df, parent_df):
     date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
+        table_name="test",
         app_name="Fenix",
         dimensions=[
             "country",
@@ -93,6 +96,7 @@ def test_calculate_significance(dimension_df, parent_df):
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         app_name="Fenix",
+        table_name="test",
         dimensions=[
             "country",
         ],
