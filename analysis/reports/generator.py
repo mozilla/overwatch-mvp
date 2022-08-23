@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import pdfkit
@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 
 # TODO GLE A lot more thought needs to be added to the report/notfication.
 class ReportGenerator:
-    def __init__(self, working_dir, template: str, evaluation: dict, date_of_interest):
+    def __init__(self, working_dir, template: str, evaluation: dict, date_ranges: dict):
         self.template = template
 
         filename_base = (
@@ -19,15 +19,12 @@ class ReportGenerator:
                 else ""
             )
             + "_"
-            + date_of_interest.strftime("%Y-%m-%d")
+            + date_ranges.get("recent_period").get("end_date").strftime("%Y-%m-%d")
         )
         self.output_html = os.path.join(working_dir, filename_base + ".html")
         self.output_pdf = os.path.join(working_dir, filename_base + ".pdf")
         self.evaluation = evaluation
-        self.date_of_interest = date_of_interest
-        self.baseline_date = self.date_of_interest - timedelta(
-            evaluation["profile"].historical_days_for_compare
-        )
+        self.date_ranges = date_ranges
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())
@@ -39,8 +36,7 @@ class ReportGenerator:
             fh.write(
                 template.render(
                     evaluation=self.evaluation,
-                    date_of_interest=self.date_of_interest,
-                    baseline_date=self.baseline_date,
+                    date_ranges=self.date_ranges,
                 )
             )
 

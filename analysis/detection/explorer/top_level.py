@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 import pandas as pd
 from pandas import DataFrame
 
@@ -8,25 +6,24 @@ from analysis.detection.profile import AnalysisProfile
 
 
 class TopLevelEvaluator:
-    def __init__(self, profile: AnalysisProfile, date_of_interest: datetime):
+    def __init__(self, profile: AnalysisProfile, date_ranges: dict):
         self.profile = profile
-        self.date_of_interest = date_of_interest
+        self.date_ranges = date_ranges
 
     def _get_current_and_baseline_values(self) -> DataFrame:
-        current_df = MetricLookupManager().get_data_for_metric_with_date(
+        current_df = MetricLookupManager().get_data_for_metric_with_date_range(
             metric_name=self.profile.metric_name,
             table_name=self.profile.table_name,
             app_name=self.profile.app_name,
-            date_of_interest=self.date_of_interest,
+            date_range=self.date_ranges.get("recent_period"),
         )
         current_df["timeframe"] = "current"
 
-        baseline_df = MetricLookupManager().get_data_for_metric_with_date(
+        baseline_df = MetricLookupManager().get_data_for_metric_with_date_range(
             metric_name=self.profile.metric_name,
             table_name=self.profile.table_name,
             app_name=self.profile.app_name,
-            date_of_interest=self.date_of_interest
-            - timedelta(self.profile.historical_days_for_compare),
+            date_range=self.date_ranges.get("previous_period"),
         )
         baseline_df["timeframe"] = "baseline"
 

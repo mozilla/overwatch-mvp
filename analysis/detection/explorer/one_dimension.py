@@ -1,5 +1,4 @@
 import math
-from datetime import datetime, timedelta
 from functools import reduce
 
 import numpy as np
@@ -13,9 +12,9 @@ from analysis.detection.profile import AnalysisProfile
 
 class OneDimensionEvaluator:
     # TODO GLE may be able to determine the dim dynamically.
-    def __init__(self, profile: AnalysisProfile, date_of_interest: datetime):
+    def __init__(self, profile: AnalysisProfile, date_ranges: dict):
         self.profile = profile
-        self.date_of_interest = date_of_interest
+        self.date_ranges = date_ranges
 
     def _get_current_and_baseline_values_for_dimension(
         self, dimension: str
@@ -37,7 +36,7 @@ class OneDimensionEvaluator:
                 metric_name=self.profile.metric_name,
                 table_name=self.profile.table_name,
                 app_name=self.profile.app_name,
-                date_of_interest=self.date_of_interest,
+                date_range=self.date_ranges.get("recent_period"),
                 dimensions=[dimension],
             )
         )
@@ -47,8 +46,7 @@ class OneDimensionEvaluator:
                 metric_name=self.profile.metric_name,
                 table_name=self.profile.table_name,
                 app_name=self.profile.app_name,
-                date_of_interest=self.date_of_interest
-                - timedelta(self.profile.historical_days_for_compare),
+                date_range=self.date_ranges.get("previous_period"),
                 dimensions=[dimension],
             )
         )
@@ -144,6 +142,12 @@ class OneDimensionEvaluator:
             (["dimension", "dimension_value", "timeframe"])
         )["metric_value"].unstack("timeframe")
 
+        # If the dimension value does not exist for both the current and baseline timelines then
+        # Nan is assigned as the missing value during the unstack.  Setting these Nan to 0 since if
+        # the dimension value is not available for that date then 0 represents the metric value
+        # accurately.  app_version is an example of a dimension that may not hae the same value set
+        # for both current and baseline.
+        current_df_as_cols = current_df_as_cols.fillna(0)
         # Add the parent values to each row of the current_df
         current_df_as_cols["parent_baseline"] = parent_df_as_cols["baseline"][0]
         current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
@@ -170,11 +174,9 @@ class OneDimensionEvaluator:
             )
             .round(4)
         )
-
-        print(
-            f"sum of contrib_to_overall_change: {result['contrib_to_overall_change'].sum()}"
-            f" (should = 100)"
-        )
+        sum = result["contrib_to_overall_change"].sum()
+        print(f"sum of contrib_to_overall_change: {sum} (should = 100)")
+        assert round(sum, 1) == 100.0
         return result
 
     @staticmethod
@@ -222,6 +224,12 @@ class OneDimensionEvaluator:
         current_df_as_cols = current_df.set_index(
             (["dimension", "dimension_value", "timeframe"])
         )["metric_value"].unstack("timeframe")
+        # If the dimension value does not exist for both the current and baseline timelines then
+        # Nan is assigned as the missing value during the unstack.  Setting these Nan to 0 since if
+        # the dimension value is not available for that date then 0 represents the metric value
+        # accurately.  app_version is an example of a dimension that may not hae the same value set
+        # for both current and baseline.
+        current_df_as_cols = current_df_as_cols.fillna(0)
 
         # Add the parent values to each row of the current_df
         current_df_as_cols["parent_baseline"] = parent_df_as_cols["baseline"][0]
@@ -250,9 +258,9 @@ class OneDimensionEvaluator:
             .round(4)
         )
 
-        print(
-            f"sum of change_to_contrib: {result['change_to_contrib'].sum()} (should = 0)"
-        )
+        sum = result["change_to_contrib"].sum()
+        print(f"sum of change_to_contrib: {sum} (should = 0)")
+        assert round(sum, 1) == 0.0
         return result
 
     @staticmethod
@@ -270,42 +278,33 @@ class OneDimensionEvaluator:
         contribution = (baseline_value + current_value) / (
             parent_baseline_value + parent_current_value
         )
-        print(f"contribution: {contribution}")
         # represents r from the significance equation.
         # parent_ratio is the change ratio between the baseline and the current of the parent node.
         # The expectation is that the changes by each dimension should match the change ratio of
         # the parent. If it does not, it is likely that the dimension value is anomalous.
         parent_ratio = parent_current_value / parent_baseline_value
-        # parent_ratio = 1.04651162
-        print(f"parent_ratio: {parent_ratio}")
         # represents r * v_b
         # Using the baseline value, multiply it by the expected ratio of the parent change. This is
         # the expected current value.
         expected_baseline_value = parent_ratio * baseline_value
-        print(f"expected_baseline_value: {expected_baseline_value}")
 
         # represents v_c/(r * v_b) from significance equation
         expected_ratio = current_value / expected_baseline_value
-        print(f"expected_ratio: {expected_ratio}")
 
         # represents
         # (v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1
         # from significance equation
         weighted_expected_ratio = (expected_ratio - 1) * contribution + 1
-        print(f"weighted_expected_ratio: {weighted_expected_ratio}")
 
         # represents
         # log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
         # from significance equation
         log_exp_ratio = math.log(weighted_expected_ratio)
-        print(f"log_exp_ratio: {log_exp_ratio}")
 
         # represents
         # (v_c - r * v_b) * log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
         # from significance equation
         significance = (current_value - expected_baseline_value) * log_exp_ratio
-        print(f"significance: {significance}")
-        print("*******************")
         return significance
 
     def _calculate_significance(self, current_df: DataFrame, parent_df) -> DataFrame:
@@ -368,7 +367,7 @@ class OneDimensionEvaluator:
 
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
         top_level_df = TopLevelEvaluator(
-            profile=self.profile, date_of_interest=self.date_of_interest
+            profile=self.profile, date_ranges=self.date_ranges
         )._get_current_and_baseline_values()
         for dimension in self.profile.dimensions:
             values = self._get_current_and_baseline_values_for_dimension(

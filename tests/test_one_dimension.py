@@ -8,7 +8,18 @@ from analysis.detection.profile import AnalysisProfile
 
 
 def test_percent_change(dimension_df):
-    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    date_ranges_of_interest = {
+        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
+        # For single day configuration set start_date = end_date.
+        "previous_period": {
+            "start_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+        },
+        "recent_period": {
+            "start_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+        },
+    }
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         table_name="test",
@@ -27,13 +38,24 @@ def test_percent_change(dimension_df):
     expected_df = DataFrame(rows, columns=cols)
 
     percent_change = OneDimensionEvaluator(
-        profile=new_profiles_ap, date_of_interest=date_of_interest
+        profile=new_profiles_ap, date_ranges=date_ranges_of_interest
     )._calculate_percent_change(df=dimension_df)
     assert_frame_equal(expected_df, percent_change)
 
 
 def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
-    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    date_ranges_of_interest = {
+        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
+        # For single day configuration set start_date = end_date.
+        "previous_period": {
+            "start_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+        },
+        "recent_period": {
+            "start_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+        },
+    }
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         table_name="test",
@@ -54,7 +76,7 @@ def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
     expected_df = DataFrame(rows, columns=cols)
 
     contr_to_change = OneDimensionEvaluator(
-        profile=new_profiles_ap, date_of_interest=date_of_interest
+        profile=new_profiles_ap, date_ranges=date_ranges_of_interest
     )._calculate_contribution_to_overall_change(
         current_df=dimension_df, parent_df=parent_df
     )
@@ -63,7 +85,18 @@ def test_calculate_contribution_to_overall_change(dimension_df, parent_df):
 
 
 def test_change_to_contribution(dimension_df, parent_df):
-    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    date_ranges_of_interest = {
+        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
+        # For single day configuration set start_date = end_date.
+        "previous_period": {
+            "start_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+        },
+        "recent_period": {
+            "start_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+        },
+    }
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         table_name="test",
@@ -85,14 +118,25 @@ def test_change_to_contribution(dimension_df, parent_df):
     expected_df = DataFrame(rows, columns=cols)
 
     change_to_contrib = OneDimensionEvaluator(
-        profile=new_profiles_ap, date_of_interest=date_of_interest
+        profile=new_profiles_ap, date_ranges=date_ranges_of_interest
     )._calculate_change_to_contribution(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
 
 
 def test_calculate_significance(dimension_df, parent_df):
-    date_of_interest = datetime.strptime("2022-04-09", "%Y-%m-%d")
+    date_ranges_of_interest = {
+        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
+        # For single day configuration set start_date = end_date.
+        "previous_period": {
+            "start_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
+        },
+        "recent_period": {
+            "start_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
+        },
+    }
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         app_name="Fenix",
@@ -111,7 +155,7 @@ def test_calculate_significance(dimension_df, parent_df):
     expected_df = DataFrame(rows, columns=cols)
 
     significance = OneDimensionEvaluator(
-        profile=new_profiles_ap, date_of_interest=date_of_interest
+        profile=new_profiles_ap, date_ranges=date_ranges_of_interest
     )._calculate_significance(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, significance)
