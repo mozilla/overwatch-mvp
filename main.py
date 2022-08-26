@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvaluator
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.detection.profile import AnalysisProfile
@@ -21,7 +22,12 @@ def find_significant_dimensions(profile: AnalysisProfile, date_ranges: dict) -> 
     one_dim_evaluator = OneDimensionEvaluator(profile=profile, date_ranges=date_ranges)
     one_dim_evaluation = one_dim_evaluator.evaluate()
 
-    return top_level_evaluation | one_dim_evaluation
+    multi_dim_evaluator = MultiDimensionEvaluator(
+        profile=profile, date_ranges=date_ranges
+    )
+    multi_dim_evaluation = multi_dim_evaluator.evaluate()
+
+    return top_level_evaluation | one_dim_evaluation | multi_dim_evaluation
 
 
 def issue_report(profile: AnalysisProfile, evaluation: dict, date_ranges: dict):
@@ -37,7 +43,7 @@ def issue_report(profile: AnalysisProfile, evaluation: dict, date_ranges: dict):
     pdfreport_filename = report_generator.build_pdf_report()
     notifier = SlackNotifier(
         output_pdf=pdfreport_filename, metric_name=profile.metric_name
-    )
+    ) 
     notifier.publish_pdf_report()
 
 

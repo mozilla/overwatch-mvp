@@ -70,8 +70,42 @@ class MetricLookupManager:
                 ORDER BY
                     @dimension,
                     submission_date
+            )
+            WHERE submission_date = @end_date
+        """
+
+        self.metric_by_multi_dim_by_date_range_active_user_aggregates = """
+            SELECT
+                @full_dim_value_spec,
+                window_average AS metric_value
+            FROM (
+                SELECT
+                    *,
+                    AVG(metric_value) OVER (
+                    PARTITION BY @full_dim_spec ORDER BY submission_date
+                    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS window_average
+                FROM (
+                    SELECT
+                        submission_date,
+                        @full_dim_spec,
+                        SUM(@metric) AS metric_value
+                    FROM
+                        `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a,
+                        `mozdata.static.country_codes_v1` c
+                    WHERE
+                        submission_date >= @start_date
+                        AND submission_date <= @end_date
+                        AND app_name="@app_name"
+                        AND a.country = c.code
+                    GROUP BY
+                        submission_date,
+                        @full_dim_spec
+                    ) AS t1
+                    ORDER BY
+                        @full_dim_spec,
+                        submission_date
                 )
-            where  submission_date = @end_date
+            WHERE submission_date = @end_date
         """
 
         # Note that for this query the returned column name must be metric_value for downstream
@@ -132,6 +166,7 @@ class MetricLookupManager:
             "active_user_aggregates_by_dim_by_date_range": self.metric_by_dim_by_date_range_active_user_aggregates,
             "www_site_metrics_summary_v1_no_dim_by_date_range": self.metric_no_dim_by_date_www_site_metrics_summary_v1,
             "www_site_metrics_summary_v1_by_dim_by_date_range": self.metric_by_dim_by_date_www_site_metrics_summary_v1,
+            "active_user_aggregates_by_multi_dim_by_date_range": self.metric_by_multi_dim_by_date_range_active_user_aggregates,
         }
 
     def run_query(
@@ -141,6 +176,8 @@ class MetricLookupManager:
         app_name: str,
         date_range: dict,
         dimension: str = None,
+        full_dim_spec: str = None,
+        full_dim_value_spec: str = None,
     ) -> DataFrame:
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
@@ -159,6 +196,11 @@ class MetricLookupManager:
 
         if dimension:
             query = query.replace("@dimension", dimension)
+
+        if full_dim_spec and full_dim_value_spec:
+            query = query.replace("@full_dim_value_spec", full_dim_value_spec)
+            query = query.replace("@full_dim_spec", full_dim_spec)
+
         query = query.replace("@metric", metric)
 
         if app_name:
@@ -173,9 +215,10 @@ class MetricLookupManager:
         # run_version_1_poc includes the submission date column, run_version_2_poc does not.
         if "submission_date" in df.columns:
             df["submission_date"] = pd.to_datetime(df["submission_date"])
+        df = df.rename(columns={"dimension_value": "dimension_value_0"})
         return df
 
-    def get_data_for_metric_with_date_range(
+    def get_metric_with_date_range(
         self,
         metric_name: str,
         table_name: str,
@@ -190,29 +233,72 @@ class MetricLookupManager:
             date_range=date_range,
         )
 
-    def get_data_for_metric_by_dimensions_with_date(
+    def get_metric_by_dimension_with_date_range(
         self,
         metric_name: str,
         table_name: str,
         app_name: str,
         date_range: dict,
-        dimensions: list,
+        dimension: str,
     ) -> DataFrame:
         query = self.query_cache.get(table_name + "_by_dim_by_date_range")
         # Need to query each dimension individually and get the baseline and current.
         # return a dict of DataFrames keyed by dimension.
+
+        print(f"processing dimension: {dimension}")
+        result_df = self.run_query(
+            query=query,
+            metric=metric_name,
+            app_name=app_name,
+            date_range=date_range,
+            dimension=dimension,
+        )
+        result_df["dimension"] = dimension
+        result_df = result_df.dropna(axis="rows")
+        return result_df
+
+    def get_metric_by_multi_dimensions_with_date_range(
+        self,
+        metric_name: str,
+        table_name: str,
+        app_name: str,
+        date_range: dict,
+        dimensions: list,  # indicates the permutation of the dimensions to evaluate.
+    ) -> DataFrame:
+        query = self.query_cache.get(table_name + "_by_multi_dim_by_date_range")
+        # Need to query each dimension individually and get the baseline and current.
+        # return a dict of DataFrames keyed by dimension.
         result_df = DataFrame()
-        for dimension in dimensions:
-            print(f"processing dimension: {dimension}")
-            df = self.run_query(
-                query=query,
-                metric=metric_name,
-                app_name=app_name,
-                date_range=date_range,
-                dimension=dimension,
-            )
-            df["dimension"] = dimension
-            result_df = pd.concat([result_df, df])
+        dim_value_spec = "@dimension as dimension_value"
+        dim_spec = "@dimension"
+        full_dim_value_spec = ""
+        full_dim_spec = ""
+
+        # Build up the list of dimensions=
+        for dim in dimensions:
+            if len(full_dim_value_spec) > 0:
+                full_dim_value_spec += ","
+                full_dim_spec += ","
+            full_dim_value_spec += dim_value_spec.replace("@dimension", dim, 1)
+            full_dim_spec += dim_spec.replace("@dimension", dim, 1)
+
+        print(f"processing dimensions: {full_dim_spec}")
+        df = self.run_query(
+            query=query,
+            metric=metric_name,
+            app_name=app_name,
+            date_range=date_range,
+            dimension=None,
+            full_dim_spec=full_dim_spec,
+            full_dim_value_spec=full_dim_value_spec,
+        )
+        # Need to add indexing to the column indicating the dimension.
+        i = 0
+        for dim in dimensions:
+            df["dimension_" + str(i)] = dim
+            i += 1
+
+        result_df = pd.concat([result_df, df])
 
         result_df = result_df.dropna(axis="rows")
         return result_df

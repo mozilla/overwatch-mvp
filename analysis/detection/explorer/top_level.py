@@ -11,7 +11,7 @@ class TopLevelEvaluator:
         self.date_ranges = date_ranges
 
     def _get_current_and_baseline_values(self) -> DataFrame:
-        current_df = MetricLookupManager().get_data_for_metric_with_date_range(
+        current_df = MetricLookupManager().get_metric_with_date_range(
             metric_name=self.profile.metric_name,
             table_name=self.profile.table_name,
             app_name=self.profile.app_name,
@@ -19,7 +19,7 @@ class TopLevelEvaluator:
         )
         current_df["timeframe"] = "current"
 
-        baseline_df = MetricLookupManager().get_data_for_metric_with_date_range(
+        baseline_df = MetricLookupManager().get_metric_with_date_range(
             metric_name=self.profile.metric_name,
             table_name=self.profile.table_name,
             app_name=self.profile.app_name,
