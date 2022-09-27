@@ -281,8 +281,8 @@ class DimensionEvaluator(ABC):
                 ignore_index=True,
             )
             .round(8)
-            # TODO GLE changed rounding from 4 to 8 due to change_to_contribution for
-            #  country/app_verision summing to 0.2681999999999969  It is a reltively high
+            #  Changed rounding from 4 to 8 due to change_to_contribution for
+            #  country/app_verision summing to 0.2681999999999969  It is a relatively high
             #  cardinality data set resulting in a cumulative rounding error.
             #  This will have to be considered in final implementation.
         )

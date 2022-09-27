@@ -91,16 +91,17 @@ def test_change_to_contribution(date_ranges_of_interest, multi_dimension_df, par
     # 100 * ((current_value/parent_current_value) - (baseline_value/parent_baseline_value))
     # sorted by abs value.
     rows = [
-        ["ca", "release", 5.0334, "country", "channel"],
-        ["us", "nightly", -3.5039, "country", "channel"],
-        ["us", "beta", -2.2803, "country", "channel"],
-        ["us", "release", 2.1413, "country", "channel"],
-        ["ca", "beta", -1.9466, "country", "channel"],
-        ["ca", "nightly", -1.8354, "country", "channel"],
-        ["mx", "nightly", 1.5017, "country", "channel"],
-        ["mx", "beta", 1.4461, "country", "channel"],
-        ["mx", "release", -0.5562, "country", "channel"],
+        ["ca", "release", 5.03337041, "country", "channel"],
+        ["us", "nightly", -3.50389321, "country", "channel"],
+        ["us", "beta", -2.28031146, "country", "channel"],
+        ["us", "release", 2.14126808, "country", "channel"],
+        ["ca", "beta", -1.94660734, "country", "channel"],
+        ["ca", "nightly", -1.83537264, "country", "channel"],
+        ["mx", "nightly", 1.50166852, "country", "channel"],
+        ["mx", "beta", 1.44605117, "country", "channel"],
+        ["mx", "release", -0.55617353, "country", "channel"],
     ]
+
     cols = [
         "dimension_value_0",
         "dimension_value_1",

@@ -73,9 +73,9 @@ def test_change_to_contribution(date_ranges_of_interest, dimension_df, parent_df
     # 100 * ((current_value/parent_current_value) - (baseline_value/parent_baseline_value))
     # sorted by abs value.
     rows = [
-        ["us", -3.6429, "country"],
-        ["mx", 2.3915, "country"],
-        ["ca", 1.2514, "country"],
+        ["us", -3.6429366, "country"],
+        ["mx", 2.39154616, "country"],
+        ["ca", 1.25139043, "country"],
     ]
 
     cols = ["dimension_value_0", "change_to_contrib", "dimension_0"]
