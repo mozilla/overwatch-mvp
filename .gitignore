@@ -4,3 +4,9 @@
 /.idea
 __pycache__/
 *.py[cod]
+/automated_analysis_poc.egg-info/dependency_links.txt
+/automated_analysis_poc.egg-info/entry_points.txt
+/automated_analysis_poc.egg-info/PKG-INFO
+/automated_analysis_poc.egg-info/requires.txt
+/automated_analysis_poc.egg-info/SOURCES.txt
+/automated_analysis_poc.egg-info/top_level.txt
