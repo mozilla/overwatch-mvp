@@ -10,3 +10,4 @@ __pycache__/
 /automated_analysis_poc.egg-info/requires.txt
 /automated_analysis_poc.egg-info/SOURCES.txt
 /automated_analysis_poc.egg-info/top_level.txt
+/.coverage
