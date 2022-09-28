@@ -73,9 +73,7 @@ def test_calculate_contribution_to_overall_change(
 
     contr_to_change = MultiDimensionEvaluator(
         profile=new_profiles_ap, date_ranges=date_ranges_of_interest
-    )._calculate_contribution_to_overall_change(
-        current_df=multi_dimension_df, parent_df=parent_df
-    )
+    )._calculate_contribution_to_overall_change(current_df=multi_dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 
@@ -113,9 +111,7 @@ def test_change_to_contribution(date_ranges_of_interest, multi_dimension_df, par
 
     change_to_contrib = MultiDimensionEvaluator(
         profile=new_profiles_ap, date_ranges=date_ranges_of_interest
-    )._calculate_change_to_contribution(
-        current_df=multi_dimension_df, parent_df=parent_df
-    )
+    )._calculate_change_to_contribution(current_df=multi_dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
 

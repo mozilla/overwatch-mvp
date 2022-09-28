@@ -18,12 +18,9 @@ class SlackNotifier:
             response = client.files_upload(
                 channels="#data-monitoring-mvp",
                 file=self.output_pdf,
-                initial_comment=f"New Automated Analysis Report for "
-                f"{self.metric_name}",
+                initial_comment=f"New Automated Analysis Report for {self.metric_name}",
             )
             assert response["file"]  # the uploaded file
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
-            print(
-                f'Unable to upload file to Slack channel, received: {e.response["status"]}'
-            )
+            print(f'Unable to upload file to Slack channel, received: {e.response["status"]}')

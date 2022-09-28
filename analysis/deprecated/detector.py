@@ -20,21 +20,14 @@ class Detector:
         # Need to check that the sign is the same
         triggered = pct_change[
             (abs(pct_change[profile.metric_name]) >= abs(profile.threshold_percent))
-            & (
-                np.sign(pct_change[profile.metric_name])
-                == np.sign(profile.threshold_percent)
-            )
+            & (np.sign(pct_change[profile.metric_name]) == np.sign(profile.threshold_percent))
         ]
         print(triggered)
 
-        current_value = df[df["submission_date"] == date_of_interest][
-            profile.metric_name
-        ].values[0]
+        current_value = df[df["submission_date"] == date_of_interest][profile.metric_name].values[0]
 
         start_date = date_of_interest - timedelta(profile.historical_days_for_compare)
-        baseline_value = df[df["submission_date"] == start_date][
-            profile.metric_name
-        ].values[0]
+        baseline_value = df[df["submission_date"] == start_date][profile.metric_name].values[0]
         detection = Detection(
             profile.metric_name,
             date_of_interest,

@@ -23,6 +23,8 @@ minversion = "7.0"
 addopts = [
     "--import-mode=importlib",
     "-ra -q",
+    "--black",
+    "--flake8"
 ]
 testpaths = [
     "tests",
@@ -34,10 +36,9 @@ source = ["src"]
 [project.optional-dependencies]
 testing = [
   "pytest>=7.1.3",
-  "pytest-cov[all]", 
-  "black>=22.8.0",
-  "isort>=5.10.1",
-  "flake8>=5.0.4",
+  "pytest-black>=0.3.12",
+  "flake8<5",  
+  "pytest-flake8",
 ]
 
 [project.urls]
@@ -52,7 +53,3 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 100
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3

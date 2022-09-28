@@ -50,9 +50,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         # the BigQuery package uses type 'Int64' as the type.  For dropna() to work the type needs
         # to be 'int64' (lowercase).  'Int64' handles missing values implicitly so dropna() has no
         # effect
-        df = pd.concat([current, baseline]).astype(
-            {"metric_value": "float64"}
-        )
+        df = pd.concat([current, baseline]).astype({"metric_value": "float64"})
         return df
 
     # TODO GLE Alot of this code can be combined with one_dimension.py
@@ -80,18 +78,14 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         for pair in dim_permutations:
             values = self._get_current_and_baseline_values(dimensions=[pair])
             percent_change_df = self._calculate_percent_change(df=values)
-            contrib_to_overall_change_df = (
-                self._calculate_contribution_to_overall_change(
-                    parent_df=top_level_df, current_df=values
-                )
+            contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
+                parent_df=top_level_df, current_df=values
             )
             change_to_contrib = self._calculate_change_to_contribution(
                 parent_df=top_level_df, current_df=values
             )
 
-            significance = self._calculate_significance(
-                parent_df=top_level_df, current_df=values
-            )
+            significance = self._calculate_significance(parent_df=top_level_df, current_df=values)
             data_frames = [
                 percent_change_df,
                 contrib_to_overall_change_df,
@@ -109,8 +103,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
 
             # TODO GLE due to more combinations the threshold here might need to be lower.
             large_contrib_to_change[pair] = result[
-                abs(result["contrib_to_overall_change"])
-                > contrib_to_overall_change_threshold
+                abs(result["contrib_to_overall_change"]) > contrib_to_overall_change_threshold
             ].sort_values(
                 by=self.profile.sort_by,
                 key=abs,

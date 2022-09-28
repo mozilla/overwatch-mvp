@@ -9,8 +9,7 @@ Use python version 3.10 for development.
 python -m venv venv/
 source venv/bin/activate
 python -m pip install pip-tools
-./update_deps
-pip install -e ".[testing]"
+make update
 ```
 
 ## To update dependencies:
@@ -24,19 +23,15 @@ source venv/bin/activate
 ```
 3. Make required changes to `pyproject.toml`
    
-4. Generate a new version of requirements.in and requirements.txt
+4. Generate a new version of requirements.in and requirements.txt and apply updated requirements.txt to venv.
 ```
-./update_deps
-```
-5. Apply updated requirements.txt to venv.
-```
-pip install -e ".[testing]"
+make update
 ```
 
-## To verify formatting:
-run `make lint`
- 
-To apply formatting changes use `make lint_apply`
+##Testing
+To run pytest
+```
+make pytest
+```
 
-Run unit tests:
-`make test`
+Pytest is configured to also run black and flake8.  Formatting failures are treated as test failures.

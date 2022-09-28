@@ -30,24 +30,20 @@ class OneDimensionEvaluator(DimensionEvaluator):
             raise ValueError("Can only specify 1 dimension")
 
         # For the one dimension evaluator if we are given a list we process each one separately.
-        current_by_dimension = (
-            MetricLookupManager().get_metric_by_dimension_with_date_range(
-                metric_name=self.profile.metric_name,
-                table_name=self.profile.table_name,
-                app_name=self.profile.app_name,
-                date_range=self.date_ranges.get("recent_period"),
-                dimension=dimensions[0],
-            )
+        current_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
+            metric_name=self.profile.metric_name,
+            table_name=self.profile.table_name,
+            app_name=self.profile.app_name,
+            date_range=self.date_ranges.get("recent_period"),
+            dimension=dimensions[0],
         )
         current_by_dimension["timeframe"] = "current"
-        baseline_by_dimension = (
-            MetricLookupManager().get_metric_by_dimension_with_date_range(
-                metric_name=self.profile.metric_name,
-                table_name=self.profile.table_name,
-                app_name=self.profile.app_name,
-                date_range=self.date_ranges.get("previous_period"),
-                dimension=dimensions[0],
-            )
+        baseline_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
+            metric_name=self.profile.metric_name,
+            table_name=self.profile.table_name,
+            app_name=self.profile.app_name,
+            date_range=self.date_ranges.get("previous_period"),
+            dimension=dimensions[0],
         )
         baseline_by_dimension["timeframe"] = "baseline"
 
@@ -77,18 +73,14 @@ class OneDimensionEvaluator(DimensionEvaluator):
         for dimension in self.profile.dimensions:
             values = self._get_current_and_baseline_values(dimensions=[dimension])
             percent_change_df = self._calculate_percent_change(df=values)
-            contrib_to_overall_change_df = (
-                self._calculate_contribution_to_overall_change(
-                    parent_df=top_level_df, current_df=values
-                )
+            contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
+                parent_df=top_level_df, current_df=values
             )
             change_to_contrib = self._calculate_change_to_contribution(
                 parent_df=top_level_df, current_df=values
             )
 
-            significance = self._calculate_significance(
-                parent_df=top_level_df, current_df=values
-            )
+            significance = self._calculate_significance(parent_df=top_level_df, current_df=values)
             data_frames = [
                 percent_change_df,
                 contrib_to_overall_change_df,
@@ -105,8 +97,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             ).reset_index()
 
             large_contrib_to_change[dimension] = result[
-                abs(result["contrib_to_overall_change"])
-                > contrib_to_overall_change_threshold
+                abs(result["contrib_to_overall_change"]) > contrib_to_overall_change_threshold
             ].sort_values(
                 by=self.profile.sort_by,
                 key=abs,

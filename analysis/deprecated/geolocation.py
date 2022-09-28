@@ -25,9 +25,7 @@ class Geolocation:
         evaluations = {}
         for processing_dim in self.dimensions_to_process:
             df = (
-                self._get_metric_values_by_column(processing_dim).groupby(
-                    processing_dim
-                )
+                self._get_metric_values_by_column(processing_dim).groupby(processing_dim)
                 # 2 is used since only current and 1 day in history is used
                 .filter(lambda x: len(x) == 2)
             )
@@ -36,18 +34,16 @@ class Geolocation:
             # [self.profile.metric_name] after the set_index restricts the unstack to only the
             # column we're interested in.
             pct_change = (
-                df.set_index(["submission_date", processing_dim])[
-                    self.profile.metric_name
-                ]
+                df.set_index(["submission_date", processing_dim])[self.profile.metric_name]
                 .unstack([processing_dim])
                 .pct_change()
                 .dropna()
             )
 
             transposed = pct_change.T
-            cleaned = transposed[
-                transposed[self.date_of_interest].abs() < 1
-            ].sort_values(by=self.date_of_interest, key=abs, ascending=False)
+            cleaned = transposed[transposed[self.date_of_interest].abs() < 1].sort_values(
+                by=self.date_of_interest, key=abs, ascending=False
+            )
 
             print(cleaned.head(10))
             result = list(cleaned.head(10).itertuples(index=True, name=None))

@@ -29,11 +29,7 @@ class DimensionEvaluator(ABC):
         :param df:
         :return: list of 'dimension_n' columns in the provided dataframe
         """
-        return [
-            col
-            for col in df.columns
-            if "dimension_" in col and "dimension_value_" not in col
-        ]
+        return [col for col in df.columns if "dimension_" in col and "dimension_value_" not in col]
 
     @staticmethod
     def _calculate_percent_change(df: DataFrame) -> DataFrame:
@@ -101,9 +97,7 @@ class DimensionEvaluator(ABC):
         current_value = row["current"]
         baseline_value = row["baseline"]
         contribution = (
-            (current_value - baseline_value)
-            / (parent_baseline_value - parent_current_value)
-            * 100
+            (current_value - baseline_value) / (parent_baseline_value - parent_current_value) * 100
         )
         return contribution
 
@@ -170,9 +164,7 @@ class DimensionEvaluator(ABC):
             result[col] = current_df[col].values[0]
 
         result = (
-            result[
-                dimension_value_cols + ["contrib_to_overall_change"] + dimension_cols
-            ]
+            result[dimension_value_cols + ["contrib_to_overall_change"] + dimension_cols]
             .sort_values(
                 by="contrib_to_overall_change",
                 key=abs,
@@ -195,14 +187,11 @@ class DimensionEvaluator(ABC):
         baseline_value = row["baseline"]
 
         change_to_contrib = (
-            (current_value / parent_current_value)
-            - (baseline_value / parent_baseline_value)
+            (current_value / parent_current_value) - (baseline_value / parent_baseline_value)
         ) * 100
         return change_to_contrib
 
-    def _calculate_change_to_contribution(
-        self, current_df: DataFrame, parent_df
-    ) -> DataFrame:
+    def _calculate_change_to_contribution(self, current_df: DataFrame, parent_df) -> DataFrame:
         """
         The change to contribution tracks how much the dimension value changed wrt the overall.
         If the value is negative then the dimension value is contributing less than it was.
@@ -260,9 +249,9 @@ class DimensionEvaluator(ABC):
         current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
 
         # Calculate the contribution to overall change
-        change_to_contrib = current_df_as_cols.apply(
-            self._change_to_contribution, axis=1
-        ).rename("change_to_contrib")
+        change_to_contrib = current_df_as_cols.apply(self._change_to_contribution, axis=1).rename(
+            "change_to_contrib"
+        )
 
         # Add the calculation to the current_df and pull dimension value out of index
         result = pd.merge(
@@ -379,9 +368,9 @@ class DimensionEvaluator(ABC):
         current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
 
         # Calculate the contribution to overall change
-        dimension_value_significance = current_df_as_cols.apply(
-            self._significance, axis=1
-        ).rename("significance")
+        dimension_value_significance = current_df_as_cols.apply(self._significance, axis=1).rename(
+            "significance"
+        )
 
         # Add the calculation to the current_df and pull dimension value out of index
         result = pd.merge(
@@ -394,9 +383,7 @@ class DimensionEvaluator(ABC):
             result[col] = current_df[col].values[0]
 
         total_significance = result["significance"].sum()
-        result["percent_significance"] = (
-            100 * result["significance"] / total_significance
-        )
+        result["percent_significance"] = 100 * result["significance"] / total_significance
 
         result = (
             result[dimension_value_cols + ["percent_significance"] + dimension_cols]

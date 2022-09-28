@@ -29,9 +29,7 @@ def test_percent_change(date_ranges_of_interest, dimension_df):
     assert_frame_equal(expected_df, percent_change)
 
 
-def test_calculate_contribution_to_overall_change(
-    date_ranges_of_interest, dimension_df, parent_df
-):
+def test_calculate_contribution_to_overall_change(date_ranges_of_interest, dimension_df, parent_df):
     new_profiles_ap = AnalysisProfile(
         metric_name="new_profiles",
         table_name="test",
@@ -53,9 +51,7 @@ def test_calculate_contribution_to_overall_change(
 
     contr_to_change = OneDimensionEvaluator(
         profile=new_profiles_ap, date_ranges=date_ranges_of_interest
-    )._calculate_contribution_to_overall_change(
-        current_df=dimension_df, parent_df=parent_df
-    )
+    )._calculate_contribution_to_overall_change(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 

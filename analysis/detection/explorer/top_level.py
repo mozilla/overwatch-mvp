@@ -43,9 +43,7 @@ class TopLevelEvaluator:
         """
         # TODO GLE sorting df to have baseline before current, hacky.
         df = df.set_index("timeframe").sort_index()
-        percent_change = round(
-            df.pct_change().dropna()["metric_value"].values[0] * 100, 4
-        )
+        percent_change = round(df.pct_change().dropna()["metric_value"].values[0] * 100, 4)
         return percent_change
 
     def evaluate(self) -> dict:

@@ -103,12 +103,8 @@ def dimension_df(mock_current_dimension_values, mock_baseline_dimension_values):
 
 
 @pytest.fixture
-def multi_dimension_df(
-    mock_current_multi_dimension_values, mock_baseline_multi_dimension_values
-):
-    return concat(
-        [mock_current_multi_dimension_values, mock_baseline_multi_dimension_values]
-    )
+def multi_dimension_df(mock_current_multi_dimension_values, mock_baseline_multi_dimension_values):
+    return concat([mock_current_multi_dimension_values, mock_baseline_multi_dimension_values])
 
 
 @pytest.fixture

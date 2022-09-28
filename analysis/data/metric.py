@@ -13,7 +13,7 @@ class MetricLookupManager:
 
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_no_dim_by_date_range_active_user_aggregates = """
+        self.metric_no_dim_aua = """
              SELECT window_average AS metric_value from (
                 SELECT
                     *,
@@ -42,7 +42,7 @@ class MetricLookupManager:
 
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_by_dim_by_date_range_active_user_aggregates = """
+        self.metric_by_dim_aua = """
              SELECT @dimension as dimension_value, window_average AS metric_value from (
                 SELECT
                 *,
@@ -74,7 +74,7 @@ class MetricLookupManager:
             WHERE submission_date = @end_date
         """
 
-        self.metric_by_multi_dim_by_date_range_active_user_aggregates = """
+        self.metric_by_multi_dim_aua = """
             SELECT
                 @full_dim_value_spec,
                 window_average AS metric_value
@@ -110,7 +110,7 @@ class MetricLookupManager:
 
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_no_dim_by_date_www_site_metrics_summary_v1 = """
+        self.metric_no_dim_sms = """
             SELECT window_average AS metric_value from (
                 SELECT
                     *,
@@ -136,7 +136,7 @@ class MetricLookupManager:
 
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
-        self.metric_by_dim_by_date_www_site_metrics_summary_v1 = """
+        self.metric_by_dim_sms = """
            SELECT dimension_value, window_average AS metric_value from (
                 SELECT
                     *,
@@ -162,11 +162,11 @@ class MetricLookupManager:
         """
 
         self.query_cache = {
-            "active_user_aggregates_no_dim_by_date_range": self.metric_no_dim_by_date_range_active_user_aggregates,
-            "active_user_aggregates_by_dim_by_date_range": self.metric_by_dim_by_date_range_active_user_aggregates,
-            "www_site_metrics_summary_v1_no_dim_by_date_range": self.metric_no_dim_by_date_www_site_metrics_summary_v1,
-            "www_site_metrics_summary_v1_by_dim_by_date_range": self.metric_by_dim_by_date_www_site_metrics_summary_v1,
-            "active_user_aggregates_by_multi_dim_by_date_range": self.metric_by_multi_dim_by_date_range_active_user_aggregates,
+            "active_user_aggregates_no_dim_by_date_range": self.metric_no_dim_aua,
+            "active_user_aggregates_by_dim_by_date_range": self.metric_by_dim_aua,
+            "www_site_metrics_summary_v1_no_dim_by_date_range": self.metric_no_dim_sms,
+            "www_site_metrics_summary_v1_by_dim_by_date_range": self.metric_by_dim_sms,
+            "active_user_aggregates_by_multi_dim_by_date_range": self.metric_by_multi_dim_aua,
         }
 
     def run_query(
