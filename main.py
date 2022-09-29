@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging 
 
 from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvaluator
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
@@ -7,12 +8,17 @@ from analysis.detection.profile import AnalysisProfile
 from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
 
+# TODO GLE centralize logging config
+logging.basicConfig(filename='overwatch.log',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', encoding='utf-8',
+    level=logging.INFO)
+
 
 def find_significant_dimensions(profile: AnalysisProfile, date_ranges: dict) -> dict:
     # 1.  Find overall percent change
     top_level_evaluator = TopLevelEvaluator(profile=profile, date_ranges=date_ranges)
     top_level_evaluation = top_level_evaluator.evaluate()
-    print(f"top_level_evaluation: {top_level_evaluation}")
+    logging.info(f"top_level_evaluation: {top_level_evaluation}")
 
     # 2. Find
     # - percent change
@@ -34,7 +40,7 @@ def issue_report(profile: AnalysisProfile, evaluation: dict, date_ranges: dict):
     evaluation["profile"] = profile
 
     report_generator = ReportGenerator(
-        working_dir=".",
+        output_dir="generated_reports",
         template="report_version2.html.j2",
         evaluation=evaluation,
         date_ranges=date_ranges,

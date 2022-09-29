@@ -1,0 +1,15 @@
+.git
+.coverage
+.flake8
+.gitignore
+.idea
+.pytest_cache
+Makefile
+build/
+tests/
+update_deps
+overwatch.log
+generated_reports/
+venv/
+.github/
+.circleci/

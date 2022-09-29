@@ -29,9 +29,28 @@ make update
 ```
 
 ##Testing
-To run pytest
+To run pytest:
 ```
 make pytest
 ```
-
 Pytest is configured to also run black and flake8.  Formatting failures are treated as test failures.
+
+## Building the docker image 
+To build a docker image run:
+```
+make image
+```
+To update environment, run pytest and build a new image run:
+```
+make build
+```
+##Running Overwatch as a Docker container
+After building the docker image use:
+```
+make run CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
+```
+
+To run the docker image with access to a shell prompt use:
+```
+make shell
+```
