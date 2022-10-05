@@ -67,7 +67,7 @@ To stop the docker container:
 ```
 make stop
 ```
-#Running Overwatch via Airflow
+# Running Overwatch via Airflow
 Testing Overwatch with Airflow can be accomplished by running Airflow locally.  
 Follow the steps outlined in https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=SRE&title=WTMO+Developer+Guide 
 to set up Airflow
