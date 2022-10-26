@@ -23,6 +23,8 @@ coverage[toml]==6.5.0
     # via pytest-cov
 db-dtypes==1.0.4
     # via automated-analysis-poc
+exceptiongroup==1.0.0rc9
+    # via pytest
 flake8==4.0.1
     # via
     #   automated-analysis-poc
@@ -32,7 +34,7 @@ google-api-core[grpc]==2.10.2
     #   google-cloud-bigquery
     #   google-cloud-bigquery-storage
     #   google-cloud-core
-google-auth==2.12.0
+google-auth==2.13.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -50,12 +52,12 @@ googleapis-common-protos==1.56.4
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.49.1
+grpcio==1.50.0
     # via
     #   google-api-core
     #   google-cloud-bigquery
     #   grpcio-status
-grpcio-status==1.49.1
+grpcio-status==1.50.0
     # via google-api-core
 idna==3.4
     # via requests
@@ -79,7 +81,7 @@ packaging==21.3
     #   db-dtypes
     #   google-cloud-bigquery
     #   pytest
-pandas==1.5.0
+pandas==1.5.1
     # via
     #   automated-analysis-poc
     #   db-dtypes
@@ -95,7 +97,7 @@ proto-plus==1.22.1
     # via
     #   google-cloud-bigquery
     #   google-cloud-bigquery-storage
-protobuf==4.21.7
+protobuf==4.21.8
     # via
     #   google-api-core
     #   google-cloud-bigquery
@@ -103,8 +105,6 @@ protobuf==4.21.7
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-py==1.11.0
-    # via pytest
 pyarrow==9.0.0
     # via
     #   db-dtypes
@@ -121,7 +121,7 @@ pyflakes==2.4.0
     # via flake8
 pyparsing==3.0.9
     # via packaging
-pytest==7.1.3
+pytest==7.2.0
     # via
     #   automated-analysis-poc
     #   pytest-black
@@ -137,7 +137,7 @@ python-dateutil==2.8.2
     # via
     #   google-cloud-bigquery
     #   pandas
-pytz==2022.4
+pytz==2022.5
     # via pandas
 requests==2.28.1
     # via
@@ -159,7 +159,5 @@ tomli==2.0.1
     #   black
     #   coverage
     #   pytest
-typing-extensions==4.4.0
-    # via black
 urllib3==1.26.12
     # via requests
