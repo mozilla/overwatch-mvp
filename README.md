@@ -1,6 +1,6 @@
 # Local development
 
-Use python version 3.9 for development.  
+Use python version 3.10 for development.  
 
 `pyenv` is the recommended method to install and manage python versions.
 
