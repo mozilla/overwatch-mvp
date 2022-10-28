@@ -1,21 +1,14 @@
-import click
-import logging
 from datetime import datetime
+
+import click
 
 from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvaluator
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.detection.profile import AnalysisProfile
+from analysis.logging import logger
 from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
-
-# TODO GLE Need to centralize logging config
-logging.basicConfig(
-    filename="overwatch.log",
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    encoding="utf-8",
-    level=logging.INFO,
-)
 
 
 @click.group()
@@ -27,7 +20,7 @@ def find_significant_dimensions(profile: AnalysisProfile, date_ranges: dict) -> 
     # 1.  Find overall percent change
     top_level_evaluator = TopLevelEvaluator(profile=profile, date_ranges=date_ranges)
     top_level_evaluation = top_level_evaluator.evaluate()
-    logging.info(f"top_level_evaluation: {top_level_evaluation}")
+    logger.info(f"top_level_evaluation: {top_level_evaluation}")
 
     # 2. Find
     # - percent change
@@ -60,6 +53,7 @@ def issue_report(profile: AnalysisProfile, evaluation: dict, date_ranges: dict):
 
 @cli.command()
 def run_analysis():
+    logger.info("Starting analysis")
     # Analysis Example 2
     # Checking Fenix new profiles drop from Apr 16
     # https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
@@ -245,10 +239,12 @@ def run_analysis():
             date_ranges=date_ranges,
         )
 
-    logging.info("Analysis completed")
+    logger.info("Analysis completed")
 
 
 @cli.command()
-@click.argument("config_dir", required=True, type=click.Path(file_okay=False))
-def validate_config(config_dir):
-    logging.info(f"Validating config files in: {config_dir}")
+@click.argument(
+    "config_files", required=True, type=click.Path(exists=True, file_okay=True), nargs=-1
+)
+def validate_config(config_files):
+    logger.info(f"Validating config files in: {config_files}")

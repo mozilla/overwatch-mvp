@@ -2,11 +2,13 @@ import pandas as pd
 from google.cloud import bigquery
 from pandas import DataFrame
 
+from analysis.logging import logger
+
 
 class MetricLookupManager:
     SUBMISSION_DATE_FORMAT = "%Y-%m-%d"
 
-    # TODO GLE Unwieldy, move to config files
+    # TODO GLE Unwieldy, move to config_files files
     def __init__(self):
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
@@ -245,7 +247,7 @@ class MetricLookupManager:
         # Need to query each dimension individually and get the baseline and current.
         # return a dict of DataFrames keyed by dimension.
 
-        print(f"processing dimension: {dimension}")
+        logger.info(f"processing dimension: {dimension}")
         result_df = self.run_query(
             query=query,
             metric=metric_name,
@@ -282,7 +284,7 @@ class MetricLookupManager:
             full_dim_value_spec += dim_value_spec.replace("@dimension", dim, 1)
             full_dim_spec += dim_spec.replace("@dimension", dim, 1)
 
-        print(f"processing dimensions: {full_dim_spec}")
+        logger.info(f"processing dimensions: {full_dim_spec}")
         df = self.run_query(
             query=query,
             metric=metric_name,
