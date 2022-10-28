@@ -3,6 +3,8 @@ import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+from analysis.logging import logger
+
 
 class SlackNotifier:
     def __init__(self, output_pdf, metric_name: str):
@@ -12,7 +14,15 @@ class SlackNotifier:
     def publish_pdf_report(
         self,
     ):
-        client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+        try:
+            client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+        except KeyError as e:
+            # TODO GLE add slack channel name
+            logger.error(
+                "Environment variable `SLACK_BOT_TOKEN` is not assigned,"
+                " unable to post report to slack channel"
+            )
+            raise e
 
         try:
             response = client.files_upload(
@@ -23,4 +33,6 @@ class SlackNotifier:
             assert response["file"]  # the uploaded file
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
-            print(f'Unable to upload file to Slack channel, received: {e.response["status"]}')
+            logger.error(
+                f'Unable to upload file to Slack channel, received: {e.response["status"]}'
+            )

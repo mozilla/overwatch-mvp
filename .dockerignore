@@ -4,6 +4,7 @@
 .gitignore
 .idea
 .pytest_cache
+*.log*
 Makefile
 build/
 tests/

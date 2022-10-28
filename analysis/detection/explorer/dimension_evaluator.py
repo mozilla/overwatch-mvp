@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+from analysis.logging import logger
+
 
 class DimensionEvaluator(ABC):
     @abstractmethod
@@ -174,7 +176,7 @@ class DimensionEvaluator(ABC):
             .round(4)
         )
         sum = result["contrib_to_overall_change"].sum()
-        print(f"sum of contrib_to_overall_change: {sum} (should = 100)")
+        logger.info(f"sum of contrib_to_overall_change: {sum} (should = 100)")
         assert abs(round(sum, 1)) == 100.0
         return result
 
@@ -277,7 +279,7 @@ class DimensionEvaluator(ABC):
         )
 
         sum = result["change_to_contrib"].sum()
-        print(f"sum of change_to_contrib: {sum} (should = 0)")
+        logger.info(f"sum of change_to_contrib: {sum} (should = 0)")
         assert round(sum, 1) == 0.0
         return result
 

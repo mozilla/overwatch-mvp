@@ -1,18 +1,9 @@
 import os
-import logging
 from datetime import datetime
 from pathlib import Path
 
 import pdfkit
 from jinja2 import Environment, FileSystemLoader
-
-# TODO GLE need to centralize config
-logging.basicConfig(
-    filename="overwatch.log",
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    encoding="utf-8",
-    level=logging.INFO,
-)
 
 
 # TODO GLE A lot more thought needs to be added to the report/notfication.
