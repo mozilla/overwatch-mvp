@@ -18,7 +18,7 @@ jobs:
             make image
     environment:
       IMAGE_VERSION: latest
-  test-pytest:
+  test-unit:
     docker: *docker
     steps:
       - checkout
@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Run pytests (includes flake8 and black checks)
           command: |
-            make pytest
+            make ci_test           
     
 workflows:
   version: 2
@@ -35,14 +35,14 @@ workflows:
     jobs: 
       - build:
           context: data-eng-circleci-tests
-      - test-pytest:
+      - test-unit:
           requires:           
             - build
       - gcp-gcr/build-and-push-image:
           name: Build and push overwatch
           context: data-eng-airflow-gcr
           requires:
-            - test-pytest            
+            - test-unit            
           image: overwatch
           filters:
             branches:
