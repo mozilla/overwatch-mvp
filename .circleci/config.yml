@@ -1,0 +1,61 @@
+version: 2.1
+
+orbs:
+  gcp-gcr: circleci/gcp-gcr@0.15.0
+  docker: circleci/docker@2.1.3
+
+jobs:
+  build:
+    docker: &docker
+      - image: cimg/python:3.10.6
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build Image
+          command: |
+            make image
+    environment:
+      IMAGE_VERSION: latest
+  test-pytest:
+    docker: *docker
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Run pytests (includes flake8 and black checks)
+          command: |
+            make pytest
+    
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs: 
+      - build:
+          context: data-eng-circleci-tests
+      - test-pytest:
+          requires:           
+            - build
+      - gcp-gcr/build-and-push-image:
+          name: Build and push overwatch
+          context: data-eng-airflow-gcr
+          requires:
+            - test-pytest            
+          image: overwatch
+          filters:
+            branches:
+              only: main
+
+      - gcp-gcr/add-image-tag:
+          name: Add commit hash as docker image tag
+          context: data-eng-airflow-gcr
+          requires:
+            - Build and push overwatch
+          image: overwatch
+          source-tag: latest
+          target-tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              only: main
