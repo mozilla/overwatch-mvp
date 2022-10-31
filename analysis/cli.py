@@ -248,3 +248,7 @@ def run_analysis():
 )
 def validate_config(config_files):
     logger.info(f"Validating config files in: {config_files}")
+
+
+if __name__ == "__main__":
+    cli()
