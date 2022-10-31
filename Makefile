@@ -7,18 +7,17 @@ IMAGE_REPO	   := gcr.io/automated-analysis-dev
 
 all: build
 
-update:
+update_deps:
 	./update_deps
-	pip install -e ".[testing]"
 
-build: update local_test image
+build: update_deps local_test image
 
 # Local development and testing including running with a local Airflow instance.
 local_test:
 	PYTHONPATH=. pytest --cache-clear tests analysis
 
 image:
-	docker build -t ${IMAGE_NAME} --target=app -f Dockerfile .
+	docker build --no-cache -t ${IMAGE_NAME} --target=app -f Dockerfile .
 
 dev_push:
 	docker tag ${IMAGE_NAME} ${IMAGE_REPO}/${IMAGE_NAME}
@@ -40,7 +39,7 @@ stop:
 
 # circleCI tasks
 test-image: ## Builds test Docker image containing all dev requirements
-	docker build -t ${TEST_IMAGE_NAME} --target=test -f Dockerfile .
+	docker build --no-cache -t ${TEST_IMAGE_NAME} --target=test -f Dockerfile .
 
 ci_test: test-image ## Builds test Docker image and executes Python tests
 	docker run ${TEST_IMAGE_NAME} python -m pytest tests analysis

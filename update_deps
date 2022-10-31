@@ -1,6 +1,6 @@
 #!/bin/bash
 # Courtesy of scholtzan and project opmon
-pip-compile -o - - <<< '.[testing]' |
+pip-compile -o - - <<< '.' |
     grep -v 'file://' |
     sed 's/pip-compile.*/update_deps/' > requirements.in
 

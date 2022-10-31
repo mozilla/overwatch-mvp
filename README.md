@@ -9,7 +9,7 @@ Use python version 3.10 for development.
 python -m venv venv/
 source venv/bin/activate
 python -m pip install pip-tools
-make update
+python -m pip install -e ".[testing]"
 ```
 
 ## To update dependencies:
@@ -25,9 +25,8 @@ source venv/bin/activate
    
 4. Generate a new version of requirements.in and requirements.txt and apply updated requirements.txt to venv.
 ```
-make update
+make update_deps
 ```
-Any python code changes will be picked up automatically after make update has been executed at lease once.
 
 ##Testing
 To run pytest:
