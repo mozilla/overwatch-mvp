@@ -5,6 +5,8 @@ TEST_IMAGE_NAME:= $(IMAGE_BASE):latest-test
 CONTAINER_NAME := $(IMAGE_BASE)
 IMAGE_REPO	   := gcr.io/automated-analysis-dev
 
+.PHONY: update_deps
+
 all: build
 
 update_deps:
