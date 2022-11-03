@@ -40,11 +40,11 @@ def test_calculate_contribution_to_overall_change(date_ranges_of_interest, dimen
     )
 
     # calculation =
-    # 100 * (current_value - baseline_value) / (parent_baseline_value - parent_current_value)
+    # 100 * (current_value - baseline_value) / abs((parent_baseline_value - parent_current_value))
     rows = [
-        ["mx", -50.00, "country"],
-        ["ca", -37.50, "country"],
-        ["us", -12.50, "country"],
+        ["mx", 50.00, "country"],
+        ["ca", 37.50, "country"],
+        ["us", 12.50, "country"],
     ]
     cols = ["dimension_value_0", "contrib_to_overall_change", "dimension_0"]
     expected_df = DataFrame(rows, columns=cols)

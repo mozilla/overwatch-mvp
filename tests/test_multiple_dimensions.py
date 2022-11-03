@@ -50,16 +50,16 @@ def test_calculate_contribution_to_overall_change(
     )
 
     # calculation =
-    # 100 * (current_value - baseline_value) / (parent_baseline_value - parent_current_value)
+    # 100 * (current_value - baseline_value) / abs(parent_baseline_value - parent_current_value)
     rows = [
-        ["ca", "release", -87.5, "country", "channel"],
-        ["us", "release", -87.5, "country", "channel"],
-        ["us", "nightly", 50.0, "country", "channel"],
-        ["ca", "beta", 25.0, "country", "channel"],
-        ["ca", "nightly", 25, "country", "channel"],
-        ["mx", "beta", -25.0, "country", "channel"],
-        ["mx", "nightly", -25.0, "country", "channel"],
-        ["us", "beta", 25.0, "country", "channel"],
+        ["ca", "release", 87.5, "country", "channel"],
+        ["us", "release", 87.5, "country", "channel"],
+        ["us", "nightly", -50.0, "country", "channel"],
+        ["ca", "beta", -25.0, "country", "channel"],
+        ["ca", "nightly", -25, "country", "channel"],
+        ["mx", "beta", 25.0, "country", "channel"],
+        ["mx", "nightly", 25.0, "country", "channel"],
+        ["us", "beta", -25.0, "country", "channel"],
         ["mx", "release", 0.0, "country", "channel"],
     ]
     cols = [
