@@ -99,8 +99,8 @@ class DimensionEvaluator(ABC):
         current_value = row["current"]
         baseline_value = row["baseline"]
         contribution = (
-            (current_value - baseline_value) / (parent_baseline_value - parent_current_value) * 100
-        )
+            (current_value - baseline_value) / abs(parent_baseline_value - parent_current_value)
+        ) * 100
         return contribution
 
     def _calculate_contribution_to_overall_change(
