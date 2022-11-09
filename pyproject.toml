@@ -16,6 +16,9 @@ dependencies = [
     'jinja2>=3.1.2',
     'slack_sdk>=3.18.3',
     'pdfkit>=1.0.0',
+    'cattrs>=22.2.0',
+    'attrs>=22.1.0',
+    'toml>=0.10.2',
 ]
 
 [tool.pytest.ini_options]

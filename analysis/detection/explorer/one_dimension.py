@@ -6,11 +6,12 @@ from pandas import DataFrame
 from analysis.data.metric import MetricLookupManager
 from analysis.detection.explorer.dimension_evaluator import DimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
-from analysis.detection.profile import AnalysisProfile
+from analysis.configuration.configs import AnalysisProfile
 
 
 class OneDimensionEvaluator(DimensionEvaluator):
     def __init__(self, profile: AnalysisProfile, date_ranges: dict):
+        # TODO GLE currently the profile only references percent_change.
         self.profile = profile
         self.date_ranges = date_ranges
 
@@ -31,17 +32,17 @@ class OneDimensionEvaluator(DimensionEvaluator):
 
         # For the one dimension evaluator if we are given a list we process each one separately.
         current_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
-            metric_name=self.profile.metric_name,
-            table_name=self.profile.table_name,
-            app_name=self.profile.app_name,
+            metric_name=self.profile.dataset.metric_name,
+            table_name=self.profile.dataset.table_name,
+            app_name=self.profile.dataset.app_name,
             date_range=self.date_ranges.get("recent_period"),
             dimension=dimensions[0],
         )
         current_by_dimension["timeframe"] = "current"
         baseline_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
-            metric_name=self.profile.metric_name,
-            table_name=self.profile.table_name,
-            app_name=self.profile.app_name,
+            metric_name=self.profile.dataset.metric_name,
+            table_name=self.profile.dataset.table_name,
+            app_name=self.profile.dataset.app_name,
             date_range=self.date_ranges.get("previous_period"),
             dimension=dimensions[0],
         )
@@ -62,7 +63,9 @@ class OneDimensionEvaluator(DimensionEvaluator):
          sorted by percent change results, not dimension resulting in mixed order of dimensions
           (if more than 1 dimension has been calculated).
         """
-        contrib_to_overall_change_threshold = self.profile.threshold_percent
+        contrib_to_overall_change_threshold = (
+            self.profile.percent_change.contrib_to_overall_change_threshold_percent
+        )
         large_contrib_to_change = {}
 
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
@@ -70,7 +73,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             profile=self.profile, date_ranges=self.date_ranges
         )._get_current_and_baseline_values()
 
-        for dimension in self.profile.dimensions:
+        for dimension in self.profile.percent_change.dimensions:
             values = self._get_current_and_baseline_values(dimensions=[dimension])
             percent_change_df = self._calculate_percent_change(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
@@ -99,7 +102,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             large_contrib_to_change[dimension] = result[
                 abs(result["contrib_to_overall_change"]) > contrib_to_overall_change_threshold
             ].sort_values(
-                by=self.profile.sort_by,
+                by=self.profile.percent_change.sort_by,
                 key=abs,
                 ascending=False,
                 ignore_index=True,

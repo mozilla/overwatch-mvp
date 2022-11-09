@@ -12,10 +12,10 @@ class ReportGenerator:
         self.template = template
         self.input_path = Path(os.path.dirname(__file__))
         filename_base = (
-            evaluation["profile"].metric_name
+            evaluation["profile"].dataset.metric_name
             + (
-                "_" + evaluation["profile"].app_name
-                if evaluation["profile"].app_name is not None
+                "_" + evaluation["profile"].dataset.app_name
+                if evaluation["profile"].dataset.app_name is not None
                 else ""
             )
             + "_"

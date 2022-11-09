@@ -1,0 +1,35 @@
+# Analysis Example 2
+# Checking Fenix new profiles drop from Apr 16
+# https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
+
+[analysis_profile]
+name="Fenix new profiles"
+
+[analysis_profile.dataset]
+metric_name="new_profiles"
+# this will have to specify the query template
+table_name="active_user_aggregates"
+app_name="Fenix"  # this is very specific
+
+[analysis_profile.percent_change]
+contrib_to_overall_change_threshold_percent = 1
+dimensions=[
+            "region_name",
+#            "subregion_name",
+#            "country",
+#            "channel",
+]
+sort_by=[
+    "contrib_to_overall_change",
+    "percent_change",
+    "change_to_contrib",
+    "percent_significance",
+]
+
+[notification]
+[notification.report]
+template = "report_version2.html.j2"
+
+[notification.slack]
+channel = "#overwatch-mvp"
+message = "Fenix New Profiles"

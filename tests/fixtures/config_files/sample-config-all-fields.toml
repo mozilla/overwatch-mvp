@@ -1,0 +1,30 @@
+# Sample config will all fields
+
+[analysis_profile]
+name="Config with all fields"
+
+[analysis_profile.dataset]
+metric_name="unit_test_metric"
+table_name="test"
+app_name="unit test app_name"
+
+[analysis_profile.percent_change]
+contrib_to_overall_change_threshold_percent = 1
+dimensions=[
+            "country",
+            "channel",
+]
+sort_by=[
+    "contrib_to_overall_change",
+    "percent_change",
+    "change_to_contrib",
+    "percent_significance",
+]
+
+[notification]
+[notification.report]
+template = "report_version2.html.j2"
+
+[notification.slack]
+channel = "#unit-test-channel"
+message = "Unit test message"
