@@ -1,0 +1,29 @@
+# Analysis Example 5
+# Download tracking
+[analysis_profile]
+name="Site Metrics Downloads"
+
+[analysis_profile.dataset]
+metric_name="downloads"
+# this will have to specify the query template
+table_name="www_site_metrics_summary_v1"
+
+[analysis_profile.percent_change]
+contrib_to_overall_change_threshold_percent = 1
+dimensions=[
+    "country",
+]
+sort_by=[
+    "contrib_to_overall_change",
+    "percent_change",
+    "change_to_contrib",
+    "percent_significance",
+]
+
+[notification]
+[notification.report]
+template = "report_version2.html.j2"
+
+[notification.slack]
+channel = "#overwatch-mvp"
+message = "Site Metrics Downloads"

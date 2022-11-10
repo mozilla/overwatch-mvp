@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from analysis.data.metric import MetricLookupManager
-from analysis.detection.profile import AnalysisProfile
+from analysis.configuration.configs import AnalysisProfile
 
 
 class TopLevelEvaluator:
@@ -12,17 +12,17 @@ class TopLevelEvaluator:
 
     def _get_current_and_baseline_values(self) -> DataFrame:
         current_df = MetricLookupManager().get_metric_with_date_range(
-            metric_name=self.profile.metric_name,
-            table_name=self.profile.table_name,
-            app_name=self.profile.app_name,
+            metric_name=self.profile.dataset.metric_name,
+            table_name=self.profile.dataset.table_name,
+            app_name=self.profile.dataset.app_name,
             date_range=self.date_ranges.get("recent_period"),
         )
         current_df["timeframe"] = "current"
 
         baseline_df = MetricLookupManager().get_metric_with_date_range(
-            metric_name=self.profile.metric_name,
-            table_name=self.profile.table_name,
-            app_name=self.profile.app_name,
+            metric_name=self.profile.dataset.metric_name,
+            table_name=self.profile.dataset.table_name,
+            app_name=self.profile.dataset.app_name,
             date_range=self.date_ranges.get("previous_period"),
         )
         baseline_df["timeframe"] = "baseline"

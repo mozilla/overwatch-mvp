@@ -1,7 +1,21 @@
 from datetime import datetime
+from analysis.configuration.loader import Loader
 
 import pytest
 from pandas import DataFrame, concat
+from pathlib import Path
+
+FIXTURE_PATH = Path(__file__).with_name("fixtures")
+
+
+@pytest.fixture
+def mock_config():
+    return Loader.load_config(FIXTURE_PATH / "config_files" / "sample-config-all-fields.toml")
+
+
+@pytest.fixture
+def mock_analysis_profile(mock_config):
+    return mock_config.analysis_profile
 
 
 @pytest.fixture

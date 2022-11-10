@@ -1,0 +1,34 @@
+from analysis.configuration.configs import Config
+
+
+def test_load_config(mock_config: Config):
+    assert mock_config.analysis_profile
+    assert mock_config.analysis_profile.name == "Config with all fields"
+
+    assert mock_config.analysis_profile.percent_change
+    assert (
+        mock_config.analysis_profile.percent_change.contrib_to_overall_change_threshold_percent == 1
+    )
+    assert mock_config.analysis_profile.percent_change.dimensions == [
+        "country",
+        "channel",
+    ]
+    assert mock_config.analysis_profile.percent_change.sort_by == [
+        "contrib_to_overall_change",
+        "percent_change",
+        "change_to_contrib",
+        "percent_significance",
+    ]
+
+    assert mock_config.analysis_profile.dataset
+    assert mock_config.analysis_profile.dataset.metric_name == "unit_test_metric"
+    assert mock_config.analysis_profile.dataset.table_name == "test"
+    assert mock_config.analysis_profile.dataset.app_name == "unit test app_name"
+
+    assert mock_config.notification
+    assert mock_config.notification.report
+    assert mock_config.notification.report.template == "report_version2.html.j2"
+
+    assert mock_config.notification.slack
+    assert mock_config.notification.slack.channel == "#unit-test-channel"
+    assert mock_config.notification.slack.message == "Unit test message"

@@ -1,0 +1,32 @@
+# Analysis Example 1
+# Checking for increase in Firefox Desktop MAU from Nov 30.
+[analysis_profile]
+name="Desktop MAU"
+
+[analysis_profile.dataset]
+metric_name="mau"
+# this will have to specify the query template
+table_name="active_user_aggregates"
+app_name="Firefox Desktop"  # this is very specific
+
+[analysis_profile.percent_change]
+contrib_to_overall_change_threshold_percent = 1
+dimensions=[
+    "region_name",
+    "subregion_name",
+    "country",
+]
+sort_by=[
+    "contrib_to_overall_change",
+    "percent_change",
+    "change_to_contrib",
+    "percent_significance",
+]
+
+[notification]
+[notification.report]
+template = "report_version2.html.j2"
+
+[notification.slack]
+channel = "#overwatch-mvp"
+message = "Firefox Desktop MAU"

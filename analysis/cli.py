@@ -1,3 +1,4 @@
+from typing import Iterable
 from datetime import datetime
 
 import click
@@ -5,10 +6,11 @@ import click
 from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvaluator
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
-from analysis.detection.profile import AnalysisProfile
+from analysis.configuration.configs import AnalysisProfile, Notification
 from analysis.logging import logger
 from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
+from analysis.configuration.loader import Loader
 
 
 @click.group()
@@ -36,30 +38,28 @@ def find_significant_dimensions(profile: AnalysisProfile, date_ranges: dict) -> 
     return top_level_evaluation | one_dim_evaluation | multi_dim_evaluation
 
 
-def issue_report(profile: AnalysisProfile, evaluation: dict, date_ranges: dict):
+def issue_report(
+    profile: AnalysisProfile, notif_config: Notification, evaluation: dict, date_ranges: dict
+):
     evaluation["profile"] = profile
 
     report_generator = ReportGenerator(
         output_dir="generated_reports",
-        template="report_version2.html.j2",
+        template=notif_config.report.template,
         evaluation=evaluation,
         date_ranges=date_ranges,
     )
 
     pdfreport_filename = report_generator.build_pdf_report()
-    notifier = SlackNotifier(output_pdf=pdfreport_filename, metric_name=profile.metric_name)
+    # TODO GLE hard coded to only publish to Slack for MVP
+    notifier = SlackNotifier(output_pdf=pdfreport_filename, config=notif_config.slack)
     notifier.publish_pdf_report()
 
 
-@cli.command()
-def run_analysis():
-    logger.info("Starting analysis")
-    # Analysis Example 2
-    # Checking Fenix new profiles drop from Apr 16
-    # https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
+# This function is temporary until the date range config is added.
+def _collect_time_ranges() -> dict[str, dict]:
+    all_dates = {}
     new_profiles_fenix_date_ranges_of_interest = {
-        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
-        # For single day configuration set start_date = end_date.
         "previous_period": {
             "start_date": datetime.strptime("2022-04-04", "%Y-%m-%d"),
             "end_date": datetime.strptime("2022-04-10", "%Y-%m-%d"),
@@ -69,31 +69,9 @@ def run_analysis():
             "end_date": datetime.strptime("2022-04-16", "%Y-%m-%d"),
         },
     }
-    new_profiles_fenix_ap = AnalysisProfile(
-        # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=1,
-        metric_name="new_profiles",
-        table_name="active_user_aggregates",
-        app_name="Fenix",
-        dimensions=[
-            "region_name",
-            # "subregion_name",
-            # "country",
-            # "channel",
-        ],
-        sort_by=[
-            "contrib_to_overall_change",
-            "percent_change",
-            "change_to_contrib",
-            "percent_significance",
-        ],
-    )
+    all_dates["Fenix new profiles"] = new_profiles_fenix_date_ranges_of_interest
 
-    # Analysis Example 3
-    # Checking increase in Firefox Desktop New Profiles from June 30 back 60 days
     new_profiles_desktop_date_ranges_of_interest = {
-        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
-        # For single day configuration set start_date = end_date.
         "previous_period": {
             "start_date": datetime.strptime("2022-05-01", "%Y-%m-%d"),
             "end_date": datetime.strptime("2022-05-01", "%Y-%m-%d"),
@@ -103,64 +81,8 @@ def run_analysis():
             "end_date": datetime.strptime("2022-06-30", "%Y-%m-%d"),
         },
     }
+    all_dates["Desktop new profiles"] = new_profiles_desktop_date_ranges_of_interest
 
-    new_profiles_desktop_ap = AnalysisProfile(
-        # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=0.25,
-        metric_name="new_profiles",
-        table_name="active_user_aggregates",
-        app_name="Firefox Desktop",
-        dimensions=[
-            "region_name",
-            "subregion_name",
-            "country",
-            "app_version",
-        ],
-        sort_by=[
-            "contrib_to_overall_change",
-            "percent_change",
-            "change_to_contrib",
-            "percent_significance",
-        ],
-    )
-
-    # Analysis Example 1
-    # Checking for increase in Firefox Desktop MAU from Nov 30.
-    mau_firefox_desktop_date_ranges_of_interest = {
-        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
-        # For single day configuration set start_date = end_date.
-        "previous_period": {
-            "start_date": datetime.strptime("2021-11-02", "%Y-%m-%d"),
-            "end_date": datetime.strptime("2021-11-02", "%Y-%m-%d"),
-        },
-        "recent_period": {
-            "start_date": datetime.strptime("2021-11-30", "%Y-%m-%d"),
-            "end_date": datetime.strptime("2021-11-30", "%Y-%m-%d"),
-        },
-    }
-
-    mau_firefox_desktop_ap = AnalysisProfile(
-        # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=1,
-        metric_name="mau",
-        app_name="Firefox Desktop",
-        table_name="active_user_aggregates",
-        dimensions=[
-            "region_name",
-            "subregion_name",
-            "country",
-        ],
-        sort_by=[
-            "contrib_to_overall_change",
-            "percent_change",
-            "change_to_contrib",
-            "percent_significance",
-        ],
-    )
-
-    # Analysis Example 4
-    # Checking for drop in Fenix DAU mid March
-    # https://docs.google.com/document/d/1umr5P35s4WM2zULyfNoBH_QrGubT9r89QeIuhE14Lzg/edit#
     dau_fenix_date_ranges_of_interest = {
         # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
         # For single day configuration set start_date = end_date.
@@ -173,28 +95,22 @@ def run_analysis():
             "end_date": datetime.strptime("2022-03-25", "%Y-%m-%d"),
         },
     }
+    all_dates["Fenix DAU"] = dau_fenix_date_ranges_of_interest
 
-    dau_fenix_ap = AnalysisProfile(
-        # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=1,
-        metric_name="dau",
-        app_name="Fenix",
-        table_name="active_user_aggregates",
-        dimensions=[
-            "region_name",
-            "subregion_name",
-            "country",
-        ],
-        sort_by=[
-            "contrib_to_overall_change",
-            "percent_change",
-            "change_to_contrib",
-            "percent_significance",
-        ],
-    )
+    mau_firefox_desktop_date_ranges_of_interest = {
+        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
+        # For single day configuration set start_date = end_date.
+        "previous_period": {
+            "start_date": datetime.strptime("2021-11-02", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2021-11-02", "%Y-%m-%d"),
+        },
+        "recent_period": {
+            "start_date": datetime.strptime("2021-11-30", "%Y-%m-%d"),
+            "end_date": datetime.strptime("2021-11-30", "%Y-%m-%d"),
+        },
+    }
+    all_dates["Desktop MAU"] = mau_firefox_desktop_date_ranges_of_interest
 
-    # Analysis Example 5
-    # Download tracking
     download_date_ranges_of_interest = {
         # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
         # For single day configuration set start_date = end_date.
@@ -207,47 +123,49 @@ def run_analysis():
             "end_date": datetime.strptime("2022-08-06", "%Y-%m-%d"),
         },
     }
-    download_ap = AnalysisProfile(
-        # in this case threshold_percent is the threshold for contribution to overall change
-        threshold_percent=1,
-        metric_name="downloads",
-        table_name="www_site_metrics_summary_v1",
-        dimensions=[
-            "country",
-        ],
-        sort_by=[
-            "contrib_to_overall_change",
-            "percent_change",
-            "change_to_contrib",
-            "percent_significance",
-        ],
-    )
 
-    analysis_profiles = [
-        (new_profiles_fenix_ap, new_profiles_fenix_date_ranges_of_interest),
-        (new_profiles_desktop_ap, new_profiles_desktop_date_ranges_of_interest),
-        (dau_fenix_ap, dau_fenix_date_ranges_of_interest),
-        (mau_firefox_desktop_ap, mau_firefox_desktop_date_ranges_of_interest),
-        (download_ap, download_date_ranges_of_interest),
-    ]
+    all_dates["Site Metrics Downloads"] = download_date_ranges_of_interest
+    return all_dates
 
-    for (profile, date_ranges) in analysis_profiles:
-        significant_dims = find_significant_dimensions(profile=profile, date_ranges=date_ranges)
-        issue_report(
-            profile=profile,
-            evaluation=significant_dims,
-            date_ranges=date_ranges,
-        )
 
+@cli.command()
+@click.argument("paths", required=True, type=click.Path(exists=True, file_okay=True), nargs=-1)
+def run_analysis(paths: Iterable[str]):
+    logger.info("Starting analysis")
+    date_ranges = _collect_time_ranges()
+    for path in paths:
+        configs = Loader.load_all_config_files(path)
+
+        # TODO GLE temp mapping of date range to Config
+        #  will be removed once data range config completed.
+        run_config = []
+        for config in configs:
+            run_config.append((config, date_ranges[config.analysis_profile.name]))
+
+        for (config, date_ranges) in run_config:
+            significant_dims = find_significant_dimensions(
+                profile=config.analysis_profile, date_ranges=date_ranges
+            )
+            issue_report(
+                profile=config.analysis_profile,
+                evaluation=significant_dims,
+                date_ranges=date_ranges,
+                notif_config=config.notification,
+            )
     logger.info("Analysis completed")
 
 
 @cli.command()
-@click.argument(
-    "config_files", required=True, type=click.Path(exists=True, file_okay=True), nargs=-1
-)
-def validate_config(config_files):
-    logger.info(f"Validating config files in: {config_files}")
+@click.argument("paths", required=True, type=click.Path(exists=True, file_okay=True), nargs=-1)
+def validate_config(paths: Iterable[str]):
+    """
+    Does not actually validate, only loads the config files.
+    """
+    logger.info(f"Validating config files in: {paths}")
+
+    for path in paths:
+        configs = Loader.load_all_config_files(path)
+        logger.info(f"Loaded config: {configs} for path:{path}")
 
 
 if __name__ == "__main__":
