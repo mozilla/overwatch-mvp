@@ -12,13 +12,16 @@ class PercentChange:
 class Dataset:
     metric_name: str = attr.ib()
     table_name: str = attr.ib()
+    date_range_offset: int = attr.ib()
+    current_date_range: int = attr.ib()
+    previous_date_range: int = attr.ib()
     app_name: str = attr.ib(None)
 
 
 @attr.s(auto_attribs=True)
 class AnalysisProfile:
     name: str = attr.ib()
-    # TODO GLE in the future there may be other calculations types supported.
+    # In the future there may be other calculations types supported.
     percent_change: PercentChange = attr.ib()
     dataset: Dataset = attr.ib()
 
@@ -34,7 +37,7 @@ class Report:
     template: str = attr.ib()
 
 
-# TODO GLE Notification will need to support multiple notification types (e.g. slack, jira).
+# In the future Notification will need to support multiple notification types (e.g. slack, jira).
 @attr.s(auto_attribs=True)
 class Notification:
     report: Report = attr.ib()

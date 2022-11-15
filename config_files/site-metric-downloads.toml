@@ -1,5 +1,3 @@
-# Analysis Example 5
-# Download tracking
 [analysis_profile]
 name="Site Metrics Downloads"
 
@@ -7,6 +5,9 @@ name="Site Metrics Downloads"
 metric_name="downloads"
 # this will have to specify the query template
 table_name="www_site_metrics_summary_v1"
+date_range_offset = 7
+current_date_range= 1
+previous_date_range = 1
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1

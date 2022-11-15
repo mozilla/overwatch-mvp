@@ -24,14 +24,14 @@ image:
 dev_push:
 	docker tag ${IMAGE_NAME} ${IMAGE_REPO}/${IMAGE_NAME}
 	docker push ${IMAGE_REPO}/${IMAGE_NAME}
- 
+
 run:
 	docker run -v ${CREDENTIAL_VOLUME_MOUNT}:/app/credentials \
 		-e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/${DESTINATION_CREDENTIAL_FILENAME} \
 		-e SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN} \
 		--name ${CONTAINER_NAME} \
 		--rm \
-		 ${IMAGE_NAME} 
+		 ${IMAGE_NAME} run-analysis ./config_files --date=$(RUN_DATE)
 
 shell:
 	docker run -it --entrypoint=/bin/bash --rm --name ${CONTAINER_NAME} ${IMAGE_NAME}
@@ -45,5 +45,3 @@ test-image: ## Builds test Docker image containing all dev requirements
 
 ci_test: test-image ## Builds test Docker image and executes Python tests
 	docker run ${TEST_IMAGE_NAME} python -m pytest tests analysis
-
-

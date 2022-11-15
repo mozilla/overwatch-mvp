@@ -10,8 +10,8 @@
 <h1>Automated Analysis</h1>
     <h3>Created: {{evaluation.creation_time}}</h3>
     <p><b>Metric Name:</b> {{evaluation.profile.dataset.metric_name}}</p>
-    <p><b>Previous Period:</b> {{date_ranges.previous_period.start_date}} to {{date_ranges.previous_period.end_date}}</p>
-    <p><b>Recent Period:</b> {{date_ranges.recent_period.start_date}} to {{date_ranges.recent_period.end_date}}</p>
+    <p><b>Previous Period:</b> {{previous_date_range.start_date}} to {{previous_date_range.end_date}} (exclusive)</p>
+    <p><b>Recent Period:</b> {{recent_date_range.start_date}} to {{recent_date_range.end_date}} (exclusive)</p>
 
     <h2>Overall</h2>
     <p><b>Percent change:</b> {{evaluation.top_level_percent_change}}% </p>

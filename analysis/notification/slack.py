@@ -33,7 +33,5 @@ class SlackNotifier:
             )
             assert response["file"]  # the uploaded file
         except SlackApiError as e:
-            # You will get a SlackApiError if "ok" is False
-            logger.error(
-                f'Unable to upload file to Slack channel, received: {e.response["status"]}'
-            )
+            # TODO GLE how to notify if cannot push to Slack?
+            logger.error(f"Unable to upload file to Slack channel, received: {e.response}")

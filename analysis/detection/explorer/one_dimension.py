@@ -7,13 +7,20 @@ from analysis.data.metric import MetricLookupManager
 from analysis.detection.explorer.dimension_evaluator import DimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.configuration.configs import AnalysisProfile
+from analysis.configuration.processing_dates import ProcessingDateRange
 
 
 class OneDimensionEvaluator(DimensionEvaluator):
-    def __init__(self, profile: AnalysisProfile, date_ranges: dict):
-        # TODO GLE currently the profile only references percent_change.
+    def __init__(
+        self,
+        profile: AnalysisProfile,
+        previous_date_range: ProcessingDateRange,
+        current_date_range: ProcessingDateRange,
+    ):
+        # Currently the profile only references percent_change.
         self.profile = profile
-        self.date_ranges = date_ranges
+        self.previous_date_range = previous_date_range
+        self.recent_date_range = current_date_range
 
     def _get_current_and_baseline_values(self, dimensions: list) -> DataFrame:
         """
@@ -35,7 +42,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("recent_period"),
+            date_range=self.recent_date_range,
             dimension=dimensions[0],
         )
         current_by_dimension["timeframe"] = "current"
@@ -43,7 +50,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("previous_period"),
+            date_range=self.previous_date_range,
             dimension=dimensions[0],
         )
         baseline_by_dimension["timeframe"] = "baseline"
@@ -70,7 +77,9 @@ class OneDimensionEvaluator(DimensionEvaluator):
 
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
         top_level_df = TopLevelEvaluator(
-            profile=self.profile, date_ranges=self.date_ranges
+            profile=self.profile,
+            previous_date_range=self.previous_date_range,
+            current_date_range=self.recent_date_range,
         )._get_current_and_baseline_values()
 
         for dimension in self.profile.percent_change.dimensions:

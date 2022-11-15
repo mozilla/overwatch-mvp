@@ -3,19 +3,26 @@ from pandas import DataFrame
 
 from analysis.data.metric import MetricLookupManager
 from analysis.configuration.configs import AnalysisProfile
+from analysis.configuration.processing_dates import ProcessingDateRange
 
 
 class TopLevelEvaluator:
-    def __init__(self, profile: AnalysisProfile, date_ranges: dict):
+    def __init__(
+        self,
+        profile: AnalysisProfile,
+        previous_date_range: ProcessingDateRange,
+        current_date_range: ProcessingDateRange,
+    ):
         self.profile = profile
-        self.date_ranges = date_ranges
+        self.previous_date_range = previous_date_range
+        self.recent_date_range = current_date_range
 
     def _get_current_and_baseline_values(self) -> DataFrame:
         current_df = MetricLookupManager().get_metric_with_date_range(
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("recent_period"),
+            date_range=self.recent_date_range,
         )
         current_df["timeframe"] = "current"
 
@@ -23,7 +30,7 @@ class TopLevelEvaluator:
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("previous_period"),
+            date_range=self.previous_date_range,
         )
         baseline_df["timeframe"] = "baseline"
 

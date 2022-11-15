@@ -8,15 +8,22 @@ from analysis.data.metric import MetricLookupManager
 from analysis.detection.explorer.dimension_evaluator import DimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.configuration.configs import AnalysisProfile
+from analysis.configuration.processing_dates import ProcessingDateRange
 
 # TODO GLE only doing additive algm not the ratio algm.
 
 
 class MultiDimensionEvaluator(DimensionEvaluator):
-    def __init__(self, profile: AnalysisProfile, date_ranges: dict):
+    def __init__(
+        self,
+        profile: AnalysisProfile,
+        previous_date_range: ProcessingDateRange,
+        current_date_range: ProcessingDateRange,
+    ):
         # TODO GLE currently the profile only references percent_change.
         self.profile = profile
-        self.date_ranges = date_ranges
+        self.previous_date_range = previous_date_range
+        self.recent_date_range = current_date_range
 
     def _get_current_and_baseline_values(self, dimensions: list) -> DataFrame:
         """
@@ -35,7 +42,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("recent_period"),
+            date_range=self.recent_date_range,
             dimensions=dimensions[0],
         )
         current["timeframe"] = "current"
@@ -43,7 +50,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.date_ranges.get("previous_period"),
+            date_range=self.previous_date_range,
             dimensions=dimensions[0],
         )
         baseline["timeframe"] = "baseline"
@@ -71,7 +78,9 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         # TODO the top level is a OneDimensionEvaluator?  For now use overall but may need to use a
         #  different evaluator and order the dimensions
         top_level_df = TopLevelEvaluator(
-            profile=self.profile, date_ranges=self.date_ranges
+            profile=self.profile,
+            previous_date_range=self.previous_date_range,
+            current_date_range=self.recent_date_range,
         )._get_current_and_baseline_values()
 
         # Get all permutations and filter duplicates (a, b) = (b, a)

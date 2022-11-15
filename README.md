@@ -55,7 +55,7 @@ make build
 ## Running Overwatch as a Docker container locally
 After building the docker image use the following command to launch the container:
 ```
-make run CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
+make run RUN_DATE=<YYYY-MM-DD> CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
 ```
 
 To run the docker image with access to a shell prompt use (generally for debugging purposes):
