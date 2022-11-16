@@ -1,5 +1,6 @@
 from datetime import datetime
 from analysis.configuration.loader import Loader
+from analysis.configuration.processing_dates import ProcessingDateRange
 
 import pytest
 from pandas import DataFrame, concat
@@ -122,16 +123,16 @@ def multi_dimension_df(mock_current_multi_dimension_values, mock_baseline_multi_
 
 
 @pytest.fixture
-def date_ranges_of_interest():
-    return {
-        # 7 day configuration, dates are inclusive.  Current max window average is 7 days.
-        # For single day configuration set start_date = end_date.
-        "previous_period": {
-            "start_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
-            "end_date": datetime.strptime("2022-04-02", "%Y-%m-%d"),
-        },
-        "recent_period": {
-            "start_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
-            "end_date": datetime.strptime("2022-04-09", "%Y-%m-%d"),
-        },
-    }
+def mock_previous_date_range():
+    return ProcessingDateRange(
+        start_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
+        end_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
+    )
+
+
+@pytest.fixture
+def mock_current_date_range():
+    return ProcessingDateRange(
+        start_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),
+        end_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),
+    )

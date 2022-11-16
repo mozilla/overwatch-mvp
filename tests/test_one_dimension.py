@@ -4,7 +4,9 @@ from pandas.testing import assert_frame_equal
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 
 
-def test_percent_change(date_ranges_of_interest, dimension_df, mock_analysis_profile):
+def test_percent_change(
+    mock_previous_date_range, mock_current_date_range, dimension_df, mock_analysis_profile
+):
     rows = [
         ["mx", 26.6667, "country"],
         ["ca", 14.2857, "country"],
@@ -14,13 +16,19 @@ def test_percent_change(date_ranges_of_interest, dimension_df, mock_analysis_pro
     expected_df = DataFrame(rows, columns=cols)
 
     percent_change = OneDimensionEvaluator(
-        profile=mock_analysis_profile, date_ranges=date_ranges_of_interest
+        profile=mock_analysis_profile,
+        previous_date_range=mock_previous_date_range,
+        current_date_range=mock_current_date_range,
     )._calculate_percent_change(df=dimension_df)
     assert_frame_equal(expected_df, percent_change)
 
 
 def test_calculate_contribution_to_overall_change(
-    date_ranges_of_interest, dimension_df, parent_df, mock_analysis_profile
+    mock_previous_date_range,
+    mock_current_date_range,
+    dimension_df,
+    parent_df,
+    mock_analysis_profile,
 ):
     # calculation =
     # 100 * (current_value - baseline_value) / abs((parent_baseline_value - parent_current_value))
@@ -33,14 +41,20 @@ def test_calculate_contribution_to_overall_change(
     expected_df = DataFrame(rows, columns=cols)
 
     contr_to_change = OneDimensionEvaluator(
-        profile=mock_analysis_profile, date_ranges=date_ranges_of_interest
+        profile=mock_analysis_profile,
+        previous_date_range=mock_previous_date_range,
+        current_date_range=mock_current_date_range,
     )._calculate_contribution_to_overall_change(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 
 
 def test_change_to_contribution(
-    date_ranges_of_interest, dimension_df, parent_df, mock_analysis_profile
+    mock_previous_date_range,
+    mock_current_date_range,
+    dimension_df,
+    parent_df,
+    mock_analysis_profile,
 ):
     # calculation =
     # 100 * ((current_value/parent_current_value) - (baseline_value/parent_baseline_value))
@@ -55,14 +69,20 @@ def test_change_to_contribution(
     expected_df = DataFrame(rows, columns=cols)
 
     change_to_contrib = OneDimensionEvaluator(
-        profile=mock_analysis_profile, date_ranges=date_ranges_of_interest
+        profile=mock_analysis_profile,
+        previous_date_range=mock_previous_date_range,
+        current_date_range=mock_current_date_range,
     )._calculate_change_to_contribution(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
 
 
 def test_calculate_significance(
-    date_ranges_of_interest, dimension_df, parent_df, mock_analysis_profile
+    mock_previous_date_range,
+    mock_current_date_range,
+    dimension_df,
+    parent_df,
+    mock_analysis_profile,
 ):
     rows = [
         ["us", 62.7657, "country"],
@@ -73,7 +93,9 @@ def test_calculate_significance(
     expected_df = DataFrame(rows, columns=cols)
 
     significance = OneDimensionEvaluator(
-        profile=mock_analysis_profile, date_ranges=date_ranges_of_interest
+        profile=mock_analysis_profile,
+        previous_date_range=mock_previous_date_range,
+        current_date_range=mock_current_date_range,
     )._calculate_significance(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, significance)

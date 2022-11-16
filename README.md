@@ -13,6 +13,14 @@ python -m pip install -e ".[testing]"
 pre-commit install
 ```
 
+## Developing in PyCharm
+###Run/Debug Configurations
+1. Select `Module name:` from the drop list for the first field and enter `analysis.cli`
+1. In the `Parameters:` field enter `run-analysis --date=2022-11-15 ./config_files`  (any date can be specified)
+1. In the `Environment variables:` field enter
+
+       PYTHONUNBUFFERED=1;SLACK_BOT_TOKEN=<slackbot_token>;GOOGLE_APPLICATION_CREDENTIALS=<service account file>
+    Contact gleonard@mozilla.com for SLACK_BOT_TOKEN
 ## To update dependencies:
 ### DO NOT UPDATE requirements.txt or requirements.in manually!!!
 
@@ -55,7 +63,7 @@ make build
 ## Running Overwatch as a Docker container locally
 After building the docker image use the following command to launch the container:
 ```
-make run CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
+make run RUN_DATE=<YYYY-MM-DD> CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
 ```
 
 To run the docker image with access to a shell prompt use (generally for debugging purposes):

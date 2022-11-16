@@ -4,11 +4,19 @@ from pathlib import Path
 
 import pdfkit
 from jinja2 import Environment, FileSystemLoader
+from analysis.configuration.processing_dates import ProcessingDateRange
 
 
 # TODO GLE A lot more thought needs to be added to the report/notfication.
 class ReportGenerator:
-    def __init__(self, output_dir, template: str, evaluation: dict, date_ranges: dict):
+    def __init__(
+        self,
+        output_dir,
+        template: str,
+        evaluation: dict,
+        previous_date_range: ProcessingDateRange,
+        recent_date_range: ProcessingDateRange,
+    ):
         self.template = template
         self.input_path = Path(os.path.dirname(__file__))
         filename_base = (
@@ -19,7 +27,7 @@ class ReportGenerator:
                 else ""
             )
             + "_"
-            + date_ranges.get("recent_period").get("end_date").strftime("%Y-%m-%d")
+            + recent_date_range.end_date.strftime("%Y-%m-%d")
         )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -27,7 +35,8 @@ class ReportGenerator:
         self.output_html = os.path.join(output_dir, filename_base + ".html")
         self.output_pdf = os.path.join(output_dir, filename_base + ".pdf")
         self.evaluation = evaluation
-        self.date_ranges = date_ranges
+        self.previous_date_range = previous_date_range
+        self.recent_date_range = recent_date_range
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())
@@ -39,7 +48,8 @@ class ReportGenerator:
             fh.write(
                 template.render(
                     evaluation=self.evaluation,
-                    date_ranges=self.date_ranges,
+                    previous_date_range=self.previous_date_range,
+                    recent_date_range=self.recent_date_range,
                 )
             )
 

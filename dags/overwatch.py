@@ -22,23 +22,28 @@ default_args = {
     "retry_delay": timedelta(minutes=30),
 }
 
-# temp for finding dag easily.
+# TODO GLE temp for finding dag easily.
 tags = ["overwatch"]
 image = "gcr.io/automated-analysis-dev/overwatch:" + Variable.get("overwatch_image_version")
 
-with DAG("overwatch", default_args=default_args, schedule_interval="@daily", doc_md=__doc__, tags=tags,) as dag:
+with DAG(
+    "overwatch",
+    default_args=default_args,
+    schedule_interval="@daily",
+    doc_md=__doc__,
+    tags=tags,
+) as dag:
     run_analysis = GKEPodOperator(
         task_id="run_analysis",
         name="run_analysis",
         image=image,
         email=["gleonard@mozilla.com"],
         dag=dag,
-        env_vars={
-            "SLACK_BOT_TOKEN": Variable.get("overwatch_slack_token")
-        },
+        env_vars={"SLACK_BOT_TOKEN": Variable.get("overwatch_slack_token")},
+        arguments=["run-analysis", "--date={{ ds }}", "./config_files/"],
         # Temp setting for dev testing.
-        gcp_conn_id='google_cloud_gke_sandbox',
-        project_id='moz-fx-data-gke-sandbox',
-        cluster_name='gleonard-gke-sandbox',
-        location='us-west1',
+        gcp_conn_id="google_cloud_gke_sandbox",
+        project_id="moz-fx-data-gke-sandbox",
+        cluster_name="gleonard-gke-sandbox",
+        location="us-west1",
     )

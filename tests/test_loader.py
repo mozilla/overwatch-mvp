@@ -24,6 +24,9 @@ def test_load_config(mock_config: Config):
     assert mock_config.analysis_profile.dataset.metric_name == "unit_test_metric"
     assert mock_config.analysis_profile.dataset.table_name == "test"
     assert mock_config.analysis_profile.dataset.app_name == "unit test app_name"
+    assert mock_config.analysis_profile.dataset.date_range_offset == 14
+    assert mock_config.analysis_profile.dataset.current_date_range == 1
+    assert mock_config.analysis_profile.dataset.previous_date_range == 7
 
     assert mock_config.notification
     assert mock_config.notification.report

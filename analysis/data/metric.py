@@ -1,8 +1,11 @@
 import pandas as pd
 from google.cloud import bigquery
+from google.api_core.exceptions import Forbidden
 from pandas import DataFrame
 
 from analysis.logging import logger
+from analysis.configuration.processing_dates import ProcessingDateRange
+from analysis.errors import NoDataFoundForDateRange, BigQueryPermissionsError
 
 
 class MetricLookupManager:
@@ -30,7 +33,7 @@ class MetricLookupManager:
                         `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a
                     WHERE
                         submission_date >= @start_date
-                        AND submission_date <= @end_date
+                        AND submission_date < @end_date
                         AND app_name="@app_name"
                     GROUP BY
                         submission_date,
@@ -39,9 +42,8 @@ class MetricLookupManager:
                 ORDER BY
                 submission_date
             )
-            where  submission_date = @end_date
+            where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
         """
-
         # Note that for this query the returned column name must be metric_value for downstream
         # processing
         self.metric_by_dim_aua = """
@@ -61,7 +63,7 @@ class MetricLookupManager:
                         `mozdata.static.country_codes_v1` c
                     WHERE
                         submission_date >= @start_date
-                        AND submission_date <= @end_date
+                        AND submission_date < @end_date
                         AND app_name="@app_name"
                         AND a.country = c.code
                     GROUP BY
@@ -73,9 +75,8 @@ class MetricLookupManager:
                     @dimension,
                     submission_date
             )
-            WHERE submission_date = @end_date
+            where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
         """
-
         self.metric_by_multi_dim_aua = """
             SELECT
                 @full_dim_value_spec,
@@ -96,7 +97,7 @@ class MetricLookupManager:
                         `mozdata.static.country_codes_v1` c
                     WHERE
                         submission_date >= @start_date
-                        AND submission_date <= @end_date
+                        AND submission_date < @end_date
                         AND app_name="@app_name"
                         AND a.country = c.code
                     GROUP BY
@@ -107,7 +108,7 @@ class MetricLookupManager:
                         @full_dim_spec,
                         submission_date
                 )
-            WHERE submission_date = @end_date
+            where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
         """
 
         # Note that for this query the returned column name must be metric_value for downstream
@@ -126,14 +127,14 @@ class MetricLookupManager:
                         `moz-fx-data-marketing-prod.ga_derived.www_site_metrics_summary_v1`
                     WHERE
                         date >= @start_date
-                        AND date <= @end_date
+                        AND date < @end_date
                     GROUP BY date
                     ORDER BY date desc
                 ) AS t1
                 ORDER BY
                 submission_date
             )
-            where submission_date = @end_date
+            where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
         """
 
         # Note that for this query the returned column name must be metric_value for downstream
@@ -153,14 +154,14 @@ class MetricLookupManager:
                         `moz-fx-data-marketing-prod.ga_derived.www_site_metrics_summary_v1`
                     WHERE
                         date >= @start_date
-                        AND date <= @end_date
+                        AND date < @end_date
                     GROUP BY @dimension, date
                     ORDER BY @dimension, date
                 ) AS t1
                 ORDER BY
                 submission_date
             )
-            where submission_date = @end_date
+            where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
         """
 
         self.query_cache = {
@@ -176,7 +177,7 @@ class MetricLookupManager:
         query: str,
         metric: str,
         app_name: str,
-        date_range: dict,
+        date_range: ProcessingDateRange,
         dimension: str = None,
         full_dim_spec: str = None,
         full_dim_value_spec: str = None,
@@ -186,14 +187,18 @@ class MetricLookupManager:
                 bigquery.ScalarQueryParameter(
                     "start_date",
                     "STRING",
-                    date_range.get("start_date").strftime(self.SUBMISSION_DATE_FORMAT),
+                    date_range.start_date.strftime(self.SUBMISSION_DATE_FORMAT),
                 ),
                 bigquery.ScalarQueryParameter(
                     "end_date",
                     "STRING",
-                    date_range.get("end_date").strftime(self.SUBMISSION_DATE_FORMAT),
+                    date_range.end_date.strftime(self.SUBMISSION_DATE_FORMAT),
                 ),
             ]
+        )
+
+        query = query.replace(
+            "@window_end_date", date_range.end_date.strftime(self.SUBMISSION_DATE_FORMAT)
         )
 
         if dimension:
@@ -213,11 +218,19 @@ class MetricLookupManager:
         query_job = bq_client.query(query, job_config=job_config)
 
         # The submission_date is dbdate, convert to datetime
-        df = query_job.to_dataframe()
+        try:
+            df = query_job.to_dataframe()
+        except Forbidden as e:
+            raise BigQueryPermissionsError(
+                metric=metric, query=query, date_range=date_range, msg=e.message
+            )
         # run_version_1_poc includes the submission date column, run_version_2_poc does not.
         if "submission_date" in df.columns:
             df["submission_date"] = pd.to_datetime(df["submission_date"])
         df = df.rename(columns={"dimension_value": "dimension_value_0"})
+
+        if df.empty:
+            raise NoDataFoundForDateRange(metric=metric, query=query, date_range=date_range)
         return df
 
     def get_metric_with_date_range(
@@ -225,7 +238,7 @@ class MetricLookupManager:
         metric_name: str,
         table_name: str,
         app_name: str,
-        date_range: dict,
+        date_range: ProcessingDateRange,
     ) -> DataFrame:
         query = self.query_cache.get(table_name + "_no_dim_by_date_range")
         return self.run_query(
@@ -240,13 +253,10 @@ class MetricLookupManager:
         metric_name: str,
         table_name: str,
         app_name: str,
-        date_range: dict,
+        date_range: ProcessingDateRange,
         dimension: str,
     ) -> DataFrame:
         query = self.query_cache.get(table_name + "_by_dim_by_date_range")
-        # Need to query each dimension individually and get the baseline and current.
-        # return a dict of DataFrames keyed by dimension.
-
         logger.info(f"processing dimension: {dimension}")
         result_df = self.run_query(
             query=query,
@@ -264,12 +274,10 @@ class MetricLookupManager:
         metric_name: str,
         table_name: str,
         app_name: str,
-        date_range: dict,
+        date_range: ProcessingDateRange,
         dimensions: list,  # indicates the permutation of the dimensions to evaluate.
     ) -> DataFrame:
         query = self.query_cache.get(table_name + "_by_multi_dim_by_date_range")
-        # Need to query each dimension individually and get the baseline and current.
-        # return a dict of DataFrames keyed by dimension.
         result_df = DataFrame()
         dim_value_spec = "@dimension as dimension_value"
         dim_spec = "@dimension"

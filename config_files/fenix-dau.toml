@@ -9,6 +9,10 @@ metric_name="dau"
 # this will have to specify the query template
 table_name="active_user_aggregates"
 app_name="Fenix"  # this is very specific
+date_range_offset = 7
+current_date_range= 1
+previous_date_range = 1
+
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1

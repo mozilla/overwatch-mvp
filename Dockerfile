@@ -27,4 +27,3 @@ COPY . .
 RUN python -m pip install --no-cache-dir .
 
 ENTRYPOINT ["overwatch"]
-CMD ["run-analysis", "./config_files"]
