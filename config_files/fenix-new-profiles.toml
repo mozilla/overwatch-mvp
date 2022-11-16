@@ -13,6 +13,7 @@ app_name="Fenix"  # this is very specific
 period_offset = 6
 current_period= 7
 baseline_period = 7
+processing_period_offset = 1
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1
