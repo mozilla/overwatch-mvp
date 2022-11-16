@@ -32,10 +32,10 @@ def calculate_date_ranges(
     """
     previous_date_range = dataset_config.previous_date_range
     current_date_range = dataset_config.current_date_range
-    # the number of days between the end of the previous date range and the start of the current
-    # date range, may be negative if they overlap
     date_range_offset = dataset_config.date_range_offset
 
+    # the number of days between the end of the previous date range and the start of the current
+    # date range, may be negative if they overlap
     dataset_gap = date_range_offset - previous_date_range
 
     previous_start_date = exclusive_end_date - timedelta(
