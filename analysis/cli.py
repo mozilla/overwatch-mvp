@@ -23,14 +23,14 @@ def cli():
 
 def find_significant_dimensions(
     profile: AnalysisProfile,
-    previous_date_range: ProcessingDateRange,
-    current_date_range: ProcessingDateRange,
+    baseline_period: ProcessingDateRange,
+    current_period: ProcessingDateRange,
 ) -> dict:
     # 1.  Find overall percent change
     top_level_evaluator = TopLevelEvaluator(
         profile=profile,
-        previous_date_range=previous_date_range,
-        current_date_range=current_date_range,
+        baseline_period=baseline_period,
+        current_period=current_period,
     )
     top_level_evaluation = top_level_evaluator.evaluate()
     logger.info(f"top_level_evaluation: {top_level_evaluation}")
@@ -42,15 +42,15 @@ def find_significant_dimensions(
 
     one_dim_evaluator = OneDimensionEvaluator(
         profile=profile,
-        previous_date_range=previous_date_range,
-        current_date_range=current_date_range,
+        baseline_period=baseline_period,
+        current_period=current_period,
     )
     one_dim_evaluation = one_dim_evaluator.evaluate()
 
     multi_dim_evaluator = MultiDimensionEvaluator(
         profile=profile,
-        previous_date_range=previous_date_range,
-        current_date_range=current_date_range,
+        baseline_period=baseline_period,
+        current_period=current_period,
     )
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
@@ -61,8 +61,8 @@ def issue_report(
     profile: AnalysisProfile,
     notif_config: Notification,
     evaluation: dict,
-    previous_date_range: ProcessingDateRange,
-    current_date_range: ProcessingDateRange,
+    baseline_period: ProcessingDateRange,
+    current_period: ProcessingDateRange,
 ):
     evaluation["profile"] = profile
 
@@ -70,8 +70,8 @@ def issue_report(
         output_dir="generated_reports",
         template=notif_config.report.template,
         evaluation=evaluation,
-        previous_date_range=previous_date_range,
-        recent_date_range=current_date_range,
+        baseline_period=baseline_period,
+        current_period=current_period,
     )
 
     pdfreport_filename = report_generator.build_pdf_report()
@@ -107,20 +107,20 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
         configs = Loader.load_all_config_files(path)
 
         for config in configs:
-            previous_date_range, current_date_range = calculate_date_ranges(
+            baseline_period, current_period = calculate_date_ranges(
                 dataset_config=config.analysis_profile.dataset, exclusive_end_date=date
             )
             try:
                 significant_dims = find_significant_dimensions(
                     profile=config.analysis_profile,
-                    previous_date_range=previous_date_range,
-                    current_date_range=current_date_range,
+                    baseline_period=baseline_period,
+                    current_period=current_period,
                 )
                 issue_report(
                     profile=config.analysis_profile,
                     evaluation=significant_dims,
-                    previous_date_range=previous_date_range,
-                    current_date_range=current_date_range,
+                    baseline_period=baseline_period,
+                    current_period=current_period,
                     notif_config=config.notification,
                 )
             except NoDataFoundForDateRange as e:

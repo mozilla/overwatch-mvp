@@ -14,13 +14,13 @@ class OneDimensionEvaluator(DimensionEvaluator):
     def __init__(
         self,
         profile: AnalysisProfile,
-        previous_date_range: ProcessingDateRange,
-        current_date_range: ProcessingDateRange,
+        baseline_period: ProcessingDateRange,
+        current_period: ProcessingDateRange,
     ):
         # Currently the profile only references percent_change.
         self.profile = profile
-        self.previous_date_range = previous_date_range
-        self.recent_date_range = current_date_range
+        self.baseline_period = baseline_period
+        self.current_period = current_period
 
     def _get_current_and_baseline_values(self, dimensions: list) -> DataFrame:
         """
@@ -42,7 +42,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.recent_date_range,
+            date_range=self.current_period,
             dimension=dimensions[0],
         )
         current_by_dimension["timeframe"] = "current"
@@ -50,7 +50,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.previous_date_range,
+            date_range=self.baseline_period,
             dimension=dimensions[0],
         )
         baseline_by_dimension["timeframe"] = "baseline"
@@ -78,8 +78,8 @@ class OneDimensionEvaluator(DimensionEvaluator):
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
         top_level_df = TopLevelEvaluator(
             profile=self.profile,
-            previous_date_range=self.previous_date_range,
-            current_date_range=self.recent_date_range,
+            baseline_period=self.baseline_period,
+            current_period=self.current_period,
         )._get_current_and_baseline_values()
 
         for dimension in self.profile.percent_change.dimensions:

@@ -5,7 +5,7 @@ from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 
 
 def test_percent_change(
-    mock_previous_date_range, mock_current_date_range, dimension_df, mock_analysis_profile
+    mock_baseline_period, mock_current_period, dimension_df, mock_analysis_profile
 ):
     rows = [
         ["mx", 26.6667, "country"],
@@ -17,15 +17,15 @@ def test_percent_change(
 
     percent_change = OneDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_percent_change(df=dimension_df)
     assert_frame_equal(expected_df, percent_change)
 
 
 def test_calculate_contribution_to_overall_change(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -42,16 +42,16 @@ def test_calculate_contribution_to_overall_change(
 
     contr_to_change = OneDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_contribution_to_overall_change(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 
 
 def test_change_to_contribution(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -70,16 +70,16 @@ def test_change_to_contribution(
 
     change_to_contrib = OneDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_change_to_contribution(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
 
 
 def test_calculate_significance(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -94,8 +94,8 @@ def test_calculate_significance(
 
     significance = OneDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_significance(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, significance)
