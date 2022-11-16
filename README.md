@@ -13,6 +13,14 @@ python -m pip install -e ".[testing]"
 pre-commit install
 ```
 
+## Developing in PyCharm
+###Run/Debug Configurations
+1. Select `Module name:` from the drop list for the first field and enter `analysis.cli`
+1. In the `Parameters:` field enter `run-analysis --date=2022-11-15 ./config_files`  (any date can be specified)
+1. In the `Environment variables:` field enter
+
+       PYTHONUNBUFFERED=1;SLACK_BOT_TOKEN=<slackbot_token>;GOOGLE_APPLICATION_CREDENTIALS=<service account file>
+    Contact gleonard@mozilla.com for SLACK_BOT_TOKEN
 ## To update dependencies:
 ### DO NOT UPDATE requirements.txt or requirements.in manually!!!
 
