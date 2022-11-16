@@ -8,9 +8,9 @@ metric_name="mau"
 # this will have to specify the query template
 table_name="active_user_aggregates"
 app_name="Firefox Desktop"  # this is very specific
-date_range_offset = 28
-current_date_range= 1
-previous_date_range = 1
+period_offset = 28
+current_period= 1
+baseline_period = 1
 
 
 [analysis_profile.percent_change]

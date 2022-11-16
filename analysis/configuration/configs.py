@@ -12,9 +12,9 @@ class PercentChange:
 class Dataset:
     metric_name: str = attr.ib()
     table_name: str = attr.ib()
-    date_range_offset: int = attr.ib()
-    current_date_range: int = attr.ib()
-    previous_date_range: int = attr.ib()
+    period_offset: int = attr.ib()
+    current_period: int = attr.ib()
+    baseline_period: int = attr.ib()
     app_name: str = attr.ib(None)
 
 

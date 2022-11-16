@@ -7,9 +7,9 @@ name="Config with all fields"
 metric_name="unit_test_metric"
 table_name="test"
 app_name="unit test app_name"
-date_range_offset = 14
-current_date_range= 1
-previous_date_range = 7
+period_offset = 14
+current_period= 1
+baseline_period = 7
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1

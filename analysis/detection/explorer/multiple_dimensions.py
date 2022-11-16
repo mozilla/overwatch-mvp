@@ -17,13 +17,13 @@ class MultiDimensionEvaluator(DimensionEvaluator):
     def __init__(
         self,
         profile: AnalysisProfile,
-        previous_date_range: ProcessingDateRange,
-        current_date_range: ProcessingDateRange,
+        baseline_period: ProcessingDateRange,
+        current_period: ProcessingDateRange,
     ):
         # TODO GLE currently the profile only references percent_change.
         self.profile = profile
-        self.previous_date_range = previous_date_range
-        self.recent_date_range = current_date_range
+        self.baseline_period = baseline_period
+        self.current_period = current_period
 
     def _get_current_and_baseline_values(self, dimensions: list) -> DataFrame:
         """
@@ -42,7 +42,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.recent_date_range,
+            date_range=self.current_period,
             dimensions=dimensions[0],
         )
         current["timeframe"] = "current"
@@ -50,7 +50,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
-            date_range=self.previous_date_range,
+            date_range=self.baseline_period,
             dimensions=dimensions[0],
         )
         baseline["timeframe"] = "baseline"
@@ -79,8 +79,8 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         #  different evaluator and order the dimensions
         top_level_df = TopLevelEvaluator(
             profile=self.profile,
-            previous_date_range=self.previous_date_range,
-            current_date_range=self.recent_date_range,
+            baseline_period=self.baseline_period,
+            current_period=self.current_period,
         )._get_current_and_baseline_values()
 
         # Get all permutations and filter duplicates (a, b) = (b, a)

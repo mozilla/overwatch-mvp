@@ -14,8 +14,8 @@ class ReportGenerator:
         output_dir,
         template: str,
         evaluation: dict,
-        previous_date_range: ProcessingDateRange,
-        recent_date_range: ProcessingDateRange,
+        baseline_period: ProcessingDateRange,
+        current_period: ProcessingDateRange,
     ):
         self.template = template
         self.input_path = Path(os.path.dirname(__file__))
@@ -27,7 +27,7 @@ class ReportGenerator:
                 else ""
             )
             + "_"
-            + recent_date_range.end_date.strftime("%Y-%m-%d")
+            + current_period.end_date.strftime("%Y-%m-%d")
         )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -35,8 +35,8 @@ class ReportGenerator:
         self.output_html = os.path.join(output_dir, filename_base + ".html")
         self.output_pdf = os.path.join(output_dir, filename_base + ".pdf")
         self.evaluation = evaluation
-        self.previous_date_range = previous_date_range
-        self.recent_date_range = recent_date_range
+        self.baseline_period = baseline_period
+        self.current_period = current_period
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())
@@ -48,8 +48,8 @@ class ReportGenerator:
             fh.write(
                 template.render(
                     evaluation=self.evaluation,
-                    previous_date_range=self.previous_date_range,
-                    recent_date_range=self.recent_date_range,
+                    baseline_period=self.baseline_period,
+                    current_period=self.current_period,
                 )
             )
 

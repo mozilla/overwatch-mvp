@@ -123,7 +123,7 @@ def multi_dimension_df(mock_current_multi_dimension_values, mock_baseline_multi_
 
 
 @pytest.fixture
-def mock_previous_date_range():
+def mock_baseline_period():
     return ProcessingDateRange(
         start_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
         end_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
@@ -131,7 +131,7 @@ def mock_previous_date_range():
 
 
 @pytest.fixture
-def mock_current_date_range():
+def mock_current_period():
     return ProcessingDateRange(
         start_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),
         end_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),

@@ -5,7 +5,7 @@ from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvalua
 
 
 def test_percent_change(
-    mock_previous_date_range, mock_current_date_range, multi_dimension_df, mock_analysis_profile
+    mock_baseline_period, mock_current_period, multi_dimension_df, mock_analysis_profile
 ):
     rows = [
         ["mx", "nightly", 100.0, "country", "channel"],
@@ -29,15 +29,15 @@ def test_percent_change(
 
     percent_change = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_percent_change(df=multi_dimension_df)
     assert_frame_equal(expected_df, percent_change)
 
 
 def test_calculate_contribution_to_overall_change(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     multi_dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -66,16 +66,16 @@ def test_calculate_contribution_to_overall_change(
 
     contr_to_change = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_contribution_to_overall_change(current_df=multi_dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 
 
 def test_change_to_contribution(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     multi_dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -106,16 +106,16 @@ def test_change_to_contribution(
 
     change_to_contrib = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_change_to_contribution(current_df=multi_dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_to_contrib)
 
 
 def test_calculate_significance(
-    mock_previous_date_range,
-    mock_current_date_range,
+    mock_baseline_period,
+    mock_current_period,
     multi_dimension_df,
     parent_df,
     mock_analysis_profile,
@@ -143,8 +143,8 @@ def test_calculate_significance(
 
     significance = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
-        previous_date_range=mock_previous_date_range,
-        current_date_range=mock_current_date_range,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
     )._calculate_significance(current_df=multi_dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, significance)
