@@ -22,7 +22,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
         self.baseline_period = baseline_period
         self.current_period = current_period
 
-    def _get_current_and_baseline_values(self, dimensions: list) -> DataFrame:
+    def _get_current_and_baseline_values(self, dimension: str) -> DataFrame:
         """
         Retrieves the current and baseline values for the metric specified in the AnalysisProfile.
         Although all dimensions are included in the AnalysisProfile, only the dimension specified as
@@ -34,24 +34,22 @@ class OneDimensionEvaluator(DimensionEvaluator):
             'dimension' column contains one value, the name of the dimension (e.g. 'country').
             'timeframe' column values are either "current" or "baseline".
         """
-        if len(dimensions) != 1:
-            raise ValueError("Can only specify 1 dimension")
 
         # For the one dimension evaluator if we are given a list we process each one separately.
-        current_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
+        current_by_dimension = MetricLookupManager().get_metric_by_dimensions_with_date_range(
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
             date_range=self.current_period,
-            dimension=dimensions[0],
+            dimensions=[dimension],
         )
         current_by_dimension["timeframe"] = "current"
-        baseline_by_dimension = MetricLookupManager().get_metric_by_dimension_with_date_range(
+        baseline_by_dimension = MetricLookupManager().get_metric_by_dimensions_with_date_range(
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
             date_range=self.baseline_period,
-            dimension=dimensions[0],
+            dimensions=[dimension],
         )
         baseline_by_dimension["timeframe"] = "baseline"
 
@@ -83,7 +81,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
         )._get_current_and_baseline_values()
 
         for dimension in self.profile.percent_change.dimensions:
-            values = self._get_current_and_baseline_values(dimensions=[dimension])
+            values = self._get_current_and_baseline_values(dimension=dimension)
             percent_change_df = self._calculate_percent_change(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 parent_df=top_level_df, current_df=values
