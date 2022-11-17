@@ -16,6 +16,7 @@ class Dataset:
     current_period: int = attr.ib()
     baseline_period: int = attr.ib()
     app_name: str = attr.ib(None)
+    processing_period_offset: int = attr.ib(0)
 
 
 @attr.s(auto_attribs=True)

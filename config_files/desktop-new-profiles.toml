@@ -11,6 +11,7 @@ app_name="Firefox Desktop"  # this is very specific
 period_offset = 60
 current_period= 1
 baseline_period = 1
+processing_period_offset = 1
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 0.25

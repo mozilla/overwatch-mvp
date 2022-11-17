@@ -10,6 +10,7 @@ app_name="unit test app_name"
 period_offset = 14
 current_period= 1
 baseline_period = 7
+processing_period_offset = 1
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1

@@ -27,7 +27,7 @@ class ReportGenerator:
                 else ""
             )
             + "_"
-            + current_period.end_date.strftime("%Y-%m-%d")
+            + datetime.now().strftime("%Y-%m-%d")
         )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
