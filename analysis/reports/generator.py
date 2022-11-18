@@ -79,10 +79,12 @@ class ReportGenerator:
 
     def build_pdf_charts(self):
 
+        charts_output_idf = os.path.join(self.output_dir, "generated_charts")
+        if not os.path.exists(charts_output_idf):
+            os.makedirs(charts_output_idf)
+
         output_pdf = PdfPages(
-            os.path.join(
-                self.output_dir, "generated_charts", self.filename_base + "_charts" + ".pdf"
-            )
+            os.path.join(charts_output_idf, self.filename_base + "_charts" + ".pdf")
         )
 
         for dimension, df in self.evaluation["dimension_calc"].items():
