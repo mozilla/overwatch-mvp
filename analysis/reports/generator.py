@@ -119,7 +119,11 @@ class ReportGenerator:
         texts = []
         for j in range(len(df[dimensions_str])):
             texts.append(
-                plt.text(df["contrib_to_overall_change"][j], df["change_to_contrib"][j], df.loc[j, dimensions_str])
+                plt.text(
+                    df["contrib_to_overall_change"][j],
+                    df["change_to_contrib"][j],
+                    df.loc[j, dimensions_str],
+                )
             )
         adjust_text(
             texts,
