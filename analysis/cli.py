@@ -74,6 +74,8 @@ def issue_report(
         current_period=current_period,
     )
 
+    report_generator.build_pdf_charts()
+
     pdfreport_filename = report_generator.build_pdf_report()
     # Only publish to Slack for MVP
     notifier = SlackNotifier(output_pdf=pdfreport_filename, config=notif_config.slack)
