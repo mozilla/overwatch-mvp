@@ -8,13 +8,13 @@ SELECT window_average AS metric_value from (
         SELECT
             submission_date,
             app_name,
-            SUM(@metric) AS metric_value
+            SUM({{ metric }}) AS metric_value
         FROM
             `moz-fx-data-shared-prod.telemetry.active_users_aggregates` a
         WHERE
-            submission_date >= @start_date
-            AND submission_date < @end_date
-            AND app_name="@app_name"
+            submission_date >= '{{ start_date }}'
+            AND submission_date < '{{ end_date }}'
+            AND app_name="{{ app_name }}"
         GROUP BY
             submission_date,
             app_name
@@ -22,4 +22,4 @@ SELECT window_average AS metric_value from (
     ORDER BY
     submission_date
 )
-where  submission_date = DATE_SUB(DATE "@window_end_date", INTERVAL 1 DAY)
+where  submission_date = DATE_SUB(DATE "{{end_date}}", INTERVAL 1 DAY)
