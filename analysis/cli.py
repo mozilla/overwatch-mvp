@@ -13,7 +13,7 @@ from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
 from analysis.configuration.loader import Loader
 from analysis.configuration.processing_dates import calculate_date_ranges, ProcessingDateRange
-from analysis.errors import NoDataFoundForDateRange, BigQueryPermissionsError
+from analysis.errors import NoDataFoundForDateRange, BigQueryPermissionsError, SqlNotDefined
 
 
 @click.group()
@@ -129,6 +129,10 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
             except BigQueryPermissionsError as e:
                 # TODO GLE Need to notify of error
                 logger.error(e)
+            except SqlNotDefined as e:
+                # TODO GLE Need to notify of error
+                logger.error(e)
+
     logger.info("Analysis completed")
 
 

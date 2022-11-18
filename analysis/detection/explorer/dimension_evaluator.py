@@ -10,10 +10,6 @@ from analysis.logging import logger
 
 class DimensionEvaluator(ABC):
     @abstractmethod
-    def _get_current_and_baseline_values(self, dimensions: list):
-        pass
-
-    @abstractmethod
     def evaluate(self) -> dict:
         pass
 

@@ -35,23 +35,20 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             'dimension' column contains one value, the name of the dimension (e.g. 'country').
             'timeframe' column values are either "current" or "baseline".
         """
-        if len(dimensions) != 1:
-            raise ValueError("Can only specify 1 set of dimensions")
-
-        current = MetricLookupManager().get_metric_by_multi_dimensions_with_date_range(
+        current = MetricLookupManager().get_metric_by_dimensions_with_date_range(
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
             date_range=self.current_period,
-            dimensions=dimensions[0],
+            dimensions=dimensions,
         )
         current["timeframe"] = "current"
-        baseline = MetricLookupManager().get_metric_by_multi_dimensions_with_date_range(
+        baseline = MetricLookupManager().get_metric_by_dimensions_with_date_range(
             metric_name=self.profile.dataset.metric_name,
             table_name=self.profile.dataset.table_name,
             app_name=self.profile.dataset.app_name,
             date_range=self.baseline_period,
-            dimensions=dimensions[0],
+            dimensions=dimensions,
         )
         baseline["timeframe"] = "baseline"
 
@@ -88,7 +85,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         dim_permutations = list(set(tuple(sorted(perm)) for perm in dim_permutations))
 
         for pair in dim_permutations:
-            values = self._get_current_and_baseline_values(dimensions=[pair])
+            values = self._get_current_and_baseline_values(dimensions=list(pair))
             percent_change_df = self._calculate_percent_change(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 parent_df=top_level_df, current_df=values

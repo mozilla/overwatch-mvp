@@ -9,8 +9,10 @@ class NoDataFoundForDateRange(Exception):
 
 
 class BigQueryPermissionsError(Exception):
-    def __init__(self, metric: str, query: str, date_range: ProcessingDateRange, msg: str):
-        super().__init__(
-            f"Unable to access data for metric: {metric} date_range: {date_range} {msg }query: "
-            f"\n{query} "
-        )
+    def __init__(self, metric: str, query: str, msg: str):
+        super().__init__(f"Unable to access data for metric: {metric} {msg } query: " f"\n{query} ")
+
+
+class SqlNotDefined(Exception):
+    def __init__(self, filename: str):
+        super().__init__(f"Sql missing, expected file: {filename}")
