@@ -173,7 +173,7 @@ class DimensionEvaluator(ABC):
         )
         sum = result["contrib_to_overall_change"].sum()
         logger.info(f"sum of contrib_to_overall_change: {sum} (should = 100)")
-        assert abs(round(sum, 1)) == 100.0
+        assert abs(round(sum)) == 100
         return result
 
     @staticmethod
@@ -276,7 +276,7 @@ class DimensionEvaluator(ABC):
 
         sum = result["change_to_contrib"].sum()
         logger.info(f"sum of change_to_contrib: {sum} (should = 0)")
-        assert round(sum, 1) == 0.0
+        assert round(sum) == 0
         return result
 
     @staticmethod
