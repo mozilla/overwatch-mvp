@@ -1,0 +1,38 @@
+# Analysis Example 2
+# Checking Fenix new profiles drop from Apr 16
+# https://docs.google.com/document/d/170I6yaaSws8LJEsMmXqDQ0U4IChVmRmyfgXmIhGUkrs/edit#
+
+[analysis_profile]
+name="iOS new profiles"
+
+[analysis_profile.dataset]
+metric_name="new_profiles"
+# this will have to specify the query template
+table_name="active_user_aggregates_device"
+app_name="Firefox iOS"
+period_offset = 365
+current_period= 30
+baseline_period = 30
+processing_period_offset = 1
+
+[analysis_profile.percent_change]
+contrib_to_overall_change_threshold_percent = 1
+include_dimension_permutations = false
+dimensions=[
+            "country",
+            "device_model",
+]
+sort_by=[
+    "contrib_to_overall_change",
+    "percent_change",
+    "change_to_contrib",
+    "percent_significance",
+]
+
+[notification]
+[notification.report]
+template = "report_version2.html.j2"
+
+[notification.slack]
+channel = "#overwatch-mvp"
+message = "iOS New Profiles"
