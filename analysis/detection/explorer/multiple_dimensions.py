@@ -71,6 +71,10 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         )
         large_contrib_to_change = {}
 
+        # Skip the evaluation if permutation processing is not enabled,
+        if not self.profile.percent_change.include_dimension_permutations:
+            return {"multi_dimension_calc": large_contrib_to_change}
+
         # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
         # TODO the top level is a OneDimensionEvaluator?  For now use overall but may need to use a
         #  different evaluator and order the dimensions

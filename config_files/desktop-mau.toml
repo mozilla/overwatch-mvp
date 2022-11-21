@@ -15,6 +15,7 @@ processing_period_offset = 1
 
 [analysis_profile.percent_change]
 contrib_to_overall_change_threshold_percent = 1
+include_dimension_permutations = true
 dimensions=[
     "region_name",
     "subregion_name",

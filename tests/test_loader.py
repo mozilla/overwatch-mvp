@@ -9,6 +9,7 @@ def test_load_config(mock_config: Config):
     assert (
         mock_config.analysis_profile.percent_change.contrib_to_overall_change_threshold_percent == 1
     )
+    assert mock_config.analysis_profile.percent_change.include_dimension_permutations is True
     assert mock_config.analysis_profile.percent_change.dimensions == [
         "country",
         "channel",

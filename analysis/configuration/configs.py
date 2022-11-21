@@ -6,6 +6,7 @@ class PercentChange:
     contrib_to_overall_change_threshold_percent: int = attr.ib()
     dimensions: list = attr.ib()
     sort_by: list = attr.ib()
+    include_dimension_permutations: bool = attr.ib(True)
 
 
 @attr.s(auto_attribs=True)

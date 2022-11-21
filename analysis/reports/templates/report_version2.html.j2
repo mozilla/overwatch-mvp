@@ -55,52 +55,53 @@
         </table>
     {% endfor %}
 
+    {% if evaluation.multi_dimension_calc|length > 0 %}
+        <h2>Dimension Combinations</h2>
+        <p>
+        Note:
+        <ul>
+        <li>Dimension values with Contribution to Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
+        <li>Tables are sorted by: {{evaluation.profile.sort_by}}. </li>
+        <li>sum(Contribution to Change) by dimension should equal 100%</li>
+        <li>sum(Change to Contribution) by dimension should equal 0%</li>
+        </ul>
+        </p>
 
-    <h2>Dimension Combinations</h2>
-    <p>
-    Note:
-    <ul>
-    <li>Dimension values with Contribution to Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
-    <li>Tables are sorted by: {{evaluation.profile.sort_by}}. </li>
-    <li>sum(Contribution to Change) by dimension should equal 100%</li>
-    <li>sum(Change to Contribution) by dimension should equal 0%</li>
-    </ul>
-    </p>
+        {% for dimensions,df in evaluation.multi_dimension_calc.items() %}
+            {% set num_of_dims = dimensions|length %}
+            <table class="table table-striped table-bordered mt-4">
+                <thead>
+                <tr>
+                    {% set first_row = df.iloc[0] %}
+                    {% for dim_num in range(num_of_dims) %}
+                        <th>Dimension: {{ first_row['dimension_' ~ dim_num] }}</th>
+                    {% endfor %}
 
-    {% for dimensions,df in evaluation.multi_dimension_calc.items() %}
-        {% set num_of_dims = dimensions|length %}
-        <table class="table table-striped table-bordered mt-4">
-            <thead>
-            <tr>
-                {% set first_row = df.iloc[0] %}
-                {% for dim_num in range(num_of_dims) %}
-                    <th>Dimension: {{ first_row['dimension_' ~ dim_num] }}</th>
+                    <th>Significance of Dimension Value</th>
+                    <th>Contribution to Overall Change</th>
+                    <th>Change in Contribution to Total</th>
+                    <th>Percent Change</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for key,row in df.iterrows() %}
+
+                <tr>
+                    {% for dim_num in range(num_of_dims) %}
+                        <td>{{ row['dimension_value_' ~ dim_num] }}</td>
+                    {% endfor %}
+
+                    <td>{{ row["percent_significance"] }}%</td>
+                    <td>{{ row['contrib_to_overall_change'] }}%</td>
+                    <td>{{ row['change_to_contrib'] }}%</td>
+                    <td>{{ row['percent_change'] }}%</td>
+                </tr>
                 {% endfor %}
-
-                <th>Significance of Dimension Value</th>
-                <th>Contribution to Overall Change</th>
-                <th>Change in Contribution to Total</th>
-                <th>Percent Change</th>
-            </tr>
-            </thead>
-            <tbody>
-
-            {% for key,row in df.iterrows() %}
-
-            <tr>
-                {% for dim_num in range(num_of_dims) %}
-                    <td>{{ row['dimension_value_' ~ dim_num] }}</td>
-                {% endfor %}
-
-                <td>{{ row["percent_significance"] }}%</td>
-                <td>{{ row['contrib_to_overall_change'] }}%</td>
-                <td>{{ row['change_to_contrib'] }}%</td>
-                <td>{{ row['percent_change'] }}%</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    {% endif %}
 </div></div></div>
 </body>
 </html>
