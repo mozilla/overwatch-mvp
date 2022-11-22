@@ -11,7 +11,11 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 from analysis.logging import logger
 from analysis.configuration.processing_dates import ProcessingDateRange
-from analysis.errors import NoDataFoundForDateRange, BigQueryPermissionsError, SqlNotDefined
+from analysis.errors import (
+    NoDataFoundForDateRangeError,
+    BigQueryPermissionsError,
+    SqlNotDefinedError,
+)
 
 PATH = Path(os.path.dirname(__file__))
 TEMPLATE_FOLDER = PATH / "templates"
@@ -27,7 +31,7 @@ class MetricLookupManager:
         try:
             template = env.get_template(template_file)
         except TemplateNotFound:
-            raise SqlNotDefined(filename=template_file)
+            raise SqlNotDefinedError(filename=template_file)
 
         sql = template.render(**render_kwargs)
         return sql
@@ -51,7 +55,7 @@ class MetricLookupManager:
         df = df.rename(columns={"dimension_value": "dimension_value_0"})
 
         if df.empty:
-            raise NoDataFoundForDateRange(metric=metric, query=query, date_range=date_range)
+            raise NoDataFoundForDateRangeError(metric=metric, query=query, date_range=date_range)
         return df
 
     def get_metric_with_date_range(
