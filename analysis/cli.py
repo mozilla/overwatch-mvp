@@ -4,6 +4,7 @@ from datetime import datetime
 import click
 import pytz
 
+from analysis.detection.explorer.all_dimensions import AllDimensionEvaluator
 from analysis.detection.explorer.multiple_dimensions import MultiDimensionEvaluator
 from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 from analysis.detection.explorer.top_level import TopLevelEvaluator
@@ -53,7 +54,14 @@ def find_significant_dimensions(
     )
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
-    return top_level_evaluation | one_dim_evaluation | multi_dim_evaluation
+    all_dim_evaluator = AllDimensionEvaluator(
+        one_dim_evaluation=one_dim_evaluation,
+        multi_dim_evaluation=multi_dim_evaluation,
+    )
+
+    all_dim_evaluation = all_dim_evaluator.evaluate()
+
+    return top_level_evaluation | one_dim_evaluation | multi_dim_evaluation | all_dim_evaluation
 
 
 def issue_report(
@@ -72,6 +80,8 @@ def issue_report(
         baseline_period=baseline_period,
         current_period=current_period,
     )
+
+    report_generator.build_pdf_charts()
 
     pdfreport_filename = report_generator.build_pdf_report()
     # Only publish to Slack for MVP

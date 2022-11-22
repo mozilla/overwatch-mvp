@@ -279,118 +279,41 @@ class DimensionEvaluator(ABC):
         assert round(sum) == 0
         return result
 
+    def _calculate_change_distance(
+        self, contrib_to_overall_change_df: DataFrame, change_in_proportion_df: DataFrame
+    ) -> DataFrame:
+        """
+        The change distance contains the distance from plotting the change_in_proportion against
+               contrib_to_overall_change and calculating the point distance from origin.
+
+        calculation = sqrt((change_in_proportion**2)+(contrib_to_overall_change**2))
+
+        :param contrib_to_overall_change_df:
+           - Expected columns are ['dimension_value_n', 'metric_value', 'dimension_n']
+            - 'contrib_to_overall' contains the percent any change in the metric for the
+             dimension_value contributed to the overall amount of change in the metric value.
+        :param change_in_proportion_df:
+            - Expected columns are ['dimension_value', 'change_in_proportion', 'dimension']
+            - 'change_in_proportion' contains the change in contribution of that dimension value
+               to the overall total
+        :return: df
+            Columns are ['dimension_n', 'dimension_value_n', 'change_distance']
+            - 'change_distance' contains the change distance calculated from
+              change_in_proportion_df and contrib_to_overall_change_df
+        """
+
+        results_df = pd.merge(contrib_to_overall_change_df, change_in_proportion_df)
+
+        results_df["change_distance"] = results_df.apply(self._change_distance, axis=1).round(4)
+
+        return results_df.drop(columns=["contrib_to_overall_change", "change_in_proportion"])
+
     @staticmethod
-    def _significance(row) -> float:
-        # baseline  current  parent_baseline  parent_current
-        # return row["baseline"] + row["current"] + row["parent_baseline"] + row["parent_current"]
-        parent_current_value = row["parent_current"]
-        parent_baseline_value = row["parent_baseline"]
-        current_value = row["current"]
-        baseline_value = row["baseline"]
+    def _change_distance(row) -> float:
 
-        # TODO GLE size == value but need to verify if this is always the case.
-        # using the blog post as a guide, this calculation represents
-        # contribution_c/contribution_all from the significance equation
-        contribution = (baseline_value + current_value) / (
-            parent_baseline_value + parent_current_value
-        )
-        # represents r from the significance equation.
-        # parent_ratio is the change ratio between the baseline and the current of the parent node.
-        # The expectation is that the changes by each dimension should match the change ratio of
-        # the parent. If it does not, it is likely that the dimension value is anomalous.
-        parent_ratio = parent_current_value / parent_baseline_value
-        # represents r * v_b
-        # Using the baseline value, multiply it by the expected ratio of the parent change. This is
-        # the expected current value.
-        expected_baseline_value = parent_ratio * baseline_value
+        change_in_proportion = row["change_in_proportion"]
+        contrib_to_overall_change = row["contrib_to_overall_change"]
 
-        # represents v_c/(r * v_b) from significance equation
-        expected_ratio = current_value / expected_baseline_value
+        change_distance = math.sqrt((change_in_proportion) ** 2 + (contrib_to_overall_change) ** 2)
 
-        # represents
-        # (v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1
-        # from significance equation
-        weighted_expected_ratio = (expected_ratio - 1) * contribution + 1
-
-        # represents
-        # log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
-        # from significance equation
-        log_exp_ratio = math.log(weighted_expected_ratio)
-
-        # represents
-        # (v_c - r * v_b) * log((v_c/(r * v_b) - 1) * (contribution_c/contribution_all) + 1)
-        # from significance equation
-        significance = (current_value - expected_baseline_value) * log_exp_ratio
-        return significance
-
-    def _calculate_significance(self, current_df: DataFrame, parent_df) -> DataFrame:
-        """
-
-         :param current_df:
-            Expected columns are ['dimension_value_n', 'metric_value', 'dimension_n', 'timeframe']
-            - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca').  The
-             'n' is an integer index to account for multi dimensional processing.
-            - 'metric_value' column contains the measure.
-            - multiple 'dimension_n' column contains one value, the name of the dimension (e.g.
-             'country'). The 'n' is an integer index to account for multi dimensional processing.
-            - 'timeframe' column values are either "current" or "baseline".
-        :param parent_df:
-            Expected columns are ['metric_value', 'timeframe']
-            'metric_value' column contains the measure.
-             The 'n' is an integer index to account for multi dimensional processing.
-            'timeframe' column values are either "current" or "baseline".
-        :return:
-        Columns are ['dimension_value_n', 'percent_significance', 'dimension_n']
-        - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca') provided
-             in input. Multiple dimension_value columns with numeric indicators may be present if
-              the calculation is completed for multiple dimensions.
-        - 'percent_significance' column contains the significance of the change in dimension value.
-        - 'dimension_n' columns contain the dimension name (e.g. country). Multiple dimension
-             columns with numeric indicators may be present if the calculation is completed for
-              multiple dimensions.
-        """
-
-        parent_df_as_cols = parent_df.astype({"metric_value": "int64"}).pivot_table(
-            columns=["timeframe"], values="metric_value"
-        )
-
-        dimension_value_cols = DimensionEvaluator.dimension_value_cols(current_df)
-        dimension_cols = DimensionEvaluator.dimension_cols(current_df)
-
-        current_df_as_cols = current_df.set_index(
-            dimension_value_cols + dimension_cols + ["timeframe"]
-        )["metric_value"].unstack("timeframe")
-
-        # Add the parent values to each row of the current_df
-        current_df_as_cols["parent_baseline"] = parent_df_as_cols["baseline"][0]
-        current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
-
-        # Calculate the contribution to overall change
-        dimension_value_significance = current_df_as_cols.apply(self._significance, axis=1).rename(
-            "significance"
-        )
-
-        # Add the calculation to the current_df and pull dimension value out of index
-        result = pd.merge(
-            current_df_as_cols, dimension_value_significance, on=dimension_value_cols
-        ).reset_index()
-        result = result.replace([np.inf, -np.inf], np.nan)
-        result["significance"] = result["significance"].fillna(0)
-        # Carry the dimension label through
-        for col in dimension_cols:
-            result[col] = current_df[col].values[0]
-
-        total_significance = result["significance"].sum()
-        result["percent_significance"] = 100 * result["significance"] / total_significance
-
-        result = (
-            result[dimension_value_cols + ["percent_significance"] + dimension_cols]
-            .sort_values(
-                by="percent_significance",
-                key=abs,
-                ascending=False,
-                ignore_index=True,
-            )
-            .round(4)
-        )
-        return result
+        return change_distance

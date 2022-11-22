@@ -75,27 +75,3 @@ def test_change_in_proportion(
     )._calculate_change_in_proportion(current_df=dimension_df, parent_df=parent_df)
 
     assert_frame_equal(expected_df, change_in_proportion)
-
-
-def test_calculate_significance(
-    mock_baseline_period,
-    mock_current_period,
-    dimension_df,
-    parent_df,
-    mock_analysis_profile,
-):
-    rows = [
-        ["us", 62.7657, "country"],
-        ["mx", 29.5386, "country"],
-        ["ca", 7.6958, "country"],
-    ]
-    cols = ["dimension_value_0", "percent_significance", "dimension_0"]
-    expected_df = DataFrame(rows, columns=cols)
-
-    significance = OneDimensionEvaluator(
-        profile=mock_analysis_profile,
-        baseline_period=mock_baseline_period,
-        current_period=mock_current_period,
-    )._calculate_significance(current_df=dimension_df, parent_df=parent_df)
-
-    assert_frame_equal(expected_df, significance)
