@@ -20,6 +20,7 @@ def test_load_config(mock_config: Config):
         "percent_change",
         "change_in_proportion",
     ]
+    assert mock_config.analysis_profile.percent_change.report_rounding == 2
 
     assert mock_config.analysis_profile.dataset
     assert mock_config.analysis_profile.dataset.metric_name == "unit_test_metric"

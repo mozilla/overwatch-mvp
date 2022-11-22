@@ -54,6 +54,10 @@ class TopLevelEvaluator:
         return percent_change
 
     def evaluate(self) -> dict:
-        values = self._get_current_and_baseline_values()
-        percent_change = self._calculate_percent_change(df=values)
+        values = self._get_current_and_baseline_values().round(
+            self.profile.percent_change.report_rounding
+        )
+        percent_change = self._calculate_percent_change(df=values).round(
+            self.profile.percent_change.report_rounding
+        )
         return {"top_level_percent_change": percent_change, "top_level_values": values}

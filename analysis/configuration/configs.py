@@ -7,6 +7,7 @@ class PercentChange:
     dimensions: list = attr.ib()
     sort_by: list = attr.ib()
     include_dimension_permutations: bool = attr.ib(True)
+    report_rounding: int = attr.ib(2)
 
 
 @attr.s(auto_attribs=True)

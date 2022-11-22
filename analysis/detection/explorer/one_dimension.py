@@ -109,13 +109,17 @@ class OneDimensionEvaluator(DimensionEvaluator):
                 data_frames,
             ).reset_index()
 
-            large_contrib_to_change[dimension] = result[
-                abs(result["contrib_to_overall_change"]) > contrib_to_overall_change_threshold
-            ].sort_values(
-                by=self.profile.percent_change.sort_by,
-                key=abs,
-                ascending=False,
-                ignore_index=True,
+            large_contrib_to_change[dimension] = (
+                result[
+                    abs(result["contrib_to_overall_change"]) > contrib_to_overall_change_threshold
+                ]
+                .sort_values(
+                    by=self.profile.percent_change.sort_by,
+                    key=abs,
+                    ascending=False,
+                    ignore_index=True,
+                )
+                .round(self.profile.percent_change.report_rounding)
             )
 
         return {"dimension_calc": large_contrib_to_change}
