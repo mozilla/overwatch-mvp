@@ -94,7 +94,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 parent_df=top_level_df, current_df=values
             )
-            change_to_contrib = self._calculate_change_to_contribution(
+            change_in_proportion = self._calculate_change_in_proportion(
                 parent_df=top_level_df, current_df=values
             )
 
@@ -102,7 +102,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             data_frames = [
                 percent_change_df,
                 contrib_to_overall_change_df,
-                change_to_contrib,
+                change_in_proportion,
                 significance,
             ]
             merge_cols = DimensionEvaluator.dimension_cols(
