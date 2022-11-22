@@ -17,7 +17,7 @@ def test_load_config(mock_config: Config):
     assert mock_config.analysis_profile.percent_change.sort_by == [
         "contrib_to_overall_change",
         "percent_change",
-        "change_to_contrib",
+        "change_in_proportion",
         "percent_significance",
     ]
 

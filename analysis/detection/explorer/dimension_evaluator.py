@@ -177,24 +177,24 @@ class DimensionEvaluator(ABC):
         return result
 
     @staticmethod
-    def _change_to_contribution(row) -> float:
+    def _change_in_proportion(row) -> float:
         # Sum of all should = 0
         parent_current_value = row["parent_current"]
         parent_baseline_value = row["parent_baseline"]
         current_value = row["current"]
         baseline_value = row["baseline"]
 
-        change_to_contrib = (
+        change_in_proportion = (
             (current_value / parent_current_value) - (baseline_value / parent_baseline_value)
         ) * 100
-        return change_to_contrib
+        return change_in_proportion
 
-    def _calculate_change_to_contribution(self, current_df: DataFrame, parent_df) -> DataFrame:
+    def _calculate_change_in_proportion(self, current_df: DataFrame, parent_df) -> DataFrame:
         """
-        The change to contribution tracks how much the dimension value changed wrt the overall.
+        The change in proportion tracks how much the dimension value changed wrt the overall.
         If the value is negative then the dimension value is contributing less than it was.
         If it is positive then the dimension value is contributing more than it was.
-        If the the overall percent change is negative, and the change in contribution value is
+        If the the overall percent change is negative, and the change in proportion value is
         positive that means other dimensions dropped more substantially, such that the positive
         dimension now makes up a higher percentage of teh overall value (the opposite is also true).
 
@@ -216,12 +216,12 @@ class DimensionEvaluator(ABC):
              The 'n' is an integer index to account for multi dimensional processing.
             'timeframe' column values are either "current" or "baseline".
         :return: df
-            Columns are ['dimension_value', 'change_to_contrib', 'dimension']
+            Columns are ['dimension_value', 'change_in_proportion', 'dimension']
             - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca') provided
              in input. Multiple dimension_value columns with numeric indicators may be present if
               the calculation is completed for multiple dimensions.
-            - 'change_to_contrib' contains the change in contribution of that dimension value to the
-                overall total
+            - 'change_in_proportion' contains the change in proportion of that dimension value to
+               the overall total
             - 'dimension_n' columns contain the dimension name (e.g. country). Multiple dimension
              columns with numeric indicators may be present if the calculation is completed for
               multiple dimensions.
@@ -247,35 +247,35 @@ class DimensionEvaluator(ABC):
         current_df_as_cols["parent_current"] = parent_df_as_cols["current"][0]
 
         # Calculate the contribution to overall change
-        change_to_contrib = current_df_as_cols.apply(self._change_to_contribution, axis=1).rename(
-            "change_to_contrib"
+        change_in_proportion = current_df_as_cols.apply(self._change_in_proportion, axis=1).rename(
+            "change_in_proportion"
         )
 
         # Add the calculation to the current_df and pull dimension value out of index
         result = pd.merge(
-            current_df_as_cols, change_to_contrib, on=dimension_value_cols
+            current_df_as_cols, change_in_proportion, on=dimension_value_cols
         ).reset_index()
         # Carry the dimension label through
         for col in dimension_cols:
             result[col] = current_df[col].values[0]
 
         result = (
-            result[dimension_value_cols + ["change_to_contrib"] + dimension_cols]
+            result[dimension_value_cols + ["change_in_proportion"] + dimension_cols]
             .sort_values(
-                by="change_to_contrib",
+                by="change_in_proportion",
                 key=abs,
                 ascending=False,
                 ignore_index=True,
             )
             .round(8)
-            #  Changed rounding from 4 to 8 due to change_to_contribution for
+            #  Changed rounding from 4 to 8 due to change_in_proportion for
             #  country/app_verision summing to 0.2681999999999969  It is a relatively high
             #  cardinality data set resulting in a cumulative rounding error.
             #  This will have to be considered in final implementation.
         )
 
-        sum = result["change_to_contrib"].sum()
-        logger.info(f"sum of change_to_contrib: {sum} (should = 0)")
+        sum = result["change_in_proportion"].sum()
+        logger.info(f"sum of change_in_proportion: {sum} (should = 0)")
         assert round(sum) == 0
         return result
 
