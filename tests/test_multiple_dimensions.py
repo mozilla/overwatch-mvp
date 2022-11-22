@@ -73,7 +73,7 @@ def test_calculate_contribution_to_overall_change(
     assert_frame_equal(expected_df, contr_to_change)
 
 
-def test_change_to_contribution(
+def test_change_in_proportion(
     mock_baseline_period,
     mock_current_period,
     multi_dimension_df,
@@ -98,19 +98,19 @@ def test_change_to_contribution(
     cols = [
         "dimension_value_0",
         "dimension_value_1",
-        "change_to_contrib",
+        "change_in_proportion",
         "dimension_0",
         "dimension_1",
     ]
     expected_df = DataFrame(rows, columns=cols)
 
-    change_to_contrib = MultiDimensionEvaluator(
+    change_in_proportion = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
-    )._calculate_change_to_contribution(current_df=multi_dimension_df, parent_df=parent_df)
+    )._calculate_change_in_proportion(current_df=multi_dimension_df, parent_df=parent_df)
 
-    assert_frame_equal(expected_df, change_to_contrib)
+    assert_frame_equal(expected_df, change_in_proportion)
 
 
 def test_calculate_significance(

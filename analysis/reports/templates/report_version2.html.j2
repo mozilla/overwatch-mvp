@@ -24,10 +24,10 @@
     <p>
     Note:
     <ul>
-    <li>Dimension values with Contribution to Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
-    <li>Tables are sorted by: {{evaluation.profile.sort_by}}. </li>
-    <li>sum(Contribution to Change) by dimension should equal 100%</li>
-    <li>sum(Change to Contribution) by dimension should equal 0%</li>
+    <li>Dimension values with Contribution to Overall Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
+    <li>Tables are sorted by: {{evaluation.profile.percent_change.sort_by}}. </li>
+    <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
+    <li>sum(Change in Proportion) by dimension should equal 0%</li>
     </ul>
     </p>
     {% for dimension,df in evaluation.dimension_calc.items() %}
@@ -37,7 +37,7 @@
                 <th>Dimension: {{ dimension }}</th>
                 <th>Significance of Dimension Value</th>
                 <th>Contribution to Overall Change</th>
-                <th>Change in Contribution to Total</th>
+                <th>Change in Proportion</th>
                 <th>Percent Change</th>
             </tr>
             </thead>
@@ -47,7 +47,7 @@
                 <td>{{ row['dimension_value_0'] }}</td>
                 <td>{{ row["percent_significance"] }}%</td>
                 <td>{{ row['contrib_to_overall_change'] }}%</td>
-                <td>{{ row['change_to_contrib'] }}%</td>
+                <td>{{ row['change_in_proportion'] }}%</td>
                 <td>{{ row['percent_change'] }}%</td>
             </tr>
             {% endfor %}
@@ -60,10 +60,10 @@
         <p>
         Note:
         <ul>
-        <li>Dimension values with Contribution to Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
-        <li>Tables are sorted by: {{evaluation.profile.sort_by}}. </li>
-        <li>sum(Contribution to Change) by dimension should equal 100%</li>
-        <li>sum(Change to Contribution) by dimension should equal 0%</li>
+        <li>Dimension values with Contribution to Overall Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
+        <li>Tables are sorted by: {{evaluation.profile.percent_change.sort_by}}. </li>
+        <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
+        <li>sum(Change in Proportion) by dimension should equal 0%</li>
         </ul>
         </p>
 
@@ -79,7 +79,7 @@
 
                     <th>Significance of Dimension Value</th>
                     <th>Contribution to Overall Change</th>
-                    <th>Change in Contribution to Total</th>
+                    <th>Change in Proportion</th>
                     <th>Percent Change</th>
                 </tr>
                 </thead>
@@ -94,7 +94,7 @@
 
                     <td>{{ row["percent_significance"] }}%</td>
                     <td>{{ row['contrib_to_overall_change'] }}%</td>
-                    <td>{{ row['change_to_contrib'] }}%</td>
+                    <td>{{ row['change_in_proportion'] }}%</td>
                     <td>{{ row['percent_change'] }}%</td>
                 </tr>
                 {% endfor %}
