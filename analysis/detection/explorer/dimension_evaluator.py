@@ -289,8 +289,8 @@ class DimensionEvaluator(ABC):
         calculation = sqrt((change_in_proportion**2)+(contrib_to_overall_change**2))
 
         :param contrib_to_overall_change_df:
-           - Expected columns are ['dimension_value_n', 'metric_value', 'dimension_n']
-            - 'contrib_to_overall' contains the percent any change in the metric for the
+           - Expected columns are ['dimension_value_n', 'contrib_to_overall_change', 'dimension_n']
+            - 'contrib_to_overall_change' contains the percent any change in the metric for the
              dimension_value contributed to the overall amount of change in the metric value.
         :param change_in_proportion_df:
             - Expected columns are ['dimension_value', 'change_in_proportion', 'dimension']
