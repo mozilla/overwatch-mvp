@@ -129,7 +129,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
                     ascending=False,
                     ignore_index=True,
                 )
-                .round(self.profile.percent_change.report_rounding)
+                .round(self.profile.percent_change.results_rounding)
             )
 
         return {"multi_dimension_calc": large_contrib_to_change}
