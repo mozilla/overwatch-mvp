@@ -13,7 +13,6 @@ from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
 from analysis.configuration.loader import Loader
 from analysis.configuration.processing_dates import calculate_date_ranges, ProcessingDateRange
-from analysis.errors import NoDataFoundForDateRange, BigQueryPermissionsError, SqlNotDefined
 
 
 @click.group()
@@ -103,10 +102,13 @@ class ClickDate(click.ParamType):
 )
 def run_analysis(paths: Iterable[str], date: ClickDate):
     logger.info(f"Starting analysis for date: {date} (excluded)")
+    error_occurred = False
     for path in paths:
         configs = Loader.load_all_config_files(path)
 
         for config in configs:
+            logger.info(f"Starting processing: {config.analysis_profile.name}")
+
             baseline_period, current_period = calculate_date_ranges(
                 dataset_config=config.analysis_profile.dataset, exclusive_end_date=date
             )
@@ -123,17 +125,17 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
                     current_period=current_period,
                     notif_config=config.notification,
                 )
-            except NoDataFoundForDateRange as e:
-                # TODO GLE Need to notify of error
-                logger.error(e)
-            except BigQueryPermissionsError as e:
-                # TODO GLE Need to notify of error
-                logger.error(e)
-            except SqlNotDefined as e:
-                # TODO GLE Need to notify of error
-                logger.error(e)
+                logger.info(f"Successfully processed: {config.analysis_profile.name}")
+            except Exception:
+                error_occurred = True
+                logger.error(f"Error processing: {config.analysis_profile.name}", exc_info=1)
 
-    logger.info("Analysis completed")
+        logger.info(
+            f"Analysis completed {'successfully' if not error_occurred else 'unsuccessfully'}."
+        )
+
+        if error_occurred:
+            raise Exception("Processing error occurred.")
 
 
 @cli.command()
