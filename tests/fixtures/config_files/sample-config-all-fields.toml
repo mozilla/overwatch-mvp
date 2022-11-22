@@ -20,10 +20,10 @@ dimensions=[
             "channel",
 ]
 sort_by=[
+    "change_distance",
     "contrib_to_overall_change",
     "percent_change",
     "change_in_proportion",
-    "percent_significance",
 ]
 
 [notification]

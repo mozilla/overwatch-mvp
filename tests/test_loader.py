@@ -15,10 +15,10 @@ def test_load_config(mock_config: Config):
         "channel",
     ]
     assert mock_config.analysis_profile.percent_change.sort_by == [
+        "change_distance",
         "contrib_to_overall_change",
         "percent_change",
         "change_in_proportion",
-        "percent_significance",
     ]
 
     assert mock_config.analysis_profile.dataset

@@ -19,6 +19,9 @@ dependencies = [
     'cattrs>=22.2.0',
     'attrs>=22.1.0',
     'toml>=0.10.2',
+    'matplotlib>=3.6.2',
+    'seaborn>=0.12.1',
+    'adjustText>=0.7.3'
 ]
 
 [tool.pytest.ini_options]

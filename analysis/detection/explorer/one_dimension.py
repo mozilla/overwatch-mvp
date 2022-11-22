@@ -86,16 +86,19 @@ class OneDimensionEvaluator(DimensionEvaluator):
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 parent_df=top_level_df, current_df=values
             )
-            change_in_proportion = self._calculate_change_in_proportion(
+            change_in_proportion_df = self._calculate_change_in_proportion(
                 parent_df=top_level_df, current_df=values
             )
+            change_distance_df = self._calculate_change_distance(
+                contrib_to_overall_change_df=contrib_to_overall_change_df,
+                change_in_proportion_df=change_in_proportion_df,
+            )
 
-            significance = self._calculate_significance(parent_df=top_level_df, current_df=values)
             data_frames = [
                 percent_change_df,
                 contrib_to_overall_change_df,
-                change_in_proportion,
-                significance,
+                change_in_proportion_df,
+                change_distance_df,
             ]
 
             merge_cols = DimensionEvaluator.dimension_cols(
