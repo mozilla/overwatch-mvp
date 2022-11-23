@@ -108,7 +108,7 @@ def mock_baseline_multi_dimension_values():
 
 
 @pytest.fixture
-def parent_df(mock_current_parent_values, mock_baseline_parent_values):
+def mock_parent_df(mock_current_parent_values, mock_baseline_parent_values):
     return concat([mock_current_parent_values, mock_baseline_parent_values])
 
 
