@@ -9,6 +9,16 @@ from analysis.logging import logger
 
 
 class DimensionEvaluator(ABC):
+    def __init__(self, parent_df: DataFrame):
+        """
+        :param parent_df:
+            Expected columns are ['metric_value', 'timeframe']
+            'metric_value' column contains the measure.
+             The 'n' is an integer index to account for multi dimensional processing.
+            'timeframe' column values are either "current" or "baseline".
+        """
+        self.parent_df = parent_df
+
     @abstractmethod
     def evaluate(self) -> dict:
         pass
@@ -99,9 +109,7 @@ class DimensionEvaluator(ABC):
         ) * 100
         return contribution
 
-    def _calculate_contribution_to_overall_change(
-        self, current_df: DataFrame, parent_df
-    ) -> DataFrame:
+    def _calculate_contribution_to_overall_change(self, current_df: DataFrame) -> DataFrame:
         """
         :param current_df:
             Expected columns are ['dimension_value_n', 'metric_value', 'dimension_n', 'timeframe']
@@ -111,11 +119,7 @@ class DimensionEvaluator(ABC):
             - multiple 'dimension_n' column contains one value, the name of the dimension (e.g.
              'country'). The 'n' is an integer index to account for multi dimensional processing.
             - 'timeframe' column values are either "current" or "baseline".
-        :param parent_df:
-            Expected columns are ['metric_value', 'timeframe']
-            'metric_value' column contains the measure.
-             The 'n' is an integer index to account for multi dimensional processing.
-            'timeframe' column values are either "current" or "baseline".
+
         :return: df
             Columns are ['dimension_value', 'contrib_to_overall', 'dimension']
             - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca') provided
@@ -128,7 +132,7 @@ class DimensionEvaluator(ABC):
               multiple dimensions.
         """
 
-        parent_df_as_cols = parent_df.astype({"metric_value": "int64"}).pivot_table(
+        parent_df_as_cols = self.parent_df.astype({"metric_value": "int64"}).pivot_table(
             columns=["timeframe"], values="metric_value"
         )
         dimension_value_cols = DimensionEvaluator.dimension_value_cols(current_df)
@@ -189,7 +193,7 @@ class DimensionEvaluator(ABC):
         ) * 100
         return change_in_proportion
 
-    def _calculate_change_in_proportion(self, current_df: DataFrame, parent_df) -> DataFrame:
+    def _calculate_change_in_proportion(self, current_df: DataFrame) -> DataFrame:
         """
         The change in proportion tracks how much the dimension value changed wrt the overall.
         If the value is negative then the dimension value is contributing less than it was.
@@ -210,11 +214,6 @@ class DimensionEvaluator(ABC):
             - multiple 'dimension_n' column contains one value, the name of the dimension (e.g.
              'country'). The 'n' is an integer index to account for multi dimensional processing.
             - 'timeframe' column values are either "current" or "baseline".
-        :param parent_df:
-            Expected columns are ['metric_value', 'timeframe']
-            'metric_value' column contains the measure.
-             The 'n' is an integer index to account for multi dimensional processing.
-            'timeframe' column values are either "current" or "baseline".
         :return: df
             Columns are ['dimension_value', 'change_in_proportion', 'dimension']
             - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca') provided
@@ -226,7 +225,7 @@ class DimensionEvaluator(ABC):
              columns with numeric indicators may be present if the calculation is completed for
               multiple dimensions.
         """
-        parent_df_as_cols = parent_df.astype({"metric_value": "int64"}).pivot_table(
+        parent_df_as_cols = self.parent_df.astype({"metric_value": "int64"}).pivot_table(
             columns=["timeframe"], values="metric_value"
         )
         dimension_value_cols = DimensionEvaluator.dimension_value_cols(current_df)

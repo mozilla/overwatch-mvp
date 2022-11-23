@@ -5,7 +5,6 @@ from pandas import DataFrame
 
 from analysis.data.metric import MetricLookupManager
 from analysis.detection.explorer.dimension_evaluator import DimensionEvaluator
-from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.configuration.configs import AnalysisProfile
 from analysis.configuration.processing_dates import ProcessingDateRange
 
@@ -16,7 +15,9 @@ class OneDimensionEvaluator(DimensionEvaluator):
         profile: AnalysisProfile,
         baseline_period: ProcessingDateRange,
         current_period: ProcessingDateRange,
+        parent_df: DataFrame,
     ):
+        super().__init__(parent_df)
         # Currently the profile only references percent_change.
         self.profile = profile
         self.baseline_period = baseline_period
@@ -73,22 +74,13 @@ class OneDimensionEvaluator(DimensionEvaluator):
         )
         large_contrib_to_change = {}
 
-        # TODO GLE THIS IS VERY BAD NEED TO USE A CACHED VALUE
-        top_level_df = TopLevelEvaluator(
-            profile=self.profile,
-            baseline_period=self.baseline_period,
-            current_period=self.current_period,
-        )._get_current_and_baseline_values()
-
         for dimension in self.profile.percent_change.dimensions:
             values = self._get_current_and_baseline_values(dimension=dimension)
             percent_change_df = self._calculate_percent_change(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
-                parent_df=top_level_df, current_df=values
+                current_df=values
             )
-            change_in_proportion_df = self._calculate_change_in_proportion(
-                parent_df=top_level_df, current_df=values
-            )
+            change_in_proportion_df = self._calculate_change_in_proportion(current_df=values)
             change_distance_df = self._calculate_change_distance(
                 contrib_to_overall_change_df=contrib_to_overall_change_df,
                 change_in_proportion_df=change_in_proportion_df,

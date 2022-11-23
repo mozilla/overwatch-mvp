@@ -4,7 +4,7 @@ from analysis.detection.explorer.top_level import TopLevelEvaluator
 from analysis.configuration.processing_dates import ProcessingDateRange
 
 
-def test_percent_change(parent_df, mock_analysis_profile):
+def test_percent_change(mock_parent_df, mock_analysis_profile):
     baseline_period = ProcessingDateRange(
         start_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
         end_date=datetime.strptime("2022-04-02", "%Y-%m-%d"),
@@ -19,5 +19,5 @@ def test_percent_change(parent_df, mock_analysis_profile):
         profile=mock_analysis_profile,
         baseline_period=baseline_period,
         current_period=current_period,
-    )._calculate_percent_change(df=parent_df)
+    )._calculate_percent_change(df=mock_parent_df)
     assert percent_change == expected_percent

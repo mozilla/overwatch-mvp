@@ -10,7 +10,7 @@ def test_change_distance_one_dim(
     mock_baseline_period,
     mock_current_period,
     dimension_df,
-    parent_df,
+    mock_parent_df,
     mock_analysis_profile,
 ):
     # calculation =
@@ -29,20 +29,22 @@ def test_change_distance_one_dim(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
+        parent_df=mock_parent_df,
     )
 
     contr_to_change = one_dim_evaluation._calculate_contribution_to_overall_change(
-        current_df=dimension_df, parent_df=parent_df
+        current_df=dimension_df
     )
 
     change_in_proportion = one_dim_evaluation._calculate_change_in_proportion(
-        current_df=dimension_df, parent_df=parent_df
+        current_df=dimension_df
     )
 
     multi_dim_evaluation = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
+        parent_df=mock_parent_df,
     )
 
     change_distance_df = AllDimensionEvaluator(
@@ -59,7 +61,7 @@ def test_change_distance_multi_dim(
     mock_baseline_period,
     mock_current_period,
     multi_dimension_df,
-    parent_df,
+    mock_parent_df,
     mock_analysis_profile,
 ):
     # calculation =
@@ -89,21 +91,22 @@ def test_change_distance_multi_dim(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
+        parent_df=mock_parent_df,
     )
 
     multi_dim_evaluation = MultiDimensionEvaluator(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
+        parent_df=mock_parent_df,
     )
 
     contr_to_change = multi_dim_evaluation._calculate_contribution_to_overall_change(
-        current_df=multi_dimension_df,
-        parent_df=parent_df,
+        current_df=multi_dimension_df
     )
 
     change_in_proportion = multi_dim_evaluation._calculate_change_in_proportion(
-        current_df=multi_dimension_df, parent_df=parent_df
+        current_df=multi_dimension_df
     )
 
     change_distance_df = AllDimensionEvaluator(
