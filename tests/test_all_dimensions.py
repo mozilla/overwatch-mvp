@@ -48,6 +48,7 @@ def test_change_distance_one_dim(
     )
 
     change_distance_df = AllDimensionEvaluator(
+        profile=mock_analysis_profile,
         one_dim_evaluation=one_dim_evaluation,
         multi_dim_evaluation=multi_dim_evaluation,
     )._calculate_change_distance(
@@ -110,6 +111,7 @@ def test_change_distance_multi_dim(
     )
 
     change_distance_df = AllDimensionEvaluator(
+        profile=mock_analysis_profile,
         one_dim_evaluation=one_dim_evaluation,
         multi_dim_evaluation=multi_dim_evaluation,
     )._calculate_change_distance(
@@ -117,3 +119,70 @@ def test_change_distance_multi_dim(
     )
 
     assert_frame_equal(expected_df, change_distance_df)
+
+
+def get_mock_get_current_and_baseline_values_one_dim_func(dimension_df):
+    def mock_get_current_and_baseline_values(dimension: str):
+        return dimension_df
+
+    return mock_get_current_and_baseline_values
+
+
+def get_mock_get_current_and_baseline_values_multi_dim_func(multi_dimension_df):
+    def mock_get_current_and_baseline_values(dimensions: list):
+        return multi_dimension_df
+
+    return mock_get_current_and_baseline_values
+
+
+def test_limit_results(
+    mock_baseline_period,
+    mock_current_period,
+    dimension_df,
+    multi_dimension_df,
+    mock_parent_df,
+    mock_analysis_profile,
+):
+
+    mock_analysis_profile.percent_change.limit_results = 2
+
+    OneDimEvaluator = OneDimensionEvaluator(
+        profile=mock_analysis_profile,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
+        parent_df=mock_parent_df,
+    )
+
+    mock_func = get_mock_get_current_and_baseline_values_one_dim_func(dimension_df)
+    OneDimEvaluator._get_current_and_baseline_values = mock_func
+    one_dim_evaluation = OneDimEvaluator.evaluate()
+
+    for key, val in one_dim_evaluation.get("dimension_calc").items():
+        assert len(val) == 2
+
+    MultiDimEvaluator = MultiDimensionEvaluator(
+        profile=mock_analysis_profile,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
+        parent_df=mock_parent_df,
+    )
+
+    mock_func = get_mock_get_current_and_baseline_values_multi_dim_func(multi_dimension_df)
+    MultiDimEvaluator._get_current_and_baseline_values = mock_func
+
+    multi_dim_evaluation = MultiDimEvaluator.evaluate()
+
+    for key, val in multi_dim_evaluation.get("multi_dimension_calc").items():
+        assert len(val) == 2
+
+    AllDimEvaluator = AllDimensionEvaluator(
+        profile=mock_analysis_profile,
+        one_dim_evaluation=one_dim_evaluation,
+        multi_dim_evaluation=multi_dim_evaluation,
+    )
+
+    mock_func = get_mock_get_current_and_baseline_values_one_dim_func(dimension_df)
+    AllDimEvaluator._get_current_and_baseline_values = mock_func
+    all_dim_evaluation = AllDimEvaluator.evaluate()
+
+    assert len(all_dim_evaluation.get("overall_change_calc")) == 2

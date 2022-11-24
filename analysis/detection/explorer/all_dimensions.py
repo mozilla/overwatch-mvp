@@ -1,13 +1,16 @@
 import pandas as pd
 from analysis.detection.explorer.dimension_evaluator import DimensionEvaluator
+from analysis.configuration.configs import AnalysisProfile
 
 
 class AllDimensionEvaluator(DimensionEvaluator):
     def __init__(
         self,
+        profile: AnalysisProfile,
         one_dim_evaluation: dict,
         multi_dim_evaluation: dict,
     ):
+        self.profile = profile
         self.one_dim_evaluation = (one_dim_evaluation,)
         self.multi_dim_evaluation = (multi_dim_evaluation,)
 
@@ -42,4 +45,4 @@ class AllDimensionEvaluator(DimensionEvaluator):
 
         # TODO: returning only top 5 results for now.
         #  Perhaps this could be configurable in the future.
-        return {"overall_change_calc": all_dim_df.head(5)}
+        return {"overall_change_calc": all_dim_df.head(self.profile.percent_change.limit_results)}
