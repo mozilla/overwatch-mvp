@@ -125,7 +125,7 @@ class ReportGenerator:
             abs_bar_plot_path = os.path.join(
                 os.path.dirname(os.path.dirname(Path(os.path.dirname(__file__)))), output_png
             )
-            absolute_paths[dimension] = abs_bar_plot_path
+            absolute_paths[dimension_str] = abs_bar_plot_path
 
         return absolute_paths
 

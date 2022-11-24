@@ -21,7 +21,7 @@
     {% endfor %}
 
     <h2>Overall Results</h2>
-    <img src="{{ bar_plot_path }}" style="height: 100; width: 300; float:inline-start">
+    <img src="{{ bar_plot_path }}">
     <br>
     <table class="table table-striped table-bordered mt-4">
         <thead>
@@ -61,7 +61,7 @@
     </ul>
     </p>
     {% for dimension,df in evaluation.dimension_calc.items() %}
-        <img src="{{ scatter_plot_paths[dimension] }}" style="height: 25; width: 75; float:inline-start">
+        <img src="{{ scatter_plot_paths[dimension] }}">
         <table class="table table-striped table-bordered mt-4">
             <thead>
             <tr>
@@ -101,7 +101,7 @@
 
         {% for dimensions,df in evaluation.multi_dimension_calc.items() %}
         <br>
-        <img src="{{ scatter_plot_paths[dimension] }}" style="height: 25; width: 75; float:inline-start">
+        <img src="{{ scatter_plot_paths["_".join(dimensions)] }}" style="height: 25; width: 75; float:inline-start">
             {% set num_of_dims = dimensions|length %}
             <table class="table table-striped table-bordered mt-4">
                 <thead>
