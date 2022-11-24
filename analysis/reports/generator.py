@@ -9,6 +9,7 @@ from analysis.configuration.processing_dates import ProcessingDateRange
 import matplotlib.pyplot as plt
 import seaborn as sns
 from adjustText import adjust_text
+from analysis.configuration.configs import AnalysisProfile
 
 # TODO GLE A lot more thought needs to be added to the report/notfication.
 
@@ -16,6 +17,7 @@ from adjustText import adjust_text
 class ReportGenerator:
     def __init__(
         self,
+        profile: AnalysisProfile,
         output_dir,
         template: str,
         evaluation: dict,
@@ -48,6 +50,7 @@ class ReportGenerator:
         self.evaluation = evaluation
         self.baseline_period = baseline_period
         self.current_period = current_period
+        self.profile = profile
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())
@@ -97,14 +100,14 @@ class ReportGenerator:
 
         # TODO: only plotting top 10 results for now.
         #  Perhaps this could be configurable in the future.
-        limit_results = 10
+
         absolute_paths = {}
 
         for dimension, df in self.evaluation["dimension_calc"].items():
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension + "_charts_scatter.png"
             )
-            self.build_scatter_plot(df.head(limit_results), [dimension])
+            self.build_scatter_plot(df, [dimension])
             plt.savefig(output_png, bbox_inches="tight")
             plt.close()
 
@@ -118,7 +121,7 @@ class ReportGenerator:
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension_str + "_charts_scatter.png"
             )
-            self.build_scatter_plot(df.head(limit_results), list(dimensions))
+            self.build_scatter_plot(df, list(dimensions))
             plt.savefig(output_png, bbox_inches="tight")
             plt.close()
 
@@ -133,9 +136,9 @@ class ReportGenerator:
 
         output_png = os.path.join(self.output_dir, self.filename_base + "_charts_bar.png")
 
-        df = self.evaluation["overall_change_calc"].head(10)
+        df = self.evaluation["overall_change_calc"]
 
-        plt.figure(figsize=(5, 3))
+        plt.figure(figsize=(10, 6))
 
         df["dimension_value(s)"] = df["dimension_value"] + "  (" + df["dimension"] + ")"
 

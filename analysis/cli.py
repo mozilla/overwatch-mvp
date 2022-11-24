@@ -57,6 +57,7 @@ def find_significant_dimensions(
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
     all_dim_evaluator = AllDimensionEvaluator(
+        profile=profile,
         one_dim_evaluation=one_dim_evaluation,
         multi_dim_evaluation=multi_dim_evaluation,
     )
@@ -76,6 +77,7 @@ def issue_report(
     evaluation["profile"] = profile
 
     report_generator = ReportGenerator(
+        profile=profile,
         output_dir="generated_reports",
         template=notif_config.report.template,
         evaluation=evaluation,
