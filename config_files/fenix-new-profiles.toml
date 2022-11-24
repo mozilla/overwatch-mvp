@@ -31,6 +31,7 @@ sort_by=[
     "change_in_proportion",
 ]
 results_rounding = 2
+limit_results = 10
 
 [notification]
 [notification.report]

@@ -27,7 +27,11 @@ sort_by=[
     "percent_change",
     "change_in_proportion",
 ]
+<<<<<<< HEAD
 results_rounding = 2
+=======
+limit_results = 10
+>>>>>>> b1b7f63 (Added limit results config)
 
 [notification]
 [notification.report]
