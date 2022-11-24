@@ -7,7 +7,6 @@ from jinja2 import Environment, FileSystemLoader
 from analysis.configuration.processing_dates import ProcessingDateRange
 
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 from adjustText import adjust_text
 
@@ -26,14 +25,18 @@ class ReportGenerator:
         self.template = template
         self.input_path = Path(os.path.dirname(__file__))
         filename_base = (
-            evaluation["profile"].dataset.metric_name
-            + (
-                "_" + evaluation["profile"].dataset.app_name
-                if evaluation["profile"].dataset.app_name is not None
-                else ""
+            (
+                evaluation["profile"].dataset.metric_name
+                + (
+                    "_" + evaluation["profile"].dataset.app_name
+                    if evaluation["profile"].dataset.app_name is not None
+                    else ""
+                )
+                + "_"
+                + datetime.now().strftime("%Y-%m-%d")
             )
-            + "_"
-            + datetime.now().strftime("%Y-%m-%d")
+            .replace(" ", "_")
+            .replace("-", "_")
         )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -48,9 +51,13 @@ class ReportGenerator:
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())
+
         p = self.input_path / "templates"
         env = Environment(loader=FileSystemLoader(p))
         template = env.get_template(self.template)
+
+        abs_bar_plot_path = self.build_png_bar_plot()
+        scatter_plot_paths = self.build_png_scatter_plots()
 
         with open(self.output_html, "w") as fh:
             fh.write(
@@ -58,6 +65,8 @@ class ReportGenerator:
                     evaluation=self.evaluation,
                     baseline_period=self.baseline_period,
                     current_period=self.current_period,
+                    bar_plot_path=abs_bar_plot_path,
+                    scatter_plot_paths=scatter_plot_paths,
                 )
             )
 
@@ -75,52 +84,64 @@ class ReportGenerator:
             css=css_file,
             verbose=True,
         )
+
+        # clean png plots
+        for filename in os.listdir(self.output_dir):
+            file = os.path.join(self.output_dir, filename)
+            if file.endswith("png"):
+                os.remove(file)
+
         return self.output_pdf
 
-    def build_pdf_charts(self):
+    def build_png_scatter_plots(self):
 
         # TODO: only plotting top 10 results for now.
         #  Perhaps this could be configurable in the future.
-
-        charts_output_dir = os.path.join(self.output_dir, "generated_charts")
-        if not os.path.exists(charts_output_dir):
-            os.makedirs(charts_output_dir)
-
-        output_bar_pdf = PdfPages(
-            os.path.join(charts_output_dir, self.filename_base + "_charts_bar" + ".pdf")
-        )
-
-        fig = self.build_bar_plot(self.evaluation["overall_change_calc"].head(10))
-        output_bar_pdf.savefig(fig, bbox_inches="tight")
-        plt.close(fig)
-
-        output_bar_pdf.close()
-
-        output_scatter_pdf = PdfPages(
-            os.path.join(charts_output_dir, self.filename_base + "_charts_scatter" + ".pdf")
-        )
+        limit_results = 10
+        absolute_paths = {}
 
         for dimension, df in self.evaluation["dimension_calc"].items():
-            fig = self.build_scatter_plot(df.head(10), [dimension])
-            output_scatter_pdf.savefig(fig, bbox_inches="tight")
-            plt.close(fig)
+            output_png = os.path.join(
+                self.output_dir, self.filename_base + "_" + dimension + "_charts_scatter.png"
+            )
+            self.build_scatter_plot(df.head(limit_results), [dimension])
+            plt.savefig(output_png, bbox_inches="tight")
+            plt.close()
+
+            abs_bar_plot_path = os.path.join(
+                os.path.dirname(os.path.dirname(Path(os.path.dirname(__file__)))), output_png
+            )
+            absolute_paths[dimension] = abs_bar_plot_path
 
         for dimensions, df in self.evaluation["multi_dimension_calc"].items():
-            fig = self.build_scatter_plot(df.head(10), list(dimensions))
-            output_scatter_pdf.savefig(fig, bbox_inches="tight")
-            plt.close(fig)
+            dimension_str = "_".join(dimensions)
+            output_png = os.path.join(
+                self.output_dir, self.filename_base + "_" + dimension_str + "_charts_scatter.png"
+            )
+            self.build_scatter_plot(df.head(limit_results), list(dimensions))
+            plt.savefig(output_png, bbox_inches="tight")
+            plt.close()
 
-        output_scatter_pdf.close()
+            abs_bar_plot_path = os.path.join(
+                os.path.dirname(os.path.dirname(Path(os.path.dirname(__file__)))), output_png
+            )
+            absolute_paths[dimension] = abs_bar_plot_path
 
-    def build_bar_plot(self, df):
+        return absolute_paths
 
-        fig = plt.figure(figsize=(10, 8))
+    def build_png_bar_plot(self):
 
-        df["dimensions_str"] = df["dimension_value"] + "  (" + df["dimension"] + ")"
+        output_png = os.path.join(self.output_dir, self.filename_base + "_charts_bar.png")
+
+        df = self.evaluation["overall_change_calc"].head(10)
+
+        plt.figure(figsize=(5, 3))
+
+        df["dimension_value(s)"] = df["dimension_value"] + "  (" + df["dimension"] + ")"
 
         sns.barplot(
             data=df,
-            x="dimensions_str",
+            x="dimension_value(s)",
             y="change_distance",
             palette="Greys",
             hue="percent_change",
@@ -131,17 +152,22 @@ class ReportGenerator:
         plt.grid()
         plt.title("Overall Results")
 
-        return fig
+        plt.legend(bbox_to_anchor=(1.02, 1), loc="upper left", borderaxespad=0)
+
+        plt.savefig(output_png, bbox_inches="tight")
+
+        plt.close()
+
+        return os.path.join(
+            os.path.dirname(os.path.dirname(Path(os.path.dirname(__file__)))), output_png
+        )
 
     def build_scatter_plot(self, df, dimensions):
-        fig = plt.figure(figsize=(10, 8))
+        fig = plt.figure(figsize=(7.5, 6))
 
         dimensions_str = " | ".join(dimensions)
-        try:
-            df[dimensions_str] = df["dimension_value_0"]
-        except KeyError as e:
-            print(e)
-            print(df)
+
+        df[dimensions_str] = df["dimension_value_0"]
 
         for i in range(1, len(dimensions)):
             df[dimensions_str] = df[dimensions_str] + " | " + df["dimension_value_" + str(i)]
