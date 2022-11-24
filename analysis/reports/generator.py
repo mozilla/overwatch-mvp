@@ -151,7 +151,9 @@ class ReportGenerator:
         plt.xticks(rotation=90)
         plt.grid()
         plt.title("Overall Results")
-        plt.legend(bbox_to_anchor=(1.02, 1), loc="upper left", borderaxespad=0)
+        plt.legend(
+            title="percent_change", bbox_to_anchor=(1.02, 1), loc="upper left", borderaxespad=0
+        )
         plt.savefig(output_png, bbox_inches="tight")
         plt.close()
 
