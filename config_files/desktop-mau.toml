@@ -27,6 +27,7 @@ sort_by=[
     "percent_change",
     "change_in_proportion",
 ]
+results_rounding = 2
 
 [notification]
 [notification.report]
