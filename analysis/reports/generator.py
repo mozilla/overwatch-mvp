@@ -9,7 +9,6 @@ from analysis.configuration.processing_dates import ProcessingDateRange
 import matplotlib.pyplot as plt
 import seaborn as sns
 from adjustText import adjust_text
-from analysis.configuration.configs import AnalysisProfile
 
 # TODO GLE A lot more thought needs to be added to the report/notfication.
 
@@ -17,7 +16,6 @@ from analysis.configuration.configs import AnalysisProfile
 class ReportGenerator:
     def __init__(
         self,
-        profile: AnalysisProfile,
         output_dir,
         template: str,
         evaluation: dict,
@@ -50,7 +48,6 @@ class ReportGenerator:
         self.evaluation = evaluation
         self.baseline_period = baseline_period
         self.current_period = current_period
-        self.profile = profile
 
     def build_html_report(self):
         self.evaluation["creation_time"] = str(datetime.now())

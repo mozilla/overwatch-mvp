@@ -77,7 +77,6 @@ def issue_report(
     evaluation["profile"] = profile
 
     report_generator = ReportGenerator(
-        profile=profile,
         output_dir="generated_reports",
         template=notif_config.report.template,
         evaluation=evaluation,
