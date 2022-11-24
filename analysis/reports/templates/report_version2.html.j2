@@ -10,8 +10,8 @@
 <h1>Automated Analysis</h1>
     <h3>Report Created: {{evaluation.creation_time}}</h3>
     <p><b>Metric Name:</b> {{evaluation.profile.dataset.metric_name}}</p>
-    <p><b>Baseline Period:</b> {{baseline_period.start_date}} to {{baseline_period.end_date}} (exclusive)</p>
-    <p><b>Current Period:</b> {{current_period.start_date}} to {{current_period.end_date}} (exclusive)</p>
+    <p><b>Baseline Period:</b> {{baseline_period.start_date.date()}} to {{baseline_period.end_date.date()}} (exclusive)</p>
+    <p><b>Current Period:</b> {{current_period.start_date.date()}} to {{current_period.end_date.date()}} (exclusive)</p>
 
     <h2>Overall</h2>
     <p><b>Percent change:</b> {{evaluation.top_level_percent_change}}% </p>
@@ -21,6 +21,8 @@
     {% endfor %}
 
     <h2>Overall Results</h2>
+    <img src="{{ bar_plot_path }}">
+    <br>
     <table class="table table-striped table-bordered mt-4">
         <thead>
         <tr>
@@ -59,6 +61,7 @@
     </ul>
     </p>
     {% for dimension,df in evaluation.dimension_calc.items() %}
+        <img src="{{ scatter_plot_paths[dimension] }}">
         <table class="table table-striped table-bordered mt-4">
             <thead>
             <tr>
@@ -97,6 +100,8 @@
         </p>
 
         {% for dimensions,df in evaluation.multi_dimension_calc.items() %}
+        <br>
+        <img src="{{ scatter_plot_paths["_".join(dimensions)] }}" style="height: 25; width: 75; float:inline-start">
             {% set num_of_dims = dimensions|length %}
             <table class="table table-striped table-bordered mt-4">
                 <thead>
