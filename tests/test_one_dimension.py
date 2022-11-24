@@ -5,7 +5,7 @@ from analysis.detection.explorer.one_dimension import OneDimensionEvaluator
 
 
 def test_percent_change(
-    mock_baseline_period, mock_current_period, dimension_df, mock_analysis_profile
+    mock_parent_df, mock_baseline_period, mock_current_period, dimension_df, mock_analysis_profile
 ):
     rows = [
         ["mx", 26.6667, "country"],
@@ -19,6 +19,7 @@ def test_percent_change(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
+        parent_df=mock_parent_df,
     )._calculate_percent_change(df=dimension_df)
     assert_frame_equal(expected_df, percent_change)
 
@@ -27,7 +28,7 @@ def test_calculate_contribution_to_overall_change(
     mock_baseline_period,
     mock_current_period,
     dimension_df,
-    parent_df,
+    mock_parent_df,
     mock_analysis_profile,
 ):
     # calculation =
@@ -44,7 +45,8 @@ def test_calculate_contribution_to_overall_change(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
-    )._calculate_contribution_to_overall_change(current_df=dimension_df, parent_df=parent_df)
+        parent_df=mock_parent_df,
+    )._calculate_contribution_to_overall_change(current_df=dimension_df)
 
     assert_frame_equal(expected_df, contr_to_change)
 
@@ -53,7 +55,7 @@ def test_change_in_proportion(
     mock_baseline_period,
     mock_current_period,
     dimension_df,
-    parent_df,
+    mock_parent_df,
     mock_analysis_profile,
 ):
     # calculation =
@@ -72,6 +74,7 @@ def test_change_in_proportion(
         profile=mock_analysis_profile,
         baseline_period=mock_baseline_period,
         current_period=mock_current_period,
-    )._calculate_change_in_proportion(current_df=dimension_df, parent_df=parent_df)
+        parent_df=mock_parent_df,
+    )._calculate_change_in_proportion(current_df=dimension_df)
 
     assert_frame_equal(expected_df, change_in_proportion)

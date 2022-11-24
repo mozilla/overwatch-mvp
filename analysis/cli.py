@@ -44,6 +44,7 @@ def find_significant_dimensions(
         profile=profile,
         baseline_period=baseline_period,
         current_period=current_period,
+        parent_df=top_level_evaluation.get("top_level_values"),
     )
     one_dim_evaluation = one_dim_evaluator.evaluate()
 
@@ -51,6 +52,7 @@ def find_significant_dimensions(
         profile=profile,
         baseline_period=baseline_period,
         current_period=current_period,
+        parent_df=top_level_evaluation.get("top_level_values"),
     )
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
