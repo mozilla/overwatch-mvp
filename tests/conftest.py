@@ -136,3 +136,11 @@ def mock_current_period():
         start_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),
         end_date=datetime.strptime("2022-04-09", "%Y-%m-%d"),
     )
+
+
+@pytest.fixture
+def get_mock_get_current_and_baseline_values_func(multi_dimension_df):
+    def mock_get_current_and_baseline_values(dimensions: list):
+        return multi_dimension_df
+
+    return mock_get_current_and_baseline_values

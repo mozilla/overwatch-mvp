@@ -120,19 +120,13 @@ def test_change_in_proportion(
     assert_frame_equal(expected_df, change_in_proportion)
 
 
-def get_mock_get_current_and_baseline_values_func(multi_dimension_df):
-    def mock_get_current_and_baseline_values(dimensions: list):
-        return multi_dimension_df
-
-    return mock_get_current_and_baseline_values
-
-
 def test_dimension_permutation(
     mock_baseline_period,
     mock_current_period,
     multi_dimension_df,
     mock_parent_df,
     mock_analysis_profile,
+    get_mock_get_current_and_baseline_values_func,
 ):
     mock_analysis_profile.percent_change.include_dimension_permutations = False
     expected = {"multi_dimension_calc": {}}
@@ -153,8 +147,7 @@ def test_dimension_permutation(
         parent_df=mock_parent_df,
     )
 
-    mock_func = get_mock_get_current_and_baseline_values_func(multi_dimension_df)
-    evaluator._get_current_and_baseline_values = mock_func
+    evaluator._get_current_and_baseline_values = get_mock_get_current_and_baseline_values_func
 
     result = evaluator.evaluate()
     # Checking the dict key for the returned dataframe, that is includes 2 dimensions.
