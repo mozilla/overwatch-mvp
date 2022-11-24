@@ -57,6 +57,7 @@ def find_significant_dimensions(
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
     all_dim_evaluator = AllDimensionEvaluator(
+        profile=profile,
         one_dim_evaluation=one_dim_evaluation,
         multi_dim_evaluation=multi_dim_evaluation,
     )
