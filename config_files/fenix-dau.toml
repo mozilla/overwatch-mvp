@@ -1,27 +1,24 @@
-# Analysis Example 4
-# Checking for drop in Fenix DAU mid March
-# https://docs.google.com/document/d/1umr5P35s4WM2zULyfNoBH_QrGubT9r89QeIuhE14Lzg/edit#
 [analysis_profile]
 name="Fenix DAU"
 
 [analysis_profile.dataset]
 metric_name="dau"
-# this will have to specify the query template
 table_name="active_user_aggregates"
-app_name="Fenix"  # this is very specific
-period_offset = 7
-current_period= 1
+app_name="Fenix"
 baseline_period = 1
+current_period= 1
+period_offset = 7
 processing_period_offset = 1
 
 [analysis_profile.percent_change]
 overall_threshold_percent = 0
-contrib_to_overall_change_threshold_percent = 1
+contrib_to_overall_change_threshold_percent = 0
 include_dimension_permutations = true
 dimensions=[
-            "region_name",
-            "subregion_name",
-            "country",
+    "country",
+    "os_version",
+    "attribution_medium",
+    "channel"
 ]
 sort_by=[
     "change_distance",
@@ -37,5 +34,5 @@ limit_results = 10
 template = "report_version2.html.j2"
 
 [notification.slack]
-channel = "#overwatch-mvp"
+channel = "#overwatch-reports"
 message = "Fenix DAU"
