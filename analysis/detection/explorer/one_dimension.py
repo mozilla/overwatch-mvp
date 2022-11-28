@@ -112,6 +112,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
                     ignore_index=True,
                 )
                 .round(self.profile.percent_change.results_rounding)
+                .head(self.profile.percent_change.limit_results)
             )
 
         return {"dimension_calc": large_contrib_to_change}

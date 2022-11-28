@@ -9,6 +9,7 @@ class PercentChange:
     overall_threshold_percent: float = attr.ib(0)
     include_dimension_permutations: bool = attr.ib(True)
     results_rounding: int = attr.ib(2)
+    limit_results: int = attr.ib(10)
 
 
 @attr.s(auto_attribs=True)
