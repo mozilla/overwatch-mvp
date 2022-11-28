@@ -127,6 +127,10 @@ class MetricLookupManager:
 
         for dim in dimensions:
             df["dimension_" + str(i)] = dim
+            # Sometimes the dimension value was None and filtering was dropping it.  This resulted
+            # assert checks failing (the contribution to change sum != 100, replacing with the text
+            # "None" here so data is not lost.
+            df["dimension_value_" + str(i)] = df["dimension_value_" + str(i)].fillna("None")
             i += 1
 
         result_df = pd.concat([result_df, df])

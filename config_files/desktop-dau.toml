@@ -1,10 +1,10 @@
 [analysis_profile]
-name="iOS New Profiles"
+name="Desktop DAU"
 
 [analysis_profile.dataset]
-metric_name="new_profiles"
+metric_name="dau"
 table_name="active_user_aggregates"
-app_name="Firefox iOS"
+app_name="Firefox Desktop"
 baseline_period = 1
 current_period= 1
 period_offset = 7
@@ -16,7 +16,7 @@ contrib_to_overall_change_threshold_percent = 0
 include_dimension_permutations = true
 dimensions=[
     "country",
-    "os_version",
+    "os",
     "attribution_medium",
     "channel"
 ]
@@ -35,4 +35,4 @@ template = "report_version2.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "iOS New Profiles"
+message = "Firefox Desktop DAU"

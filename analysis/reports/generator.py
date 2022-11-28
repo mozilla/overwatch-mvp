@@ -26,7 +26,7 @@ class ReportGenerator:
         self.input_path = Path(os.path.dirname(__file__))
         filename_base = (
             (
-                evaluation["profile"].dataset.metric_name
+                evaluation["profile"].dataset.metric_name.capitalize()
                 + (
                     "_" + evaluation["profile"].dataset.app_name
                     if evaluation["profile"].dataset.app_name is not None
@@ -50,7 +50,7 @@ class ReportGenerator:
         self.current_period = current_period
 
     def build_html_report(self):
-        self.evaluation["creation_time"] = str(datetime.now())
+        self.evaluation["creation_time"] = str(datetime.now().isoformat(" ", "seconds"))
 
         p = self.input_path / "templates"
         env = Environment(loader=FileSystemLoader(p))

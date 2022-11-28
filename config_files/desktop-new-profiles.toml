@@ -1,27 +1,24 @@
-# Analysis Example 3
-# Checking increase in Firefox Desktop New Profiles from June 30 back 60 days
 [analysis_profile]
-name="Desktop new profiles"
+name="Desktop New Profiles"
 
 [analysis_profile.dataset]
 metric_name="new_profiles"
-# this will have to specify the query template
 table_name="active_user_aggregates"
-app_name="Firefox Desktop"  # this is very specific
-period_offset = 60
-current_period= 1
+app_name="Firefox Desktop"
 baseline_period = 1
+current_period= 1
+period_offset = 7
 processing_period_offset = 1
 
 [analysis_profile.percent_change]
 overall_threshold_percent = 0
-contrib_to_overall_change_threshold_percent = 0.25
+contrib_to_overall_change_threshold_percent = 0
 include_dimension_permutations = true
 dimensions=[
-    "region_name",
-    "subregion_name",
     "country",
-    "app_version",
+    "os",
+    "attribution_medium",
+    "channel"
 ]
 sort_by=[
     "change_distance",
@@ -37,5 +34,5 @@ limit_results = 10
 template = "report_version2.html.j2"
 
 [notification.slack]
-channel = "#overwatch-mvp"
+channel = "#overwatch-reports"
 message = "Firefox Desktop New Profiles"
