@@ -21,6 +21,17 @@ def cli():
     pass
 
 
+def exceeds_top_level_percent_change(profile: AnalysisProfile, top_level_evaluation: dict) -> bool:
+    top_level_percent_change = top_level_evaluation.get("top_level_percent_change")
+    if abs(top_level_percent_change) <= profile.percent_change.overall_threshold_percent:
+        logger.info(
+            f"Absolute percent change of {top_level_percent_change} does not exceed threshold of"
+            f" {profile.percent_change.overall_threshold_percent} for {profile.name} "
+        )
+        return False
+    return True
+
+
 def find_significant_dimensions(
     profile: AnalysisProfile,
     baseline_period: ProcessingDateRange,
@@ -34,6 +45,9 @@ def find_significant_dimensions(
     )
     top_level_evaluation = top_level_evaluator.evaluate()
     logger.info(f"top_level_evaluation: {top_level_evaluation}")
+
+    if not exceeds_top_level_percent_change(profile, top_level_evaluation):
+        return {}
 
     # 2. Find
     # - percent change
@@ -129,6 +143,10 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
                     baseline_period=baseline_period,
                     current_period=current_period,
                 )
+                # nothing significant found.
+                if significant_dims == {}:
+                    continue
+
                 issue_report(
                     profile=config.analysis_profile,
                     evaluation=significant_dims,

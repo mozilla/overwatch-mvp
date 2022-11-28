@@ -10,6 +10,7 @@ current_period = 1
 baseline_period = 1
 
 [analysis_profile.percent_change]
+overall_threshold_percent = 0
 contrib_to_overall_change_threshold_percent = 1
 include_dimension_permutations = true
 dimensions=[

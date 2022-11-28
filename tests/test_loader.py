@@ -21,6 +21,7 @@ def test_load_config(mock_config: Config):
         "change_in_proportion",
     ]
     assert mock_config.analysis_profile.percent_change.results_rounding == 2
+    assert mock_config.analysis_profile.percent_change.overall_threshold_percent == 0.5
     assert mock_config.analysis_profile.percent_change.limit_results == 10
 
     assert mock_config.analysis_profile.dataset

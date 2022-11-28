@@ -6,6 +6,7 @@ class PercentChange:
     contrib_to_overall_change_threshold_percent: int = attr.ib()
     dimensions: list = attr.ib()
     sort_by: list = attr.ib()
+    overall_threshold_percent: float = attr.ib(0)
     include_dimension_permutations: bool = attr.ib(True)
     results_rounding: int = attr.ib(2)
     limit_results: int = attr.ib(10)
