@@ -37,7 +37,7 @@ source venv/bin/activate
 make update_deps
 ```
 
-##Testing
+## Testing
 To run pytest:
 ```
 make pytest
@@ -61,7 +61,9 @@ To update environment, run pytest and build a new image run:
 make build
 ```
 ## Running Overwatch as a Docker container locally
-After building the docker image use the following command to launch the container:
+After building the docker image, use the following command to launch the container.  `make run` is
+configured to publish reports to the development `#overwatch-mvp` Slack channel instead of the production
+Slack channel `#overwatch-reports`
 ```
 make run RUN_DATE=<YYYY-MM-DD> CREDENTIAL_VOLUME_MOUNT=<location of service account file> DESTINATION_CREDENTIAL_FILENAME=<service_account_filename>.json SLACK_BOT_TOKEN=<slackbot_token>
 ```
@@ -80,13 +82,20 @@ Testing Overwatch with Airflow can be accomplished by running Airflow locally.
 Follow the steps outlined in https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=SRE&title=WTMO+Developer+Guide
 to set up Airflow
 
-1. The Container Registry in the automated-analysis-dev project has been enabled (https://console.cloud.google.com/gcr/images/automated-analysis-dev?project=automated-analysis-dev).
+1. The Container Registry in the `automated-analysis-dev` project has been enabled (https://console.cloud.google.com/gcr/images/automated-analysis-dev?project=automated-analysis-dev).
     This is where development images are pushed and pulled.  To push a development docker image use (see IMAGE_VERSION notes above).
 ```
-docker push
+make dev_push
 ```
-2.  Launch airflow and create gck  (see https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=SRE&title=WTMO+Developer+Guide)
+2.  Launch airflow and create gke  (see https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=SRE&title=WTMO+Developer+Guide)
 3.  Create the following Variables in Airflow:
     - `overwatch_slack_token` and set the value to the Slack token (contact gleonard@mozilla.com for access).
     - `overwatch_image_version` and set to the value of IMAGE_VERSION or `<username>-dev` if IMAGE_VERSION is not set
-4.  Copy dags/overwatch.py from this project to telemetry-airflow/dags.  Airflow will load the DAG file automatically and it will be listed in http://localhost:8000/home
+4.  Update your local copy of overwatch.py DAG in `telemetry-airflow` with the following changes:
+    1. image repository - replace `moz-fx-data-airflow-prod-88e0` with `automated-analysis-dev`
+    1. report slack channel - add `"DEV_REPORT_SLACK_CHANNEL" "overwatch-mvp"` to `env_vars` dict for `GKEPodOperator`
+    1. add GCP dev GKE cluster settings to `GKEPodOperator` (replacing <username> with your username:
+        1. gcp_conn_id="google_cloud_gke_sandbox",
+        1. project_id="moz-fx-data-gke-sandbox",
+        1. cluster_name="<username>-gke-sandbox",
+        1. location="us-west1",

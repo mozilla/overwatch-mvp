@@ -10,7 +10,11 @@ from analysis.configuration.configs import Slack
 class SlackNotifier:
     def __init__(self, output_pdf, config: Slack):
         self.output_pdf = output_pdf
-        self.channel = config.channel
+        self.channel = (
+            os.environ.get("DEV_REPORT_SLACK_CHANNEL")
+            if "DEV_REPORT_SLACK_CHANNEL" in os.environ
+            else config.channel
+        )
         self.message = config.message
 
     def publish_pdf_report(
