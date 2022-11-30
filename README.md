@@ -19,7 +19,7 @@ pre-commit install
 1. In the `Parameters:` field enter `run-analysis --date=2022-11-15 ./config_files`  (any date can be specified)
 1. In the `Environment variables:` field enter
 
-       PYTHONUNBUFFERED=1;SLACK_BOT_TOKEN=<slackbot_token>;GOOGLE_APPLICATION_CREDENTIALS=<service account file>
+       PYTHONUNBUFFERED=1;SLACK_BOT_TOKEN=<slackbot_token>;GOOGLE_APPLICATION_CREDENTIALS=<service account file>;DEV_REPORT_SLACK_CHANNEL=overwatch-mvp
     Contact gleonard@mozilla.com for SLACK_BOT_TOKEN
 ## To update dependencies:
 ### DO NOT UPDATE requirements.txt or requirements.in manually!!!
