@@ -29,6 +29,7 @@ run:
 	docker run -v ${CREDENTIAL_VOLUME_MOUNT}:/app/credentials \
 		-e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/${DESTINATION_CREDENTIAL_FILENAME} \
 		-e SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN} \
+		-e DEV_REPORT_SLACK_CHANNEL=overwatch-mvp \
 		--name ${CONTAINER_NAME} \
 		--rm \
 		 ${IMAGE_NAME} run-analysis ./config_files --date=$(RUN_DATE)
