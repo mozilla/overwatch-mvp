@@ -14,6 +14,7 @@ from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
 from analysis.configuration.loader import Loader
 from analysis.configuration.processing_dates import calculate_date_ranges, ProcessingDateRange
+from analysis.detection.results.store import insert_processing_info
 
 
 @click.group()
@@ -143,6 +144,14 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
                     baseline_period=baseline_period,
                     current_period=current_period,
                 )
+
+                insert_processing_info(
+                    config.analysis_profile,
+                    baseline_period,
+                    current_period,
+                    significant_dims.get("overall_change_calc"),
+                )
+
                 # nothing significant found.
                 if significant_dims == {}:
                     continue
