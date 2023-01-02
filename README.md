@@ -99,3 +99,4 @@ make dev_push
         1. project_id="moz-fx-data-gke-sandbox",
         1. cluster_name="<username>-gke-sandbox",
         1. location="us-west1",
+test
