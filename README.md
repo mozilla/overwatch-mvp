@@ -1,10 +1,10 @@
-# Local development
+# Local Development
 
-Use python version 3.10 for development.
+Use python version **3.10** for development.
 
 `pyenv` is the recommended method to install and manage python versions.
 
-## To set up your local development environment run the following commands:
+## Python Setup
 ```
 python -m venv venv/
 source venv/bin/activate
@@ -21,8 +21,8 @@ pre-commit install
 
        PYTHONUNBUFFERED=1;SLACK_BOT_TOKEN=<slackbot_token>;GOOGLE_APPLICATION_CREDENTIALS=<service account file>;DEV_REPORT_SLACK_CHANNEL=overwatch-mvp
     Contact gleonard@mozilla.com for SLACK_BOT_TOKEN
-## To update dependencies:
-### DO NOT UPDATE requirements.txt or requirements.in manually!!!
+## Updating Dependencies
+**DO NOT UPDATE requirements.txt or requirements.in manually!**
 
 1. If you have not set up your local environment run the steps described above.
 
@@ -45,13 +45,14 @@ make pytest
 Pytest is configured to also run black and flake8.  Formatting failures are treated as test failures.
 
 # Docker
-When building the docker image to indicate the version set an environment var
+## Setting Image Version
+When building the docker image set the following environment variable to indicate the version
 ```
 IMAGE_VERSION=<version>
 ```
-If IMAGE_VERSION is not set via env var, the default value is `<username>-dev` (e.g. gleonard-dev)
+If IMAGE_VERSION is not set the default value is `<username>-dev` (e.g. gleonard-dev) is used
 
-## Building the docker image
+## Building the Docker Image
 To build a docker image run:
 ```
 make image
@@ -60,7 +61,7 @@ To update environment, run pytest and build a new image run:
 ```
 make build
 ```
-## Running Overwatch as a Docker container locally
+## Running Locally
 After building the docker image, use the following command to launch the container.  `make run` is
 configured to publish reports to the development `#overwatch-mvp` Slack channel instead of the production
 Slack channel `#overwatch-reports`
@@ -77,7 +78,7 @@ To stop the docker container:
 ```
 make stop
 ```
-# Running Overwatch via Airflow
+# Running via Airflow
 Testing Overwatch with Airflow can be accomplished by running Airflow locally.
 Follow the steps outlined in https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=SRE&title=WTMO+Developer+Guide
 to set up Airflow
