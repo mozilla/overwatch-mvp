@@ -100,3 +100,7 @@ make dev_push
         1. project_id="moz-fx-data-gke-sandbox",
         1. cluster_name="<username>-gke-sandbox",
         1. location="us-west1",
+
+     # What it Does     
+       ![AutomatedAnalysisReadme drawio(2)](https://user-images.githubusercontent.com/75265513/210600962-66026ef4-f9d0-432e-af94-d6fa2875b01e.png)
+
