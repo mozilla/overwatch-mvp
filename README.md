@@ -40,7 +40,7 @@ make update_deps
 ## Testing
 To run pytest:
 ```
-make pytest
+make local_test
 ```
 Pytest is configured to also run black and flake8.  Formatting failures are treated as test failures.
 
@@ -101,6 +101,5 @@ make dev_push
         1. cluster_name="<username>-gke-sandbox",
         1. location="us-west1",
 
-     # What it Does     
+     # What it Does
        ![AutomatedAnalysisReadme drawio(2)](https://user-images.githubusercontent.com/75265513/210600962-66026ef4-f9d0-432e-af94-d6fa2875b01e.png)
-
