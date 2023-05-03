@@ -15,6 +15,23 @@ SELECT window_average AS metric_value from (
             submission_date >= '{{ start_date }}'
             AND submission_date < '{{ end_date }}'
             AND app_name="{{ app_name }}"
+              {% if exclude_dimension_values %}
+                {% for dim in exclude_dimension_values -%}
+                AND {{dim.dimension}} NOT IN (
+                    {{ '\"' + dim.dim_values|join('\", \"') + '\"' }}
+                )
+                {%- endfor %}
+              {% endif %}
+              {% if included_dimensions_only %}
+               AND (
+                    {% for dim in included_dimensions_only -%}
+                        {% if loop.index > 1 %}
+                            OR
+                        {% endif %}
+                        {{dim.dimension}} IN ({{ '\"' + dim.dim_values|join('\", \"') + '\"' }})
+                {%- endfor %}
+                )
+              {% endif %}
         GROUP BY
             submission_date,
             app_name

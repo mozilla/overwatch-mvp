@@ -29,6 +29,17 @@ sort_by=[
 results_rounding = 2
 limit_results = 10
 
+[[analysis_profile.percent_change.exclude_dimension_values]]
+dimension = "country"
+dim_values = ["CH", "CA"]
+exclusion_short_desc = "Isolate China New Profiles"
+exclusion_reason = "A reason"
+[[analysis_profile.percent_change.exclude_dimension_values]]
+dimension = "channel"
+dim_values = ["nightly"]
+exclusion_short_desc = "Ignore nightly channel"
+exclusion_reason = "Only need to monitor major releases."
+
 [notification]
 [notification.report]
 template = "report_version2.html.j2"

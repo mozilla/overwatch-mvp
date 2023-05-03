@@ -14,7 +14,7 @@ class Loader:
         @param filename:
         @return: Config object representing the configuration in the file.
         """
-        toml_config = toml.load(open(filename))
+        toml_config = toml.load(filename)
         config = cattrs.structure(toml_config, Config)
         return config
 

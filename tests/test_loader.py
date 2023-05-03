@@ -32,6 +32,22 @@ def test_load_config(mock_config: Config):
     assert mock_config.analysis_profile.dataset.current_period == 1
     assert mock_config.analysis_profile.dataset.baseline_period == 7
 
+    assert len(mock_config.analysis_profile.percent_change.exclude_dimension_values) == 2
+    excl = mock_config.analysis_profile.percent_change.exclude_dimension_values[0]
+    assert excl["dimension"] == "country"
+    assert len(excl["dim_values"]) == 2
+    assert excl["dim_values"][0] == "CH"
+    assert excl["dim_values"][1] == "CA"
+    assert excl["exclusion_short_desc"] == "Isolate China New Profiles"
+    assert excl["exclusion_reason"] == "A reason"
+
+    excl = mock_config.analysis_profile.percent_change.exclude_dimension_values[1]
+    assert excl["dimension"] == "channel"
+    assert len(excl["dim_values"]) == 1
+    assert excl["dim_values"][0] == "nightly"
+    assert excl["exclusion_short_desc"] == "Ignore nightly channel"
+    assert excl["exclusion_reason"] == "Only need to monitor major releases."
+
     assert mock_config.notification
     assert mock_config.notification.report
     assert mock_config.notification.report.template == "report_version2.html.j2"

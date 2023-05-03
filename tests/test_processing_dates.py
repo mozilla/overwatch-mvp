@@ -17,9 +17,11 @@ def test_calculate_date_ranges(mock_analysis_profile):
 
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-04-03"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-10"
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-09"
 
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-10"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-17"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-16"
 
 
 def test_calculate_date_ranges_overlapping(mock_analysis_profile):
@@ -34,9 +36,11 @@ def test_calculate_date_ranges_overlapping(mock_analysis_profile):
 
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-04-03"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-10"
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-09"
 
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-09"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-16"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-15"
 
 
 def test_calculate_date_ranges_with_gap(mock_analysis_profile):
@@ -51,9 +55,11 @@ def test_calculate_date_ranges_with_gap(mock_analysis_profile):
 
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-04-08"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-15"
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-14"
 
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-22"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-29"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-28"
 
 
 def test_calculate_date_ranges_single_day(mock_analysis_profile):
@@ -68,9 +74,10 @@ def test_calculate_date_ranges_single_day(mock_analysis_profile):
 
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-04-01"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-02"
-
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-01"
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-15"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-16"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-15"
 
 
 def test_processing_period_offset(mock_analysis_profile):
@@ -86,8 +93,10 @@ def test_processing_period_offset(mock_analysis_profile):
     )
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-04-03"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-10"
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-09"
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-10"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-17"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-16"
 
     # Set offset period to 3 days, all dates shift back by 3 days.
     mock_analysis_profile.dataset.processing_period_offset = 3
@@ -96,5 +105,7 @@ def test_processing_period_offset(mock_analysis_profile):
     )
     assert baseline_period.start_date.strftime("%Y-%m-%d") == "2022-03-31"
     assert baseline_period.end_date.strftime("%Y-%m-%d") == "2022-04-07"
+    assert baseline_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-06"
     assert current_period.start_date.strftime("%Y-%m-%d") == "2022-04-07"
     assert current_period.end_date.strftime("%Y-%m-%d") == "2022-04-14"
+    assert current_period.end_date_inclusive.strftime("%Y-%m-%d") == "2022-04-13"

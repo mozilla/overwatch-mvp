@@ -64,7 +64,13 @@ class MetricLookupManager:
         table_name: str,
         app_name: str,
         date_range: ProcessingDateRange,
+        excluded_dimensions: list = None,
+        included_dimensions_only: list = None,
     ) -> DataFrame:
+
+        if excluded_dimensions is not None and included_dimensions_only is not None:
+            raise ValueError("Cannot include both excluded_dimensions and included_dimensions_only")
+
         file = table_name + "_no_dim.sql"
 
         render_kwargs = {
@@ -72,9 +78,11 @@ class MetricLookupManager:
             "start_date": date_range.start_date.strftime(self.SUBMISSION_DATE_FORMAT),
             "end_date": date_range.end_date.strftime(self.SUBMISSION_DATE_FORMAT),
             "app_name": app_name,
+            "exclude_dimension_values": excluded_dimensions,
+            "included_dimensions_only": included_dimensions_only,
         }
         query = self._render_sql(template_file=file, render_kwargs=render_kwargs)
-
+        # print(f"{query}")
         return self.run_query(
             query=query,
             metric=metric_name,
