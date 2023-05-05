@@ -35,11 +35,11 @@ def exceeds_top_level_percent_change(profile: AnalysisProfile, top_level_evaluat
 # TODO GLE this function may be better inside the downstream processing.
 def get_parent_df(top_level_evaluation: dict, top_level_dims_values_excluded_evaluation: dict):
     """
-    Checks is there is a top level df with the dim values excluded to use in dependent
+    Checks if there is a top level df with the dim values excluded to use in dimension processing.
     processing.  If one does not exist then the top level df including all dimensions is used.
     @param top_level_evaluation:
     @param top_level_dims_values_excluded_evaluation:
-    @return:
+    @return: the dataframe to be used as the parent in dimension processing.
     """
     if len(top_level_dims_values_excluded_evaluation) == 0:
         return top_level_evaluation.get("top_level_values")

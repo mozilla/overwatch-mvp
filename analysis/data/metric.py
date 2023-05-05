@@ -82,7 +82,7 @@ class MetricLookupManager:
             "included_dimensions_only": included_dimensions_only,
         }
         query = self._render_sql(template_file=file, render_kwargs=render_kwargs)
-        # print(f"{query}")
+
         return self.run_query(
             query=query,
             metric=metric_name,

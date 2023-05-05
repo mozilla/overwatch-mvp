@@ -21,10 +21,9 @@ dimensions=[
     "channel"
 ]
 sort_by=[
-    "change_distance",
     "contrib_to_overall_change",
     "percent_change",
-    "change_in_proportion",
+    "diff",
 ]
 results_rounding = 2
 limit_results = 10
