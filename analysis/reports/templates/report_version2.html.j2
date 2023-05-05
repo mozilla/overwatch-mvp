@@ -9,7 +9,7 @@
 <div class="container"><div class="row"><div class="col">
 <h1>Overwatch</h1>
     <h2>Report Created: {{evaluation.creation_time}}</h2>
-    <p><b>Metric Name:</b> {{evaluation.profile.dataset.metric_name}}</p>
+    <p><b>Metric Name:</b> {{pretty_print_metric_name}}</p>
     <p><b>Baseline Period:</b> {{baseline_period.start_date.date()}} to {{baseline_period.end_date.date()}} (exclusive)</p>
     <p><b>Current Period:</b> {{current_period.start_date.date()}} to {{current_period.end_date.date()}} (exclusive)</p>
 
@@ -54,10 +54,8 @@
     <p>
     Note:
     <ul>
-    <li>Dimension values with Contribution to Overall Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
-    <li>Tables are sorted by: {{evaluation.profile.percent_change.sort_by}}. </li>
-    <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
-    <li>sum(Change in Proportion) by dimension should equal 0%</li>
+    <li>Dimension values with Contribution to Overall Change < {{analysis_profile.overall_threshold_percent}}% are excluded from report.</li>
+    <li>Tables are sorted by: {{analysis_profile.percent_change.sort_by}}. </li>
     </ul>
     </p>
     {% for dimension,df in evaluation.dimension_calc.items() %}
@@ -92,10 +90,8 @@
         <p>
         Note:
         <ul>
-        <li>Dimension values with Contribution to Overall Change < {{evaluation.profile.threshold_percent}}% are excluded from report.</li>
-        <li>Tables are sorted by: {{evaluation.profile.percent_change.sort_by}}. </li>
-        <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
-        <li>sum(Change in Proportion) by dimension should equal 0%</li>
+        <li>Dimension values with Contribution to Overall Change < {{overall_threshold_percent.threshold_percent}}% are excluded from report.</li>
+        <li>Tables are sorted by: {{analysis_profile.percent_change.sort_by}}. </li>
         </ul>
         </p>
 

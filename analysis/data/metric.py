@@ -96,6 +96,7 @@ class MetricLookupManager:
         app_name: str,
         date_range: ProcessingDateRange,
         dimensions: list,  # indicates the permutation of the dimensions to evaluate.
+        excluded_dimensions: list = None,
     ) -> DataFrame:
         file = table_name + "_by_dims.sql"
 
@@ -121,6 +122,7 @@ class MetricLookupManager:
             "app_name": app_name,
             "full_dim_value_spec": full_dim_value_spec,
             "full_dim_spec": full_dim_spec,
+            "exclude_dimension_values": excluded_dimensions,
         }
         query = self._render_sql(template_file=file, render_kwargs=render_kwargs)
 

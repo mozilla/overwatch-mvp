@@ -1,5 +1,5 @@
 [analysis_profile]
-name="Desktop DAU"
+name="DAU for Firefox Desktop"
 
 [analysis_profile.dataset]
 metric_name="dau"
@@ -28,14 +28,11 @@ sort_by=[
 ]
 results_rounding = 2
 limit_results = 10
-[[analysis_profile.percent_change.exclude_dimension_values]]
-dimension = "country"
-value = "CH"
 
 [notification]
 [notification.report]
-template = "report_version2.html.j2"
+template = "report_version3.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "Firefox Desktop DAU"
+message = "DAU for Firefox Desktop"

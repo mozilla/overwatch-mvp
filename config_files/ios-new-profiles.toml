@@ -1,5 +1,5 @@
 [analysis_profile]
-name="iOS New Profiles"
+name="New Profiles for iOS"
 
 [analysis_profile.dataset]
 metric_name="new_profiles"
@@ -35,4 +35,4 @@ template = "report_version2.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "iOS New Profiles"
+message = "New Profiles for iOS"

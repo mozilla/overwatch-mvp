@@ -78,37 +78,29 @@
         </table>
    {% endif %}
 
-    <h2>Dimensions</h2>
-    <p>
-    Note:
-    <ul>
-    <li>Dimension values with Contribution to Overall Change < {{analysis_profile.threshold_percent}}% are excluded from report.</li>
-    <li>Tables are sorted by: {{analysis_profile.percent_change.sort_by}}. </li>
-    <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
-    <li>sum(Change in Proportion) by dimension should equal 0%</li>
-    </ul>
-    </p>
+    <h2>Dimensions Driving Change</h2>
     {% for dimension,df in evaluation.dimension_calc.items() %}
         <img src="{{ scatter_plot_paths[dimension] }}">
         <table class="table table-striped table-bordered mt-4">
             <thead>
             <tr>
-                <th>Dimension: {{ dimension }}</th>
-                <th>Change Distance</th>
-                <th>Contribution to Overall Change</th>
-                <th>Change in Proportion</th>
-
-                <th>Percent Change</th>
+                <th>{{ dimension }}</th>
+                <th>Current Period</th>
+                <th>Prior Period</th>
+                <th>Variance</th>
+                <th>% Change</th>
+                <th>Contribution to Change</th>
             </tr>
             </thead>
             <tbody>
             {% for key,row in df.iterrows() %}
             <tr>
                 <td>{{ row['dimension_value_0'] }}</td>
-                <td>{{ row["change_distance"] }}</td>
-                <td>{{ row['contrib_to_overall_change'] }}%</td>
-                <td>{{ row['change_in_proportion'] }}%</td>
+                <td>{{ "{:,.0f}".format(row['current']) }}</td>
+                <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
+                <td>{{ "{:,.0f}".format(row['diff']) }}</td>
                 <td>{{ row['percent_change'] }}%</td>
+                <td>{{ row['contrib_to_overall_change'] }}%</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -117,19 +109,9 @@
 
     {% if evaluation.multi_dimension_calc|length > 0 %}
         <h2>Dimension Combinations</h2>
-        <p>
-        Note:
-        <ul>
-        <li>Dimension values with Contribution to Overall Change < {{analysis_profile.threshold_percent}}% are excluded from report.</li>
-        <li>Tables are sorted by: {{analysis_profile.percent_change.sort_by}}. </li>
-        <li>sum(Contribution to Overall Change) by dimension should equal 100%</li>
-        <li>sum(Change in Proportion) by dimension should equal 0%</li>
-        </ul>
-        </p>
-
         {% for dimensions,df in evaluation.multi_dimension_calc.items() %}
-        <br>
-        <img src="{{ scatter_plot_paths["_".join(dimensions)] }}" style="height: 25; width: 75; float:inline-start">
+            <br>
+            <img src="{{ scatter_plot_paths["_".join(dimensions)] }}" style="height: 25; width: 75; float:inline-start">
             {% set num_of_dims = dimensions|length %}
             <table class="table table-striped table-bordered mt-4">
                 <thead>
@@ -138,11 +120,11 @@
                     {% for dim_num in range(num_of_dims) %}
                         <th>Dimension: {{ first_row['dimension_' ~ dim_num] }}</th>
                     {% endfor %}
-
-                    <th>Change Distance</th>
-                    <th>Contribution to Overall Change</th>
-                    <th>Change in Proportion</th>
-                    <th>Percent Change</th>
+                    <th>Current Period</th>
+                    <th>Prior Period</th>
+                    <th>Variance</th>
+                    <th>% Change</th>
+                    <th>Contribution to Change</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -153,11 +135,11 @@
                     {% for dim_num in range(num_of_dims) %}
                         <td>{{ row['dimension_value_' ~ dim_num] }}</td>
                     {% endfor %}
-
-                    <td>{{ row["change_distance"] }}</td>
-                    <td>{{ row['contrib_to_overall_change'] }}%</td>
-                    <td>{{ row['change_in_proportion'] }}%</td>
+                    <td>{{ "{:,.0f}".format(row['current']) }}</td>
+                    <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
+                    <td>{{ "{:,.0f}".format(row['diff']) }}</td>
                     <td>{{ row['percent_change'] }}%</td>
+                    <td>{{ row['contrib_to_overall_change'] }}%</td>
                 </tr>
                 {% endfor %}
                 </tbody>

@@ -1,5 +1,5 @@
 [analysis_profile]
-name="iOS DAU"
+name="DAU for iOS"
 
 [analysis_profile.dataset]
 metric_name="dau"
@@ -31,8 +31,8 @@ limit_results = 10
 
 [notification]
 [notification.report]
-template = "report_version2.html.j2"
+template = "report_version3.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "iOS DAU"
+message = "DAU for iOS"

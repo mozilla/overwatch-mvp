@@ -58,13 +58,12 @@ class ReportGenerator:
         p = self.input_path / "templates"
         env = Environment(loader=FileSystemLoader(p))
         template = env.get_template(self.template)
-
         abs_bar_plot_path = self.build_png_bar_plot()
         scatter_plot_paths = self.build_png_scatter_plots()
 
         with open(self.output_html, "w") as fh:
             fh.write(
-                # TODO Do not like having the analysis_profile and the notification config
+                # TODO GLE Do not like having the analysis_profile and the notification config
                 #  as separate params. Should all be under a config param since it it static.
                 template.render(
                     creation_time=str(datetime.now().isoformat(" ", "seconds")),
@@ -113,7 +112,7 @@ class ReportGenerator:
 
         absolute_paths = {}
 
-        for dimension, df in self.evaluation["dimension_calc"].items():
+        for dimension, df in self.evaluation.get("dimension_calc", {}).items():
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension + "_charts_scatter.png"
             )
@@ -126,7 +125,7 @@ class ReportGenerator:
             )
             absolute_paths[dimension] = abs_bar_plot_path
 
-        for dimensions, df in self.evaluation["multi_dimension_calc"].items():
+        for dimensions, df in self.evaluation.get("multi_dimension_calc", {}).items():
             dimension_str = "_".join(dimensions)
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension_str + "_charts_scatter.png"

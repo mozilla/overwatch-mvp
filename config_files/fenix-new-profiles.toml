@@ -1,5 +1,5 @@
 [analysis_profile]
-name="Fenix New Profiles"
+name="New Profiles for Fenix"
 
 [analysis_profile.dataset]
 metric_name="new_profiles"
@@ -31,8 +31,8 @@ limit_results = 10
 
 [notification]
 [notification.report]
-template = "report_version2.html.j2"
+template = "report_version3.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "Fenix New Profiles"
+message = "New Profiles for Fenix"

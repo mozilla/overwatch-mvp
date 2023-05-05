@@ -152,3 +152,41 @@ def test_dimension_permutation(
     result = evaluator.evaluate()
     # Checking the dict key for the returned dataframe, that is includes 2 dimensions.
     assert len(list(result.get("multi_dimension_calc").keys())[0]) == 2
+
+
+def test_diff(
+    mock_baseline_period,
+    mock_current_period,
+    multi_dimension_df,
+    mock_parent_df,
+    mock_analysis_profile,
+):
+    rows = [
+        ["ca", "release", 7.0, "country", "channel"],
+        ["us", "release", 7.0, "country", "channel"],
+        ["us", "nightly", -4.0, "country", "channel"],
+        ["mx", "beta", 2.0, "country", "channel"],
+        ["mx", "nightly", 2.0, "country", "channel"],
+        ["ca", "beta", -2.0, "country", "channel"],
+        ["ca", "nightly", -2.0, "country", "channel"],
+        ["us", "beta", -2.0, "country", "channel"],
+        ["mx", "release", 0.0, "country", "channel"],
+    ]
+
+    cols = [
+        "dimension_value_0",
+        "dimension_value_1",
+        "diff",
+        "dimension_0",
+        "dimension_1",
+    ]
+    expected_df = DataFrame(rows, columns=cols)
+
+    diff = MultiDimensionEvaluator(
+        profile=mock_analysis_profile,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
+        parent_df=mock_parent_df,
+    )._calculate_diff(df=multi_dimension_df)
+
+    assert_frame_equal(expected_df, diff)

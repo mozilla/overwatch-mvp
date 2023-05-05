@@ -125,13 +125,17 @@ class TopLevelEvaluator:
         return self._evaluate(get_values=self._get_current_and_baseline_values)
 
     def evaluate_excluded_dimension_values_only(self) -> dict:
-        return self._evaluate(
-            get_values=self._get_current_and_baseline_values_excluded_dim_values_only,
-            key_suffix="_dimension_values_only",
-        )
+        if len(self.profile.percent_change.exclude_dimension_values) > 0:
+            return self._evaluate(
+                get_values=self._get_current_and_baseline_values_excluded_dim_values_only,
+                key_suffix="_dimension_values_only",
+            )
+        return {}
 
     def evaluate_dimension_values_excluded(self) -> dict:
-        return self._evaluate(
-            get_values=self._get_current_and_baseline_values_dim_values_excluded,
-            key_suffix="_dimension_values_excluded",
-        )
+        if len(self.profile.percent_change.exclude_dimension_values) > 0:
+            return self._evaluate(
+                get_values=self._get_current_and_baseline_values_dim_values_excluded,
+                key_suffix="_dimension_values_excluded",
+            )
+        return {}

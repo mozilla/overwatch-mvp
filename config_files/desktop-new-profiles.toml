@@ -30,14 +30,9 @@ results_rounding = 2
 limit_results = 10
 [[analysis_profile.percent_change.exclude_dimension_values]]
 dimension = "country"
-dim_values = ["CH", "CA"]
+dim_values = ["CN"]
 exclusion_short_desc = "Isolate China New Profiles"
 exclusion_reason = "Chinese antivirus issue leading to regeneration of client_ids leading to inflated China new profile numbers."
-[[analysis_profile.percent_change.exclude_dimension_values]]
-dimension = "channel"
-dim_values = ["nightly", "beta"]
-exclusion_short_desc = "Only release channel"
-exclusion_reason = "Only need to monitor major releases."
 
 [notification]
 [notification.report]
@@ -45,4 +40,4 @@ template = "report_version3.html.j2"
 
 [notification.slack]
 channel = "#overwatch-reports"
-message = "Firefox Desktop New Profiles"
+message = "New Profiles for Firefox Desktop"
