@@ -107,10 +107,17 @@
                 {% endfor %}
                 <tr class="table-info">
                     <td><b>Total</b></td>
-                    <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
-                    <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
-                    <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
-                    <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                    {% if evaluation.top_level_values_dimension_values_excluded|length > 0 %}
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
+                        <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                    {% else %}
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values[evaluation.top_level_values['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values[evaluation.top_level_values['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_diff)}}</td>
+                        <td>{{evaluation.top_level_percent_change}}% </td>
+                    {% endif %}
                     <td></td>
                 </tr>
             </tbody>
@@ -153,10 +160,17 @@
                 {% endfor %}
                     <tr class="table-info">
                         <td colspan="2"><b>Total</b></td>
-                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
-                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
-                        <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
-                        <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                        {% if evaluation.top_level_values_dimension_values_excluded|length > 0 %}
+                            <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                            <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                            <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
+                            <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                        {% else %}
+                            <td>{{"{:,.0f}".format(evaluation.top_level_values[evaluation.top_level_values['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                            <td>{{"{:,.0f}".format(evaluation.top_level_values[evaluation.top_level_values['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                            <td>{{"{:,.0f}".format(evaluation.top_level_diff)}}</td>
+                            <td>{{evaluation.top_level_percent_change}}% </td>
+                        {% endif %}
                         <td></td>
                     </tr>
                 </tbody>
