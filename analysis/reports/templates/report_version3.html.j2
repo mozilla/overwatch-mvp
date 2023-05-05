@@ -16,13 +16,15 @@
 
     <h2>Overall</h2>
     <table class="table table-striped table-bordered mt-4">
-        <tr>
-            <th></th>
-            <th>Current Period</th>
-            <th>Prior Period</th>
-            <th>Variance</th>
-            <th>% Change</th>
-        </tr>
+        <thead class="thead-dark">
+            <tr>
+                <th></th>
+                <th>Current Period</th>
+                <th>Prior Period</th>
+                <th>Variance</th>
+                <th>% Change</th>
+            </tr>
+        </thead>
         <tr>
             <td>{{ pretty_print_metric_name }}</td>
             <td>{{"{:,.0f}".format(evaluation.top_level_values[evaluation.top_level_values['timeframe']=="current"]['metric_value'].values[0])}}</td>
@@ -36,14 +38,16 @@
     {% if evaluation.top_level_values_dimension_values_excluded|length > 0 %}
         <h2>Adjusting for Known Causes of Variance</h2>
         <table class="table table-striped table-bordered mt-4">
-            <tr>
-                <th></th>
-                <th>Adj Reason</th>
-                <th>Current Period</th>
-                <th>Prior Period</th>
-                <th>Variance</th>
-                <th>% Change</th>
-            </tr>
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Adj Reason</th>
+                    <th>Current Period</th>
+                    <th>Prior Period</th>
+                    <th>Variance</th>
+                    <th>% Change</th>
+                </tr>
+            </thead>
             <tr>
                 <td> {{ pretty_print_metric_name }}</td>
                 <td></td>
@@ -65,16 +69,14 @@
                 <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_only)}}</td>
                 <td>{{evaluation.top_level_percent_change_dimension_values_only}}% </td>
             </tr>
-                <tr>
+            <tr class="table-info">
                 <td><b>Adjusted {{ pretty_print_metric_name }}</b></td>
                 <td></td>
                 <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
                 <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
                 <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
                 <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
-
             </tr>
-
         </table>
    {% endif %}
 
@@ -82,27 +84,35 @@
     {% for dimension,df in evaluation.dimension_calc.items() %}
         <img src="{{ scatter_plot_paths[dimension] }}">
         <table class="table table-striped table-bordered mt-4">
-            <thead>
-            <tr>
-                <th>{{ dimension }}</th>
-                <th>Current Period</th>
-                <th>Prior Period</th>
-                <th>Variance</th>
-                <th>% Change</th>
-                <th>Contribution to Change</th>
-            </tr>
+            <thead class="thead-dark">
+                <tr>
+                    <th>{{ dimension }}</th>
+                    <th>Current Period</th>
+                    <th>Prior Period</th>
+                    <th>Variance</th>
+                    <th>% Change</th>
+                    <th>Contribution to Change</th>
+                </tr>
             </thead>
             <tbody>
-            {% for key,row in df.iterrows() %}
-            <tr>
-                <td>{{ row['dimension_value_0'] }}</td>
-                <td>{{ "{:,.0f}".format(row['current']) }}</td>
-                <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
-                <td>{{ "{:,.0f}".format(row['diff']) }}</td>
-                <td>{{ row['percent_change'] }}%</td>
-                <td>{{ row['contrib_to_overall_change'] }}%</td>
-            </tr>
-            {% endfor %}
+                {% for key,row in df.iterrows() %}
+                <tr>
+                    <td>{{ row['dimension_value_0'] }}</td>
+                    <td>{{ "{:,.0f}".format(row['current']) }}</td>
+                    <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
+                    <td>{{ "{:,.0f}".format(row['diff']) }}</td>
+                    <td>{{ row['percent_change'] }}%</td>
+                    <td>{{ row['contrib_to_overall_change'] }}%</td>
+                </tr>
+                {% endfor %}
+                <tr class="table-info">
+                    <td><b>Total</b></td>
+                    <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                    <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                    <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
+                    <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     {% endfor %}
@@ -114,34 +124,41 @@
             <img src="{{ scatter_plot_paths["_".join(dimensions)] }}" style="height: 25; width: 75; float:inline-start">
             {% set num_of_dims = dimensions|length %}
             <table class="table table-striped table-bordered mt-4">
-                <thead>
-                <tr>
-                    {% set first_row = df.iloc[0] %}
-                    {% for dim_num in range(num_of_dims) %}
-                        <th>Dimension: {{ first_row['dimension_' ~ dim_num] }}</th>
-                    {% endfor %}
-                    <th>Current Period</th>
-                    <th>Prior Period</th>
-                    <th>Variance</th>
-                    <th>% Change</th>
-                    <th>Contribution to Change</th>
-                </tr>
+                <thead class="thead-dark">
+                    <tr>
+                        {% set first_row = df.iloc[0] %}
+                        {% for dim_num in range(num_of_dims) %}
+                            <th>Dimension: {{ first_row['dimension_' ~ dim_num] }}</th>
+                        {% endfor %}
+                        <th>Current Period</th>
+                        <th>Prior Period</th>
+                        <th>Variance</th>
+                        <th>% Change</th>
+                        <th>Contribution to Change</th>
+                    </tr>
                 </thead>
                 <tbody>
 
                 {% for key,row in df.iterrows() %}
-
-                <tr>
-                    {% for dim_num in range(num_of_dims) %}
-                        <td>{{ row['dimension_value_' ~ dim_num] }}</td>
-                    {% endfor %}
-                    <td>{{ "{:,.0f}".format(row['current']) }}</td>
-                    <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
-                    <td>{{ "{:,.0f}".format(row['diff']) }}</td>
-                    <td>{{ row['percent_change'] }}%</td>
-                    <td>{{ row['contrib_to_overall_change'] }}%</td>
-                </tr>
+                    <tr>
+                        {% for dim_num in range(num_of_dims) %}
+                            <td>{{ row['dimension_value_' ~ dim_num] }}</td>
+                        {% endfor %}
+                        <td>{{ "{:,.0f}".format(row['current']) }}</td>
+                        <td>{{ "{:,.0f}".format(row['baseline']) }}</td>
+                        <td>{{ "{:,.0f}".format(row['diff']) }}</td>
+                        <td>{{ row['percent_change'] }}%</td>
+                        <td>{{ row['contrib_to_overall_change'] }}%</td>
+                    </tr>
                 {% endfor %}
+                    <tr class="table-info">
+                        <td colspan="2"><b>Total</b></td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="current"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_values_dimension_values_excluded[evaluation.top_level_values_dimension_values_excluded['timeframe']=="baseline"]['metric_value'].values[0])}}</td>
+                        <td>{{"{:,.0f}".format(evaluation.top_level_diff_dimension_values_excluded)}}</td>
+                        <td>{{evaluation.top_level_percent_change_dimension_values_excluded}}% </td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         {% endfor %}
