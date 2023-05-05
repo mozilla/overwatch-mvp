@@ -5,7 +5,7 @@ from pathlib import Path
 import pdfkit
 from jinja2 import Environment, FileSystemLoader
 from analysis.configuration.processing_dates import ProcessingDateRange
-
+from analysis.configuration.configs import AnalysisProfile, Notification
 import matplotlib.pyplot as plt
 import seaborn as sns
 from adjustText import adjust_text
@@ -18,18 +18,27 @@ class ReportGenerator:
         self,
         output_dir,
         template: str,
+        analysis_profile: AnalysisProfile,
+        notif_config: Notification,
         evaluation: dict,
         baseline_period: ProcessingDateRange,
         current_period: ProcessingDateRange,
     ):
         self.template = template
         self.input_path = Path(os.path.dirname(__file__))
+        self.output_dir = output_dir
+        self.evaluation = evaluation
+        self.baseline_period = baseline_period
+        self.current_period = current_period
+        self.analysis_profile = analysis_profile
+        self.notif_config = notif_config
+
         filename_base = (
             (
-                evaluation["profile"].dataset.metric_name.capitalize()
+                self.analysis_profile.dataset.metric_name.capitalize()
                 + (
-                    "_" + evaluation["profile"].dataset.app_name
-                    if evaluation["profile"].dataset.app_name is not None
+                    "_" + self.analysis_profile.dataset.app_name
+                    if self.analysis_profile.dataset.app_name is not None
                     else ""
                 )
                 + "_"
@@ -41,28 +50,29 @@ class ReportGenerator:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        self.output_dir = output_dir
         self.filename_base = filename_base
         self.output_html = os.path.join(output_dir, filename_base + ".html")
         self.output_pdf = os.path.join(output_dir, filename_base + ".pdf")
-        self.evaluation = evaluation
-        self.baseline_period = baseline_period
-        self.current_period = current_period
 
     def build_html_report(self):
-        self.evaluation["creation_time"] = str(datetime.now().isoformat(" ", "seconds"))
-
         p = self.input_path / "templates"
         env = Environment(loader=FileSystemLoader(p))
         template = env.get_template(self.template)
-
         abs_bar_plot_path = self.build_png_bar_plot()
         scatter_plot_paths = self.build_png_scatter_plots()
 
         with open(self.output_html, "w") as fh:
             fh.write(
+                # TODO GLE Do not like having the analysis_profile and the notification config
+                #  as separate params. Should all be under a config param since it it static.
                 template.render(
+                    creation_time=str(datetime.now().isoformat(" ", "seconds")),
+                    pretty_print_metric_name=self.analysis_profile.dataset.metric_name.replace(
+                        "_", " "
+                    ).title(),
                     evaluation=self.evaluation,
+                    analysis_profile=self.analysis_profile,
+                    notification=self.notif_config,
                     baseline_period=self.baseline_period,
                     current_period=self.current_period,
                     bar_plot_path=abs_bar_plot_path,
@@ -73,6 +83,8 @@ class ReportGenerator:
     # requires the html file to be created, will create if not available
     # returns relative path of pdf file.
     def build_pdf_report(self) -> str:
+        # In the future it may make sense to convert the AnalysisProfile to an object specifically
+        # for template rendering.
         self.build_html_report()
         options = {"enable-local-file-access": None}
         css_file = str(self.input_path / "templates" / "4.3.1.bootstrap.min.css")
@@ -100,7 +112,7 @@ class ReportGenerator:
 
         absolute_paths = {}
 
-        for dimension, df in self.evaluation["dimension_calc"].items():
+        for dimension, df in self.evaluation.get("dimension_calc", {}).items():
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension + "_charts_scatter.png"
             )
@@ -113,7 +125,7 @@ class ReportGenerator:
             )
             absolute_paths[dimension] = abs_bar_plot_path
 
-        for dimensions, df in self.evaluation["multi_dimension_calc"].items():
+        for dimensions, df in self.evaluation.get("multi_dimension_calc", {}).items():
             dimension_str = "_".join(dimensions)
             output_png = os.path.join(
                 self.output_dir, self.filename_base + "_" + dimension_str + "_charts_scatter.png"

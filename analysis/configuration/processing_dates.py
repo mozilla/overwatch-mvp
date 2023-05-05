@@ -10,6 +10,10 @@ class ProcessingDateRange:
     start_date: datetime = attr.ib()
     end_date: datetime = attr.ib()
 
+    @property
+    def end_date_inclusive(self) -> datetime:
+        return self.end_date - timedelta(days=1)
+
 
 def calculate_date_ranges(
     dataset_config: Dataset, exclusive_end_date: datetime

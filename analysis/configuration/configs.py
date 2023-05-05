@@ -10,6 +10,7 @@ class PercentChange:
     include_dimension_permutations: bool = attr.ib(True)
     results_rounding: int = attr.ib(2)
     limit_results: int = attr.ib(10)
+    exclude_dimension_values: list = attr.ib(default=attr.Factory(list))
 
 
 @attr.s(auto_attribs=True)

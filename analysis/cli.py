@@ -14,7 +14,6 @@ from analysis.notification.slack import SlackNotifier
 from analysis.reports.generator import ReportGenerator
 from analysis.configuration.loader import Loader
 from analysis.configuration.processing_dates import calculate_date_ranges, ProcessingDateRange
-from analysis.detection.results.store import insert_processing_info
 
 
 @click.group()
@@ -33,22 +32,48 @@ def exceeds_top_level_percent_change(profile: AnalysisProfile, top_level_evaluat
     return True
 
 
+# TODO GLE this function may be better inside the downstream processing.
+def get_parent_df(top_level_evaluation: dict, top_level_dims_values_excluded_evaluation: dict):
+    """
+    Checks is there is a top level df with the dim values excluded to use in dependent
+    processing.  If one does not exist then the top level df including all dimensions is used.
+    @param top_level_evaluation:
+    @param top_level_dims_values_excluded_evaluation:
+    @return:
+    """
+    if len(top_level_dims_values_excluded_evaluation) == 0:
+        return top_level_evaluation.get("top_level_values")
+    else:
+        return top_level_dims_values_excluded_evaluation.get(
+            "top_level_values_dimension_values_excluded"
+        )
+
+
 def find_significant_dimensions(
     profile: AnalysisProfile,
     baseline_period: ProcessingDateRange,
     current_period: ProcessingDateRange,
 ) -> dict:
     # 1.  Find overall percent change
-    top_level_evaluator = TopLevelEvaluator(
+    # Perform top level calculation including all dimensions.
+    evaluator = TopLevelEvaluator(
         profile=profile,
         baseline_period=baseline_period,
         current_period=current_period,
     )
-    top_level_evaluation = top_level_evaluator.evaluate()
+    top_level_evaluation = evaluator.evaluate()
     logger.info(f"top_level_evaluation: {top_level_evaluation}")
 
     if not exceeds_top_level_percent_change(profile, top_level_evaluation):
         return {}
+
+    # Calculate the top level values excluding all the specified dimension values.
+    top_level_dims_values_excluded_evaluation = evaluator.evaluate_dimension_values_excluded()
+
+    # Calculate the top level values including only the listed excluded values.
+    top_level_excluded_dim_values_only_evaluation = (
+        evaluator.evaluate_excluded_dimension_values_only()
+    )
 
     # 2. Find
     # - percent change
@@ -59,7 +84,7 @@ def find_significant_dimensions(
         profile=profile,
         baseline_period=baseline_period,
         current_period=current_period,
-        parent_df=top_level_evaluation.get("top_level_values"),
+        parent_df=get_parent_df(top_level_evaluation, top_level_dims_values_excluded_evaluation),
     )
     one_dim_evaluation = one_dim_evaluator.evaluate()
 
@@ -67,7 +92,7 @@ def find_significant_dimensions(
         profile=profile,
         baseline_period=baseline_period,
         current_period=current_period,
-        parent_df=top_level_evaluation.get("top_level_values"),
+        parent_df=get_parent_df(top_level_evaluation, top_level_dims_values_excluded_evaluation),
     )
     multi_dim_evaluation = multi_dim_evaluator.evaluate()
 
@@ -79,7 +104,14 @@ def find_significant_dimensions(
 
     all_dim_evaluation = all_dim_evaluator.evaluate()
 
-    return top_level_evaluation | one_dim_evaluation | multi_dim_evaluation | all_dim_evaluation
+    return (
+        top_level_evaluation
+        | top_level_dims_values_excluded_evaluation
+        | top_level_excluded_dim_values_only_evaluation
+        | one_dim_evaluation
+        | multi_dim_evaluation
+        | all_dim_evaluation
+    )
 
 
 def issue_report(
@@ -89,16 +121,19 @@ def issue_report(
     baseline_period: ProcessingDateRange,
     current_period: ProcessingDateRange,
 ):
-    evaluation["profile"] = profile
 
     report_generator = ReportGenerator(
         output_dir="generated_reports",
         template=notif_config.report.template,
+        analysis_profile=profile,
+        notif_config=notif_config,
         evaluation=evaluation,
         baseline_period=baseline_period,
         current_period=current_period,
     )
 
+    # Limited to publishing PDF to Slack for now.
+    # In the future other notifications types will be supported.
     pdfreport_filename = report_generator.build_pdf_report()
     # Only publish to Slack for MVP
     notifier = SlackNotifier(output_pdf=pdfreport_filename, config=notif_config.slack)
@@ -145,12 +180,13 @@ def run_analysis(paths: Iterable[str], date: ClickDate):
                     current_period=current_period,
                 )
 
-                insert_processing_info(
-                    config.analysis_profile,
-                    baseline_period,
-                    current_period,
-                    significant_dims.get("overall_change_calc"),
-                )
+                # TODO GLE removed since requires update to table schema.
+                # insert_processing_info(
+                #     config.analysis_profile,
+                #     baseline_period,
+                #     current_period,
+                #     significant_dims.get("overall_change_calc"),
+                # )
 
                 # nothing significant found.
                 if significant_dims == {}:

@@ -99,6 +99,61 @@ class DimensionEvaluator(ABC):
         return output
 
     @staticmethod
+    def _calculate_diff(df: DataFrame) -> DataFrame:
+        """
+        :param df:
+            Expected columns are ['dimension_value_n', 'metric_value', 'dimension_n', 'timeframe']
+            - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca').  The
+             'n' is an integer index to account for multi dimensional processing.
+            - 'metric_value' column contains the measure.
+            - multiple 'dimension_n' column contains one value, the name of the dimension (e.g.
+             'country'). The 'n' is an integer index to account for multi dimensional processing.
+            - 'timeframe' column values are either "current" or "baseline".
+        :return: df
+            Columns are ['dimension_value_n', 'diff', 'dimension_n']
+            - multiple 'dimension_value_n' columns contain the dimension values (e.g. 'ca') provided
+             in input. Multiple dimension_value columns with numeric indicators may be present if
+              the calculation is completed for multiple dimensions.
+            - 'percent_change' contains the percent change from the baseline value to to current
+             value for each dimension_value
+            - 'dimension_n' columns contain the dimension name (e.g. country). Multiple dimension
+             columns with numeric indicators may be present if the calculation is completed for
+              multiple dimensions.
+        """
+        # Find the columns that contain dimension values so they can be set as the index.
+        dimension_value_cols = DimensionEvaluator.dimension_value_cols(df)
+
+        # TODO GLE sorting df to have baseline before current, hacky.
+        prepared_df = (
+            df.set_index(["timeframe"] + dimension_value_cols)["metric_value"]
+            .unstack(dimension_value_cols)
+            .sort_index()
+        )
+        # calc percent change and drop unneeded index, replace and drop np.inf values.
+        # TODO GLE PerformanceWarning: dropping on a non-lexsorted multi-index without a level
+        #  parameter may impact performance.
+        diff_df = (
+            prepared_df.diff()
+            .dropna(how="all")
+            .reset_index()
+            .drop(columns="timeframe")
+            .replace([np.inf, -np.inf], np.nan)
+            .dropna(axis="columns")
+        )
+        output = diff_df.T
+        output.columns = ["diff"]
+        # pull dimension value out of index
+        output = output.reset_index()
+
+        output = output.sort_values(by="diff", key=abs, ascending=False, ignore_index=True)
+
+        # Carry the dimension label through by getting the columns that contain the dimension names.
+        dimension_cols = DimensionEvaluator.dimension_cols(df)
+        for col in dimension_cols:
+            output[col] = df[col].values[0]
+        return output
+
+    @staticmethod
     def _contribution_to_overall_change(row) -> float:
         parent_current_value = row["parent_current"]
         parent_baseline_value = row["parent_baseline"]

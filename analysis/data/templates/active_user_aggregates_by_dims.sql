@@ -21,6 +21,13 @@ FROM (
             AND submission_date < '{{ end_date }}'
             AND app_name = "{{app_name}}"
             AND a.country = c.code
+            {% if exclude_dimension_values %}
+                {% for dim in exclude_dimension_values -%}
+                AND {{dim.dimension}} NOT IN (
+                    {{ '\"' + dim.dim_values|join('\", \"') + '\"' }}
+                )
+                {%- endfor %}
+              {% endif %}
         GROUP BY
             submission_date,
             {{full_dim_spec}}

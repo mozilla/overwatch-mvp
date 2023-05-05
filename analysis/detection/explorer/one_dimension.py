@@ -43,6 +43,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             app_name=self.profile.dataset.app_name,
             date_range=self.current_period,
             dimensions=[dimension],
+            excluded_dimensions=self.profile.percent_change.exclude_dimension_values,
         )
         current_by_dimension["timeframe"] = "current"
         baseline_by_dimension = MetricLookupManager().get_metric_by_dimensions_with_date_range(
@@ -51,6 +52,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
             app_name=self.profile.dataset.app_name,
             date_range=self.baseline_period,
             dimensions=[dimension],
+            excluded_dimensions=self.profile.percent_change.exclude_dimension_values,
         )
         baseline_by_dimension["timeframe"] = "baseline"
 
@@ -77,6 +79,7 @@ class OneDimensionEvaluator(DimensionEvaluator):
         for dimension in self.profile.percent_change.dimensions:
             values = self._get_current_and_baseline_values(dimension=dimension)
             percent_change_df = self._calculate_percent_change(df=values)
+            diff_df = self._calculate_diff(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 current_df=values
             )
@@ -86,8 +89,16 @@ class OneDimensionEvaluator(DimensionEvaluator):
                 change_in_proportion_df=change_in_proportion_df,
             )
 
+            dimension_value_cols = DimensionEvaluator.dimension_value_cols(df=values)
+            dimension_cols = DimensionEvaluator.dimension_cols(df=values)
+            raw_values = values.astype({"metric_value": "int64"}).pivot_table(
+                "timeframe", dimension_cols + dimension_value_cols, "timeframe"
+            )
+
             data_frames = [
+                raw_values,
                 percent_change_df,
+                diff_df,
                 contrib_to_overall_change_df,
                 change_in_proportion_df,
                 change_distance_df,

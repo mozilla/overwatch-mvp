@@ -42,6 +42,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             app_name=self.profile.dataset.app_name,
             date_range=self.current_period,
             dimensions=dimensions,
+            excluded_dimensions=self.profile.percent_change.exclude_dimension_values,
         )
         current["timeframe"] = "current"
         baseline = MetricLookupManager().get_metric_by_dimensions_with_date_range(
@@ -50,6 +51,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
             app_name=self.profile.dataset.app_name,
             date_range=self.baseline_period,
             dimensions=dimensions,
+            excluded_dimensions=self.profile.percent_change.exclude_dimension_values,
         )
         baseline["timeframe"] = "baseline"
 
@@ -83,6 +85,7 @@ class MultiDimensionEvaluator(DimensionEvaluator):
         for pair in dim_permutations:
             values = self._get_current_and_baseline_values(dimensions=list(pair))
             percent_change_df = self._calculate_percent_change(df=values)
+            diff_df = self._calculate_diff(df=values)
             contrib_to_overall_change_df = self._calculate_contribution_to_overall_change(
                 current_df=values
             )
@@ -92,10 +95,17 @@ class MultiDimensionEvaluator(DimensionEvaluator):
                 contrib_to_overall_change_df=contrib_to_overall_change_df,
                 change_in_proportion_df=change_in_proportion_df,
             )
+            dimension_value_cols = DimensionEvaluator.dimension_value_cols(df=values)
+            dimension_cols = DimensionEvaluator.dimension_cols(df=values)
+            raw_values = values.astype({"metric_value": "int64"}).pivot_table(
+                "timeframe", dimension_cols + dimension_value_cols, "timeframe"
+            )
 
             data_frames = [
+                raw_values,
                 change_distance_df,
                 percent_change_df,
+                diff_df,
                 contrib_to_overall_change_df,
                 change_in_proportion_df,
             ]

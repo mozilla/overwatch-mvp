@@ -41,8 +41,8 @@ stop:
 	docker stop ${CONTAINER_NAME}
 
 # circleCI tasks
-test-image: ## Builds test Docker image containing all dev requirements
+test_image: ## Builds test Docker image containing all dev requirements
 	docker build --no-cache -t ${TEST_IMAGE_NAME} --target=test -f Dockerfile .
 
-ci_test: test-image ## Builds test Docker image and executes Python tests
+ci_test: test_image ## Builds test Docker image and executes Python tests
 	docker run ${TEST_IMAGE_NAME} python -m pytest tests analysis

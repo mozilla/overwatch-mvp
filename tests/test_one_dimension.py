@@ -78,3 +78,29 @@ def test_change_in_proportion(
     )._calculate_change_in_proportion(current_df=dimension_df)
 
     assert_frame_equal(expected_df, change_in_proportion)
+
+
+def test_diff(
+    mock_baseline_period,
+    mock_current_period,
+    dimension_df,
+    mock_parent_df,
+    mock_analysis_profile,
+):
+    rows = [
+        ["mx", 4.0, "country"],
+        ["ca", 3.0, "country"],
+        ["us", 1.0, "country"],
+    ]
+
+    cols = ["dimension_value_0", "diff", "dimension_0"]
+    expected_df = DataFrame(rows, columns=cols)
+
+    diff = OneDimensionEvaluator(
+        profile=mock_analysis_profile,
+        baseline_period=mock_baseline_period,
+        current_period=mock_current_period,
+        parent_df=mock_parent_df,
+    )._calculate_diff(df=dimension_df)
+
+    assert_frame_equal(expected_df, diff)
